@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/App.dart';
+import 'package:dear_deer_demo/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -29,5 +29,8 @@ void main() async {
   // 디버깅 체크 로그
   logger.d('Debug check');
 
-  runApp(const App());
+  // 임시 유저 로그인 값 할당
+  bool isLogined = false;
+
+  runApp(App(isLogined: isLogined));
 }
