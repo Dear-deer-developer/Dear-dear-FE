@@ -14,12 +14,19 @@ class LoginMain extends StatelessWidget {
   Widget _body(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Center(
-            child: SizedBox(
-              width: 50.w,
-              height: 50.h,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 80.h),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    borderRadius: BorderRadius.circular(10.r)),
+                width: 300.w,
+                height: 45.h,
+                child: Center(child: Text("로그인 테스트")),
+              ),
             ),
           )
         ],
