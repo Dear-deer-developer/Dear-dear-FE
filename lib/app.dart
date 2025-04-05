@@ -2,6 +2,7 @@ import 'package:dear_deer_demo/view/home.dart';
 import 'package:dear_deer_demo/view/login/login_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class App extends StatelessWidget {
   final bool isLogined;
@@ -11,7 +12,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(360, 720), // figma 기준 사이즈, 임시 값
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Dear.deer Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
