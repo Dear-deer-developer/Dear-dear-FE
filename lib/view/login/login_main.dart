@@ -1,5 +1,7 @@
+import 'package:dear_deer_demo/view/calender_test.dart/test_ksh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class LoginMain extends StatelessWidget {
   const LoginMain({super.key});
@@ -22,13 +24,19 @@ class LoginMain extends StatelessWidget {
               child: Column(
                 children: [
                   // 캘린더 연습 - 성현
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10.r)),
-                    width: 300.w,
-                    height: 45.h,
-                    child: const Center(child: Text("캘린더 연습 성현")),
+                  GestureDetector(
+                    onTap: () {
+                      // GetX Page 이동 : Get.to()
+                      Get.to(const CalenderTestKsh());
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10.r)),
+                      width: 300.w,
+                      height: 45.h,
+                      child: const Center(child: Text("캘린더 연습 성현")),
+                    ),
                   ),
                   // 캘린더 연습 - 채림
                   Container(
