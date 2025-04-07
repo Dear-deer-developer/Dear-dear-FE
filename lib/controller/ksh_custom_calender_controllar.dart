@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-class CustomCalenderController extends GetxController {
+class CustomCalendarController extends GetxController {
   // 현재 날짜를 저장합니다. (앱 실행 시점의 날짜)
   final DateTime now = DateTime.now();
 

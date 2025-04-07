@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/controller/custom_calender_controller.dart';
+import 'package:dear_deer_demo/controller/custom_calender_controllar.dart';
 import 'package:dear_deer_demo/view/calender_test.dart/date_registration_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,9 +12,9 @@ class CustomCalender extends StatefulWidget {
 }
 
 class _CustomCalendarState extends State<CustomCalender> {
-  // GetX를 통해 등록된 CustomCalenderController 인스턴스를 가져옴
-  final CustomCalenderController controller =
-      Get.find<CustomCalenderController>();
+  // GetX를 통해 등록된 CustomCalendarController 인스턴스를 가져옴
+  final CustomCalendarController controller =
+      Get.find<CustomCalendarController>();
 
   // PageView를 위한 PageController 선언
   late PageController _pageController;
@@ -159,7 +159,7 @@ class _CustomRow extends StatelessWidget {
 }
 
 // _BlankDay: 캘린더에서 날짜가 없는 빈 칸을 표시하는 위젯
-class _BlankDay extends GetView<CustomCalenderController> {
+class _BlankDay extends GetView<CustomCalendarController> {
   final DateTime date;
 
   const _BlankDay(this.date);
@@ -207,7 +207,7 @@ class _BlankDay extends GetView<CustomCalenderController> {
 }
 
 // MARK: - _DayWidget: 실제 날짜를 표시하고 터치 이벤트를 통해 날짜 선택/해제 로직을 처리하는 위젯
-class _DayWidget extends GetView<CustomCalenderController> {
+class _DayWidget extends GetView<CustomCalendarController> {
   final DateTime date;
 
   const _DayWidget(this.date);
