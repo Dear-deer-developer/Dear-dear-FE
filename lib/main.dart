@@ -5,6 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
+import 'package:get/get.dart'; // Get 패키지 추가
+
+import 'package:dear_deer_demo/controller/calendar_controller.dart'; // 컨트롤러 import
+
+
 
 // logger 설정
 Logger logger = Logger(
@@ -31,8 +36,12 @@ void main() async {
   // 디버깅 체크 로그
   logger.d('Debug check');
 
+  // 컨트롤러 등록
+  Get.put(CalendarController());
+
   // 임시 유저 로그인 값 할당
   bool isLogined = false;
+
 
   Get.put(CustomCalenderController());
   runApp(App(isLogined: isLogined));
