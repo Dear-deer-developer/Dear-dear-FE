@@ -1,6 +1,8 @@
 import 'package:dear_deer_demo/app.dart';
+import 'package:dear_deer_demo/controller/custom_calender_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
 import 'package:get/get.dart'; // Get 패키지 추가
@@ -40,5 +42,7 @@ void main() async {
   // 임시 유저 로그인 값 할당
   bool isLogined = false;
 
-  runApp(App(isLogined: isLogined));  
+
+  Get.put(CustomCalenderController());
+  runApp(App(isLogined: isLogined));
 }
