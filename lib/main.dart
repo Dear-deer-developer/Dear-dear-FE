@@ -6,7 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
 
 import 'package:dear_deer_demo/controller/calendar_controller.dart'; // 컨트롤러 import
-import 'package:dear_deer_demo/controller/custom_calender_controllar.dart';
+import 'package:dear_deer_demo/controller/ksh_custom_calender_controllar.dart';
 
 // logger 설정
 Logger logger = Logger(
@@ -34,11 +34,11 @@ void main() async {
   logger.d('Debug check');
 
   // 컨트롤러 등록
+  Get.put(CustomCalendarController()); // ksh calendar controller
   Get.put(CalendarController());
 
   // 임시 유저 로그인 값 할당
   bool isLogined = false;
 
-  Get.put(CustomCalendarController()); // ksh calendar controller
   runApp(App(isLogined: isLogined));
 }

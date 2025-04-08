@@ -7,4 +7,3 @@ class CalendarController {
     selectedMonth = month;
   }
 }
-
