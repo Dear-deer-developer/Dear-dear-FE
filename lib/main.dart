@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
 
-import 'package:dear_deer_demo/controller/calendar_controller.dart'; // 컨트롤러 import
-import 'package:dear_deer_demo/controller/ksh_custom_calender_controllar.dart';
+import 'package:dear_deer_demo/controller/test_calendar/cse/calendar_controller.dart'; // 컨트롤러 import
+import 'package:dear_deer_demo/controller/test_calendar/ksh/ksh_custom_calender_controllar.dart';
 
 // logger 설정
 Logger logger = Logger(

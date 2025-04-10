@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../controller/calendar_controller.dart';
+import '../../../controller/test_calendar/cse/calendar_controller.dart';
 
 final calendarController = Get.find<CalendarController>();
 
@@ -85,7 +85,8 @@ class CalendarBottomSheet extends StatelessWidget {
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
                             color: Colors.redAccent,
-                            child: const Icon(Icons.delete, color: Colors.white),
+                            child:
+                                const Icon(Icons.delete, color: Colors.white),
                           ),
                           onDismissed: (direction) {
                             calendarController.deleteEvent(date, e);

@@ -1,9 +1,11 @@
-import 'package:dear_deer_demo/controller/calendar/ycr_calendar_cotroller.dart';
-import 'package:dear_deer_demo/view/calendar/ycr_event_bottom_sheet.dart';
+import 'package:dear_deer_demo/controller/test_calendar/ycr/ycr_calendar_cotroller.dart';
+import 'package:dear_deer_demo/view/test_calendar/ycr/calendar/ycr_event_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class YcrCalendar extends StatefulWidget {
+  const YcrCalendar({super.key});
+
   @override
   State<YcrCalendar> createState() => _YcrCalendarState();
 }
@@ -199,7 +201,7 @@ class _YcrCalendarState extends State<YcrCalendar> {
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
-                          "$event",
+                          event,
                           style: const TextStyle(fontSize: 16),
                           textAlign: TextAlign.left,
                         ),

@@ -1,8 +1,8 @@
-import 'package:dear_deer_demo/view/calender_test.dart/test_ksh.dart';
-import 'package:dear_deer_demo/view/calendar/ycr_calendar.dart';
+import 'package:dear_deer_demo/view/test_calendar/ksh/calender_test.dart/test_ksh.dart';
+import 'package:dear_deer_demo/view/test_calendar/ycr/calendar/ycr_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dear_deer_demo/view/calendar_screen.dart'; // 경로 수정
+import 'package:dear_deer_demo/view/test_calendar/cse/calendar_screen.dart'; // 경로 수정
 import 'package:get/get.dart';
 
 class LoginMain extends StatelessWidget {
@@ -43,7 +43,7 @@ class LoginMain extends StatelessWidget {
                   // 캘린더 연습 - 채림
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(YcrCalendar());
+                      Get.to(const YcrCalendar());
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
@@ -63,7 +63,7 @@ class LoginMain extends StatelessWidget {
                   // 캘린더 연습 - 성은 (Get.to 사용)
                   GestureDetector(
                     onTap: () {
-                      Get.to(() => CalendarScreen());
+                      Get.to(() => const CalendarScreen());
                     },
                     child: Container(
                       decoration: BoxDecoration(

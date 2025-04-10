@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../controller/calendar_controller.dart';
+import '../../../controller/test_calendar/cse/calendar_controller.dart';
 import 'calendar_bottom_sheet.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
       final events = calendarController.getEventsForDate(currentDay);
       final hasEvent = events.isNotEmpty;
-      final maxEventsToShow = 3;
+      const maxEventsToShow = 3;
 
       days.add(
         Expanded(
@@ -94,11 +94,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               margin: const EdgeInsets.all(4),
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
               decoration: BoxDecoration(
-                color: isToday
-                    ? const Color.fromARGB(255, 192, 198, 255)
-                    : null,
+                color:
+                    isToday ? const Color.fromARGB(255, 192, 198, 255) : null,
                 border: hasEvent
-                    ? Border.all(color: const Color.fromARGB(255, 50, 47, 255), width: 2)
+                    ? Border.all(
+                        color: const Color.fromARGB(255, 50, 47, 255), width: 2)
                     : null,
                 borderRadius: BorderRadius.circular(5),
               ),
@@ -118,23 +118,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                   const SizedBox(height: 4),
                   ...events.take(maxEventsToShow).map(
-                    (event) => Padding(
-                      padding: const EdgeInsets.only(bottom: 2),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          event.length > 8
-                              ? "${event.substring(0, 8)}.."
-                              : event,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.black87,
-                            overflow: TextOverflow.ellipsis,
+                        (event) => Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              event.length > 8
+                                  ? "${event.substring(0, 8)}.."
+                                  : event,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.black87,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
                   if (events.length > maxEventsToShow)
                     const Text(
                       "•..",

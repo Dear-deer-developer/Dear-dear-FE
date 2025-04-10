@@ -1,5 +1,5 @@
-import 'package:dear_deer_demo/controller/ksh_custom_calender_controllar.dart';
-import 'package:dear_deer_demo/view/calender_test.dart/date_registration_overlay.dart';
+import 'package:dear_deer_demo/controller/test_calendar/ksh/ksh_custom_calender_controllar.dart';
+import 'package:dear_deer_demo/view/test_calendar/ksh/calender_test.dart/date_registration_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
