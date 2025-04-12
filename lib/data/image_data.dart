@@ -21,5 +21,5 @@ class ImageData extends StatelessWidget {
 class ImagePath {
   //static String get 사용할이름 => 'assets/images/파일이름.png';
   static String get botNavIcon => 'assets/images/temp_bot_nav_icon.png';
-  static String get homeBgImage => 'assets/images/temop_home.png';
+  static String get homeBgImage => 'assets/images/temp_home.png';
 }

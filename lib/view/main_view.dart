@@ -14,12 +14,13 @@ class MainView extends GetView<BottomNavController> {
   Widget build(BuildContext context) {
     return Obx(
       () => PopScope(
+        // 뒤로가기
         canPop: true,
         onPopInvoked: (didPop) {
           controller.popAction();
         },
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: false, // 키보드 픽셀 over 방지
           body: SafeArea(child: _body()),
           bottomNavigationBar: const BottomNav(),
         ),
