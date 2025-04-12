@@ -1,4 +1,5 @@
 import 'package:dear_deer_demo/app.dart';
+import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -36,9 +37,10 @@ void main() async {
   // 컨트롤러 등록
   Get.put(CustomCalendarController()); // ksh calendar controller
   Get.put(CalendarController());
+  Get.put(BottomNavController()); // 바텀 네비게이션 컨트롤러
 
   // 임시 유저 로그인 값 할당
-  bool isLogined = false;
-
+  // bool isLogined = false; // 값 없음
+  bool isLogined = true; // 값 있음
   runApp(App(isLogined: isLogined));
 }
