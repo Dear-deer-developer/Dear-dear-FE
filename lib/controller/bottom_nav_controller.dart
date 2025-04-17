@@ -17,7 +17,7 @@ class BottomNavController extends GetxController {
   // index getter
   int get index => _pageIndex.value;
 
-  // MARK: - 페이지 이동 & 스크롤 업 처리
+  // MARK: - 페이지 이동 & 스크롤 업 처리 ( 해당 뷰의 상단으로 스크롤 업 )
   void changeIndex(int pageIndex) {
     var page = Page.values[pageIndex];
     try {
@@ -38,6 +38,7 @@ class BottomNavController extends GetxController {
         }
       }
     } catch (e) {
+      // error 발생 시 로그 출력
       logger.e('Scroll up failed: $e');
     }
     _moveToPage(pageIndex);
