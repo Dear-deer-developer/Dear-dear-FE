@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/view/home.dart';
 import 'package:dear_deer_demo/view/test_calendar/ksh/calender_test.dart/test_ksh.dart';
 import 'package:dear_deer_demo/view/test_calendar/ycr/calendar/ycr_calendar.dart';
 import 'package:flutter/material.dart';
@@ -75,13 +76,16 @@ class LoginMain extends StatelessWidget {
                     ),
                   ),
                   // 임시 로그인 버튼
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.yellow,
-                        borderRadius: BorderRadius.circular(10.r)),
-                    width: 300.w,
-                    height: 45.h,
-                    child: const Center(child: Text("로그인 테스트")),
+                  GestureDetector(
+                    onTap: () => Get.to(() => const Home()),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.yellow,
+                          borderRadius: BorderRadius.circular(10.r)),
+                      width: 300.w,
+                      height: 45.h,
+                      child: const Center(child: Text("로그인 테스트")),
+                    ),
                   ),
                 ],
               ),
