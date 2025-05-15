@@ -51,7 +51,7 @@ void main() async {
   Get.lazyPut(() => ContentsController());
 
   // 임시 유저 로그인 값 할당
-  // bool isLogined = false; // 값 없음
-  bool isLogined = true; // 값 있음
+  bool isLogined = false; // 값 없음
+  // bool isLogined = true; // 값 있음
   runApp(App(isLogined: isLogined));
 }
