@@ -27,3 +27,32 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/
+
+fonts:
+    - family: KakaoSmallSansBold
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Bold.ttf
+
+    - family: KakaoSmallSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Regular.ttf
+
+    - family: KakaoSmallSansLight
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Light.ttf
+
+    - family: KakaoBigSansBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Bold.ttf
+
+    - family: KakaoBigSansExtraBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
+
+    - family: KakaoBigSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Regular.ttf
+
+    - family: LeeSeoyun
+      fonts:
+        - asset: assets/fonts/LeeSeoyun.ttf

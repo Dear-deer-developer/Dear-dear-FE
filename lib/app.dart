@@ -21,6 +21,7 @@ class App extends StatelessWidget {
           ),
           // 로그인 정보가 없으면 LoginMain() 페이지로, 있으면 Home() 페이지로 이동
           home: isLogined ? const MainView() : const LoginMain(),
+          debugShowCheckedModeBanner: false, // Debug 배너 없애기
         );
       },
     );

@@ -1,4 +1,6 @@
+import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/home.dart';
+import 'package:dear_deer_demo/view/login/sign_up_first.dart';
 import 'package:dear_deer_demo/view/test_calendar/ksh/calender_test.dart/test_ksh.dart';
 import 'package:dear_deer_demo/view/test_calendar/ycr/calendar/ycr_calendar.dart';
 import 'package:flutter/material.dart';
@@ -77,14 +79,12 @@ class LoginMain extends StatelessWidget {
                   ),
                   // 임시 로그인 버튼
                   GestureDetector(
-                    onTap: () => Get.to(() => const Home()),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.yellow,
-                          borderRadius: BorderRadius.circular(10.r)),
-                      width: 300.w,
-                      height: 45.h,
-                      child: const Center(child: Text("로그인 테스트")),
+                    // onTap: () => Get.to(() => const Home()),
+                    onTap: () => Get.to(() => const SignUpFirst()),
+                    child: Image.asset(
+                      ImagePath.kakaoLoginButton,
+                      width: 312.w,
+                      height: 48.h,
                     ),
                   ),
                 ],
