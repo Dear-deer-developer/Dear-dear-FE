@@ -80,7 +80,7 @@ class LoginMain extends StatelessWidget {
                   // 임시 로그인 버튼
                   GestureDetector(
                     // onTap: () => Get.to(() => const Home()),
-                    onTap: () => Get.to(() => const SignUpFirst()),
+                    onTap: () => Get.to(() => SignUpFirst()),
                     child: Image.asset(
                       ImagePath.kakaoLoginButton,
                       width: 312.w,

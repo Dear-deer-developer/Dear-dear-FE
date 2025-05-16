@@ -25,4 +25,6 @@ class ImagePath {
 
   // MARK: - Login
   static String get kakaoLoginButton => 'assets/images/kakao_login_button.png';
+  static String get nicknameDeletdButton =>
+      'assets/images/nickname_delete_button.png';
 }
