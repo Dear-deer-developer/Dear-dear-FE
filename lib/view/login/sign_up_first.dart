@@ -2,6 +2,8 @@ import 'package:dear_deer_demo/controller/login/sign_up_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/main.dart';
+import 'package:dear_deer_demo/widget/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -136,24 +138,19 @@ class SignUpFirst extends StatelessWidget {
         () {
           // 활성화 여부 확인
           bool isActive = signUpController.nickname.value.isNotEmpty;
+          bool isPressed = signUpController.isPressed.value;
 
-          return GestureDetector(
-            onTap: isActive ? () {} : null,
-            child: Container(
-              width: double.infinity,
-              height: 48.h,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isActive ? AppColors.mainGreen : AppColors.G_01,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Text(
-                '확인하기',
-                style: FontStyles.Button_bold_17.copyWith(
-                  color: isActive ? Colors.white : AppColors.G_02,
-                ),
-              ),
-            ),
+          return CustomCheckButton(
+            text: '확인하기',
+            isActive: isActive,
+            isPressed: isPressed,
+            onTap: isActive
+                ? () => logger
+                    .i(signUpController.nickname.value) // 입력된 닉네임 logger로 확인
+                : null,
+            onTapDown: () => signUpController.setPressed(true),
+            onTapUp: () => signUpController.setPressed(false),
+            onTapCancel: () => signUpController.setPressed(false),
           );
         },
       ),

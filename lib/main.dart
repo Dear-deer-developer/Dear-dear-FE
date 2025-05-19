@@ -6,6 +6,7 @@ import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
@@ -22,18 +23,26 @@ Logger logger = Logger(
   ),
 );
 
-void main() async {
+Future<void> main() async {
   // Widget 시스템 초기화 ( 플랫폼 채널 사용 등 사전 준비 )
   WidgetsFlutterBinding.ensureInitialized();
+
   // 상태바, UI 표시 설정
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: SystemUiOverlay.values);
+
   // 가로모드 X
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   // 앱 내 정보 한국으로 변경
   await initializeDateFormatting('ko_KR', null);
+
   // 디버깅 체크 로그
   logger.d('Debug check');
+
+  // .env 파일 로드
+  await dotenv.load();
+  logger.d('환경 변수 로드 완료');
 
   // MARK: - 컨트롤러 등록
   /*
