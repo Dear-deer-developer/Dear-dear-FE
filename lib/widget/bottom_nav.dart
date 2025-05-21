@@ -11,7 +11,7 @@ class BottomNav extends GetView<BottomNavController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56.h,
+      height: 87.h,
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -38,29 +38,25 @@ class BottomNav extends GetView<BottomNavController> {
           backgroundColor: Colors.white,
           items: [
             BottomNavigationBarItem(
-                icon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                activeIcon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                label: '홈'),
+              icon: Image.asset(ImagePath.homeIcon, width: 24.w, height: 24.h),
+              activeIcon: Image.asset(ImagePath.homeIconSelected, width: 24.w, height: 24.h),
+              label: '홈',
+            ),
             BottomNavigationBarItem(
-                icon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                activeIcon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                label: '우체국'),
+              icon: Image.asset(ImagePath.postBoxIcon, width: 24.w, height: 24.h),
+              activeIcon: Image.asset(ImagePath.postBoxIconSelected, width: 24.w, height: 24.h),
+              label: '우체국',
+            ),
             BottomNavigationBarItem(
-                icon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                activeIcon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                label: '캘린더'),
+              icon: Image.asset(ImagePath.calendarIconS, width: 24.w, height: 24.h),
+              activeIcon: Image.asset(ImagePath.calendarIconSelected, width: 24.w, height: 24.h),
+              label: '캘린더',
+            ),
             BottomNavigationBarItem(
-                icon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                activeIcon: Image.asset(ImagePath.botNavIcon,
-                    width: 25.w, height: 25.h),
-                label: '콘텐츠'),
+              icon: Image.asset(ImagePath.contentIcon, width: 24.w, height: 24.h),
+              activeIcon: Image.asset(ImagePath.contentIconSelected, width: 24.w, height: 24.h),
+              label: '콘텐츠',
+            ),
           ],
         ),
       ),
