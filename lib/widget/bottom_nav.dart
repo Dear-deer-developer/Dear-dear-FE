@@ -10,54 +10,64 @@ class BottomNav extends GetView<BottomNavController> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 87.h,
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5), // 색상
-            spreadRadius: 10.r, // 그림자 확산 범위
-            blurRadius: 15, // 그림자의 흐림 정도, 값이 클수록 흐릿해지면서 가장자리가 부드러워짐
-            offset: Offset(0, 8.h), // 그림자 위치 y축으로 아래로 1만큼 감.
-          ),
-        ],
-      ),
-      // ios기기에서 발생하는 오버플로 현상 해결
-      child: OverflowBox(
-        maxHeight: double.infinity,
-        child: BottomNavigationBar(
-          currentIndex: controller.index,
-          onTap: controller.changeIndex,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.mainRed,
-          unselectedItemColor: Colors.grey,
-          selectedLabelStyle: TextStyle(fontSize: 8.sp),
-          unselectedLabelStyle: TextStyle(fontSize: 8.sp),
-          backgroundColor: Colors.white,
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(ImagePath.homeIcon, width: 24.w, height: 24.h),
-              activeIcon: Image.asset(ImagePath.homeIconSelected, width: 24.w, height: 24.h),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(ImagePath.postBoxIcon, width: 24.w, height: 24.h),
-              activeIcon: Image.asset(ImagePath.postBoxIconSelected, width: 24.w, height: 24.h),
-              label: '우체국',
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(ImagePath.calendarIconS, width: 24.w, height: 24.h),
-              activeIcon: Image.asset(ImagePath.calendarIconSelected, width: 24.w, height: 24.h),
-              label: '캘린더',
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(ImagePath.contentIcon, width: 24.w, height: 24.h),
-              activeIcon: Image.asset(ImagePath.contentIconSelected, width: 24.w, height: 24.h),
-              label: '콘텐츠',
+    return Obx(
+      () => Container(
+        height: 87.h,
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // 색상
+              spreadRadius: 10.r, // 그림자 확산 범위
+              blurRadius: 15, // 그림자의 흐림 정도, 값이 클수록 흐릿해지면서 가장자리가 부드러워짐
+              offset: Offset(0, 8.h), // 그림자 위치 y축으로 아래로 1만큼 감.
             ),
           ],
+        ),
+        // ios기기에서 발생하는 오버플로 현상 해결
+        child: OverflowBox(
+          maxHeight: double.infinity,
+          child: BottomNavigationBar(
+            currentIndex: controller.index,
+            onTap: controller.changeIndex,
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: AppColors.mainRed,
+            unselectedItemColor: Colors.grey,
+            selectedLabelStyle: TextStyle(fontSize: 8.sp),
+            unselectedLabelStyle: TextStyle(fontSize: 8.sp),
+            backgroundColor: Colors.white,
+            items: [
+              BottomNavigationBarItem(
+                icon:
+                    Image.asset(ImagePath.homeIcon, width: 24.w, height: 24.h),
+                activeIcon: Image.asset(ImagePath.homeIconSelected,
+                    width: 24.w, height: 24.h),
+                label: '홈',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset(ImagePath.postBoxIcon,
+                    width: 24.w, height: 24.h),
+                activeIcon: Image.asset(ImagePath.postBoxIconSelected,
+                    width: 24.w, height: 24.h),
+                label: '우체국',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset(ImagePath.calendarIconS,
+                    width: 24.w, height: 24.h),
+                activeIcon: Image.asset(ImagePath.calendarIconSelected,
+                    width: 24.w, height: 24.h),
+                label: '캘린더',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset(ImagePath.contentIcon,
+                    width: 24.w, height: 24.h),
+                activeIcon: Image.asset(ImagePath.contentIconSelected,
+                    width: 24.w, height: 24.h),
+                label: '콘텐츠',
+              ),
+            ],
+          ),
         ),
       ),
     );
