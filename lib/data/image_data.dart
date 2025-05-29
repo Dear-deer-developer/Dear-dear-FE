@@ -28,6 +28,11 @@ class ImagePath {
   static String get calendarIconSelected => 'assets/images/icon_calendar_selected.png';
   static String get contentIcon => 'assets/images/icon_content.png';
   static String get contentIconSelected => 'assets/images/icon_content_selected.png';
+  
+  static String get deerPost => 'assets/images/post_deer.png';
+
+  static String get letterImage => 'assets/images/letter.png';
+  static String get letterBoxImage => 'assets/images/letterbox.png';
 
   static String get homeBgImage => 'assets/images/temp_home.png';
 

@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/controller/letter/select_recipient_controller.dart';
+import 'package:dear_deer_demo/controller/post/select_recipient_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:flutter/material.dart';
