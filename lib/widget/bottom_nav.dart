@@ -17,7 +17,7 @@ class BottomNav extends GetView<BottomNavController> {
           BoxShadow(
             color: Colors.grey.withOpacity(0.5), // 색상
             spreadRadius: 10.r, // 그림자 확산 범위
-            blurRadius: 15, // 그림자의 흐림 정도, 값이 클수록 흐릿해지면서 가장자리가 부드러워짐
+            blurRadius: 15.r, // 그림자의 흐림 정도, 값이 클수록 흐릿해지면서 가장자리가 부드러워짐
             offset: Offset(0, 8.h), // 그림자 위치 y축으로 아래로 1만큼 감.
           ),
         ],

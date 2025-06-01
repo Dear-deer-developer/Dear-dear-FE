@@ -4,12 +4,20 @@ import 'package:dear_deer_demo/controller/calendar/calendar_controller.dart';
 import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'firebase_options.dart';
+
+// SharedPreferences 선언 - 내부 디스크 이용
+late SharedPreferences sharedPreferences;
 
 // MARK: - logger 설정
 Logger logger = Logger(
@@ -40,9 +48,43 @@ Future<void> main() async {
   // 디버깅 체크 로그
   logger.d('Debug check');
 
+  // Futures
+  final firebaseFuture = Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  final dotEnvFuture = dotenv.load();
+  final sharedPrefFuture = SharedPreferences.getInstance();
+
   // .env 파일 로드
-  await dotenv.load();
+  await dotEnvFuture;
   logger.d('환경 변수 로드 완료');
+
+  // Kakao SDK 초기화
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']);
+  logger.d("Kakao SDK 초기화 완료");
+
+  // SharedPreferences 로드
+  sharedPreferences = await sharedPrefFuture;
+
+  // 사용자 세션 확인 및 컨트롤러 등록 등
+  await _init();
+
+  // 임시 유저 로그인 값 할당
+  bool isLogined = false; // 값 없음
+  // bool isLogined = true; // 값 있음
+  runApp(App(isLogined: isLogined));
+}
+
+// MARK: - 앱 시작 시 유저 상태 및 컨트롤러 초기화
+Future<void> _init() async {
+  bool? isRegistered = sharedPreferences.getBool('is_registered');
+  if (isRegistered == true) {
+    final userJson = sharedPreferences.getString("user_json");
+    if (userJson != null) {
+      logger.i("저장된 사용자 정보 존재");
+      // ex : 캐시 메모리나 GetX 상태에 넣을 수 있음
+    }
+  }
 
   // MARK: - 컨트롤러 등록
   /*
@@ -58,9 +100,4 @@ Future<void> main() async {
   Get.lazyPut(() => PostController());
   Get.lazyPut(() => CalendarController());
   Get.lazyPut(() => ContentsController());
-
-  // 임시 유저 로그인 값 할당
-  bool isLogined = false; // 값 없음
-  // bool isLogined = true; // 값 있음
-  runApp(App(isLogined: isLogined));
 }
