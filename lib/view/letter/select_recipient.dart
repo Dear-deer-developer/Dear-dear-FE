@@ -27,7 +27,16 @@ class _SelectRecipientState extends State<SelectRecipient> {
         actions: [
           // 상단 확인 버튼.
           TextButton(
-            onPressed: controller.confirmSelection,
+            onPressed: () {
+              final selectedIdx = controller.selectedIdx.value;
+              if (selectedIdx != null) {
+                final friend = controller.filteredFriends[selectedIdx];
+                final name = friend['name'] ?? '';
+                Get.back(result: name);
+              } else {
+                Get.back();
+              }
+            },
             child: Text(
               '확인',
               style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
