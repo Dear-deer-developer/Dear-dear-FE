@@ -37,7 +37,7 @@ class transferCompleted extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 70),
             child: Image.asset(
-              'assets/images/image_letter.png',
+              'assets/images/letter.png',
               width: 220.w,
               height: 220.h,
             ),

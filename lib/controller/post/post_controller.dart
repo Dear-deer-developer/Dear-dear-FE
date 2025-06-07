@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/view/%08letter/%20transfer_completed.dart';
 import 'package:dear_deer_demo/view/%08letter/draft_screen.dart';
 import 'package:dear_deer_demo/view/%08letter/select_letter_paper_screen.dart';
 import 'package:dear_deer_demo/view/%08letter/write_letter_screen.dart';
@@ -45,7 +46,7 @@ class PostController extends GetxController {
   /// 보낸 편지함 화면으로 이동합니다.
   /// 현재는 준비 중임을 알리는 스낵바를 표시합니다.
   void openSentLetters() {
-    Get.snackbar('알림', '보낸 편지함 기능은 준비 중이에요!');
+    Get.to(() => const transferCompleted());
   }
 
   /// 임시보관함 화면으로 이동합니다.

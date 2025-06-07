@@ -40,7 +40,7 @@ class ReceivedLetter extends StatelessWidget {
             child: Opacity(
               opacity: 0.2,
               child: Image.asset(
-                'assets/images/image_letter_black.png',
+                'assets/images/letter_black.png',
                 width: double.infinity,
                 height: 400.h,
                 fit: BoxFit.contain,
