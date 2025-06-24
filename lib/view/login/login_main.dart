@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/home.dart';
 import 'package:dear_deer_demo/view/login/sign_up_first.dart';
@@ -28,6 +29,7 @@ class LoginMain extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 80.h),
               child: Column(
                 children: [
+                  /*
                   // 캘린더 연습 - 성현
                   GestureDetector(
                     onTap: () {
@@ -77,7 +79,19 @@ class LoginMain extends StatelessWidget {
                       child: const Center(child: Text("캘린더 연습 성은")),
                     ),
                   ),
-                  // 임시 로그인 버튼
+                  */
+                  // MARK: - 카카오 로그인 테스트 버튼
+                  GestureDetector(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                        color: AppColors.mainGreen,
+                      ),
+                      width: 312.w,
+                      height: 48.h,
+                    ),
+                  ),
+                  // MARK: - 로그인 버튼
                   GestureDetector(
                     // onTap: () => Get.to(() => const Home()),
                     onTap: () => Get.to(() => SignUpFirst()),
