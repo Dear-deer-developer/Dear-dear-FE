@@ -3,13 +3,11 @@ description: "A new Flutter project."
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
-  smooth_page_indicator: ^1.2.1
 
   cupertino_icons: ^1.0.6
   logger: ^2.5.0
@@ -21,7 +19,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+
   flutter_lints: ^3.0.0
+
 
 flutter:
   uses-material-design: true
@@ -29,30 +29,30 @@ flutter:
     - assets/images/
 
 fonts:
-  - family: KakaoSmallSansBold
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Bold.ttf
+    - family: KakaoSmallSansBold
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Bold.ttf
 
-  - family: KakaoSmallSansRegular
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Regular.ttf
+    - family: KakaoSmallSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Regular.ttf
 
-  - family: KakaoSmallSansLight
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Light.ttf
+    - family: KakaoSmallSansLight
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Light.ttf
 
-  - family: KakaoBigSansBold
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-Bold.ttf
+    - family: KakaoBigSansBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Bold.ttf
 
-  - family: KakaoBigSansExtraBold
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
+    - family: KakaoBigSansExtraBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
 
-  - family: KakaoBigSansRegular
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-Regular.ttf
+    - family: KakaoBigSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Regular.ttf
 
-  - family: LeeSeoyun
-    fonts:
-      - asset: assets/fonts/LeeSeoyun.ttf
+    - family: LeeSeoyun
+      fonts:
+        - asset: assets/fonts/LeeSeoyun.ttf
