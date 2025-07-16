@@ -1,21 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:dear_deer_demo/controller/admin/admin_contents_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
-class ContentsRecommandView extends StatelessWidget {
+class ScrapView extends StatelessWidget {
   final AdminContentsController controller = Get.find();
 
   final List<String> subjects = [
     '전체 보기',
-    '영화 드라마',
-    '음악',
-    '카페',
+    '콘텐츠 추천',
+    '행사 알림',
   ];
-
-  ContentsRecommandView({super.key});
+  ScrapView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +24,8 @@ class ContentsRecommandView extends StatelessWidget {
       ],
     );
   }
-
 // MARK: 주제 선택
-  /// 전체 보기, 영화 드라마, 음악, 카페 탭을 포함하는 위젯입니다.
-  /// 클릭 시 해당 탭의 테두리가 메인 레드 컬러로 변경되며, 선택되지 않은 탭은 여전히 회색 테두리를 유지합니다.
-  /// 각 탭은 ContentsRecommandController의 selectedSubjectIndex를 통해 관리됩니다.
-  /// 각 탭은 컨트롤러의 subject 리스트에서 가져와 동적으로 생성됩니다.
+
   Widget _subject() => Obx(
         () => Padding(
           padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
@@ -70,9 +64,6 @@ class ContentsRecommandView extends StatelessWidget {
       );
 
 // MARK: 콘텐츠 리스트
-  /// 콘텐츠 추천 탭에서 보여지는 콘텐츠 리스트입니다.
-  /// 현재는 더미 데이터를 사용하여 임의로 3 개만 띄우게 구성하였습니다.
-  /// 각 콘텐츠는 제목, 작성자, 조회수, 스크랩 수 등의 정보를 포함하고 있습니다.
   Widget _contents() {
     return ListView.builder(
       itemCount: 3,
@@ -103,7 +94,7 @@ class ContentsRecommandView extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      "작성자: 가나다라마바",
+                      "작성자: 일이삼사오육",
                       style:
                           FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
                     ),
