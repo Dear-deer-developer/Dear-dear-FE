@@ -53,15 +53,8 @@ class ContentsView extends StatelessWidget {
               onTap: () {
                 Get.to(() => AdminView());
               },
-              child: CircleAvatar(
-                radius: 16.r,
-                backgroundColor: AppColors.G_04,
-                child: Icon(
-                  Icons.person,
-                  size: 18.sp,
-                  color: AppColors.White,
-                ),
-              ),
+              child: Image.asset("assets/images/_people_G_04_48px.png",
+                  width: 48.w, height: 48.h),
             ),
           ),
         ],
