@@ -1,5 +1,6 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/admin/hidden_posts_view.dart';
 import 'package:dear_deer_demo/view/admin/temp_saved_view.dart';
 import 'package:dear_deer_demo/view/admin/write_view.dart';
@@ -39,8 +40,8 @@ class AdminView extends StatelessWidget {
               onTap: () {
                 Get.to(() => AdminView());
               },
-              child: Image.asset("assets/images/_people_G_04_48px.png",
-                  width: 48.w, height: 48.h),
+              child:
+                  Image.asset(ImagePath.adminIcon, width: 48.w, height: 48.h),
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:dear_deer_demo/controller/admin/admin_contents_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/admin/contents_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -8,7 +9,7 @@ import 'package:get/get.dart';
 class EventNotificationView extends StatelessWidget {
   final AdminContentsController controller = Get.find();
 
-// 주제 선택
+  // 주제 선택
   /// 행사 알림 창의 주제는 '전체 보기', '티켓팅 & 예약', '팝업', '축제'로 구성되어 있습니다.
   final List<String> subjects = [
     '전체 보기',
@@ -29,7 +30,7 @@ class EventNotificationView extends StatelessWidget {
     );
   }
 
-// MARK: 주제 선택
+  // MARK: 주제 선택
   /// 전체 보기, 티켓팅 & 예약, 팝업, 축제 탭을 포함하는 위젯입니다.
   /// 클릭 시 해당 탭의 테두리가 메인 레드 컬러로 변경되며, 선택되지 않은 탭은 여전히 회색 테두리를 유지합니다.
   /// 각 탭은 AdminContentsController의 selectedSubjectIndex를 통해 관리됩니다.
@@ -71,53 +72,60 @@ class EventNotificationView extends StatelessWidget {
         ),
       );
 
-// MARK: 콘텐츠 리스트
+  // MARK: 콘텐츠 리스트
+  /// 콘텐츠 항목을 클릭하면 상세페이지로 이동합니다.
   Widget _contents() {
     return ListView.builder(
       itemCount: 3,
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: 32.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 312.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.r),
-                  color: AppColors.G_03,
+        return GestureDetector(
+          onTap: () {
+            // 콘텐츠 클릭 시 상세 페이지로 이동
+            Get.to(() => ContentsDetailView());
+          },
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 32.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 312.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.r),
+                    color: AppColors.G_03,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
-                child: Text(
-                  "콘텐츠 제목 자리입니다.",
-                  style: FontStyles.B1_reg_16,
+                Padding(
+                  padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                  child: Text(
+                    "콘텐츠 제목 자리입니다.",
+                    style: FontStyles.B1_reg_16,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 4.h, bottom: 24.h),
-                child: Row(
-                  children: [
-                    Text(
-                      "작성자: 일이삼사오육",
-                      style:
-                          FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 16.w),
-                      child: Text(
-                        "조회수: 1.3만   스크랩 수: 10만",
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h, bottom: 24.h),
+                  child: Row(
+                    children: [
+                      Text(
+                        "작성자: 일이삼사오육",
                         style: FontStyles.S1_reg_13.copyWith(
                             color: AppColors.G_05),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: EdgeInsets.only(left: 16.w),
+                        child: Text(
+                          "조회수: 1.3만   스크랩 수: 10만",
+                          style: FontStyles.S1_reg_13.copyWith(
+                              color: AppColors.G_05),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

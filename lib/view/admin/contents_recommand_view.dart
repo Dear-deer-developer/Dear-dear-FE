@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/view/admin/contents_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -27,11 +28,7 @@ class ContentsRecommandView extends StatelessWidget {
     );
   }
 
-// MARK: 주제 선택
-  /// 전체 보기, 영화 드라마, 음악, 카페 탭을 포함하는 위젯입니다.
-  /// 클릭 시 해당 탭의 테두리가 메인 레드 컬러로 변경되며, 선택되지 않은 탭은 여전히 회색 테두리를 유지합니다.
-  /// 각 탭은 ContentsRecommandController의 selectedSubjectIndex를 통해 관리됩니다.
-  /// 각 탭은 컨트롤러의 subject 리스트에서 가져와 동적으로 생성됩니다.
+  // MARK: 주제 선택
   Widget _subject() => Obx(
         () => Padding(
           padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
@@ -69,56 +66,58 @@ class ContentsRecommandView extends StatelessWidget {
         ),
       );
 
-// MARK: 콘텐츠 리스트
-  /// 콘텐츠 추천 탭에서 보여지는 콘텐츠 리스트입니다.
-  /// 현재는 더미 데이터를 사용하여 임의로 3 개만 띄우게 구성하였습니다.
-  /// 각 콘텐츠는 제목, 작성자, 조회수, 스크랩 수 등의 정보를 포함하고 있습니다.
+  // MARK: 콘텐츠 리스트
   Widget _contents() {
     return ListView.builder(
       itemCount: 3,
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: 32.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 312.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.r),
-                  color: AppColors.G_03,
+        return GestureDetector(
+          onTap: () {
+            Get.to(() => ContentsDetailView());
+          },
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 32.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 312.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.r),
+                    color: AppColors.G_03,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
-                child: Text(
-                  "콘텐츠 제목 자리입니다.",
-                  style: FontStyles.B1_reg_16,
+                Padding(
+                  padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
+                  child: Text(
+                    "콘텐츠 제목 자리입니다.",
+                    style: FontStyles.B1_reg_16,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 4.h, bottom: 24.h),
-                child: Row(
-                  children: [
-                    Text(
-                      "작성자: 가나다라마바",
-                      style:
-                          FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 16.w),
-                      child: Text(
-                        "조회수: 1.3만   스크랩 수: 10만",
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h, bottom: 24.h),
+                  child: Row(
+                    children: [
+                      Text(
+                        "작성자: 가나다라마바",
                         style: FontStyles.S1_reg_13.copyWith(
                             color: AppColors.G_05),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: EdgeInsets.only(left: 16.w),
+                        child: Text(
+                          "조회수: 1.3만   스크랩 수: 10만",
+                          style: FontStyles.S1_reg_13.copyWith(
+                              color: AppColors.G_05),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
