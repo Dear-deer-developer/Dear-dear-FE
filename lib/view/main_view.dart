@@ -22,6 +22,7 @@ class MainView extends GetView<BottomNavController> {
         child: Scaffold(
           resizeToAvoidBottomInset: false, // 키보드 픽셀 over 방지
           body: SafeArea(child: _body()),
+          // body: _body(),
           bottomNavigationBar: const BottomNav(),
         ),
       ),
@@ -31,7 +32,7 @@ class MainView extends GetView<BottomNavController> {
   Widget _body() {
     return IndexedStack(
       index: controller.index,
-      children: const [
+      children: [
         Home(), // 0
         PostMain(), // 1
         CalendarMain(), // 2
