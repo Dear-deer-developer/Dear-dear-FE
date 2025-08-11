@@ -97,6 +97,20 @@ class FontStyles {
     height: 1.2.h,
   );
 
+  // MARK: - cal
+  static TextStyle C1_bold_14 = TextStyle(
+    fontFamily: 'TJJoyofSinging',
+    fontSize: 14.sp,
+    fontWeight: FontWeight.bold,
+    height: 1.6.h,
+  );
+
+  static TextStyle C2_reg_24 = TextStyle(
+    fontFamily: 'KCC-Ganpan',
+    fontSize: 24.sp,
+    height: 1.3.h,
+  );
+
   // MARK : - Button
   static TextStyle Button_bold_17 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',

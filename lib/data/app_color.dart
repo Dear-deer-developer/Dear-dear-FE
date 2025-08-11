@@ -20,6 +20,7 @@ class AppColors {
   static const Color G_03 = Color(0xFFCCCCCC);
   static const Color G_04 = Color(0xFFBBBBBB);
   static const Color G_05 = Color(0xFFA3A3A3);
+  static const Color G_07 = Color(0xFF555555);
 
   // Sub
   // Sub - Green
