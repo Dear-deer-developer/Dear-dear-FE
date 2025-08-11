@@ -1,4 +1,8 @@
+
 import 'package:dear_deer_demo/view/admin/contents_view.dart';
+
+import 'package:dear_deer_demo/view/%08letter/select_recipient.dart';
+
 import 'package:dear_deer_demo/view/login/login_main.dart';
 import 'package:dear_deer_demo/view/main_view.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +25,8 @@ class App extends StatelessWidget {
             useMaterial3: true,
           ),
           // 로그인 정보가 없으면 LoginMain() 페이지로, 있으면 Home() 페이지로 이동
-          home: ContentsView(),
+          home: isLogined ? const MainView() : const LoginMain(),
+
           debugShowCheckedModeBanner: false, // Debug 배너 없애기
         );
       },
