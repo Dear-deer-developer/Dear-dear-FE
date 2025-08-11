@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 class LetterPreviewController extends GetxController {
   /// 편지 내용을 페이지별 텍스트 리스트로 관리하는 반응형 변수를 지정.
   final RxList<String> pagedTexts = <String>[].obs;
-  
+
   /// 한 페이지에 보여 줄 글자 수를 500 으로 한정.
   final int charsPerPage = 500;
 
