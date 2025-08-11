@@ -40,7 +40,48 @@ class ContentsDetailView extends StatelessWidget {
                 padding: EdgeInsets.only(right: 16.w),
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(() => AdminView());
+                    Get.bottomSheet(
+                      Container(
+                        width: 300.w,
+                        height: 150.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(16.r)),
+                        ),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 12.h),
+                            Container(
+                              width: 40.w,
+                              height: 4.h,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(2.r),
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            Column(
+                              children: [
+                                Text(
+                                  "글 수정",
+                                ),
+                                Divider(),
+                                Text(
+                                  "글 삭제",
+                                ),
+                                Divider(),
+                                Text(
+                                  "글 공개 전환",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
                   },
                   child: Image.asset(ImagePath.adminIcon,
                       width: 48.w, height: 48.h),
@@ -50,7 +91,6 @@ class ContentsDetailView extends StatelessWidget {
           ),
         ],
       );
-
   Widget _photo() => Padding(
         padding: EdgeInsets.only(top: 16.h, bottom: 34.h),
         child: Container(
