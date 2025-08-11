@@ -64,8 +64,9 @@ class _WriteViewState extends State<WriteView> {
           ),
           itemBuilder: (context, index) {
             return Obx(() {
-              final selectedIndex = controller.selectedIndices.indexOf(index);
-              final isSelected = selectedIndex != -1;
+              final selectedIndex =
+                  controller.selectedIndices.indexOf(index); // 순번
+              final isSelected = selectedIndex != -1; // 선택 여부
 
               return GestureDetector(
                 onTap: () => controller.toggleSelection(index),
@@ -74,26 +75,34 @@ class _WriteViewState extends State<WriteView> {
                     Container(
                       color: controller.letterPapers[index],
                     ),
-                    if (isSelected)
-                      Positioned(
-                        top: 4.h,
-                        right: 5.w,
-                        child: Container(
-                          width: 28.w,
-                          height: 28.w,
-                          decoration: BoxDecoration(
-                            color: AppColors.mainRed,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '${selectedIndex + 1}',
-                            style: FontStyles.Button_bold_17.copyWith(
-                              color: AppColors.White,
-                            ),
+                    Positioned(
+                      top: 4.h,
+                      right: 5.w,
+                      child: Container(
+                        width: 28.w,
+                        height: 28.w,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.mainRed
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                isSelected ? Colors.transparent : Colors.grey,
+                            width: 1.5,
                           ),
                         ),
-                      )
+                        alignment: Alignment.center,
+                        child: isSelected
+                            ? Text(
+                                '${selectedIndex + 1}', // 선택 순서
+                                style: FontStyles.Button_bold_17.copyWith(
+                                  color: AppColors.White,
+                                ),
+                              )
+                            : const SizedBox.shrink(), // 선택 안 했을 때도 원 유지
+                      ),
+                    ),
                   ],
                 ),
               );

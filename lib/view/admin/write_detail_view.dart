@@ -82,7 +82,7 @@ class _WriteDetailViewState extends State<WriteDetailView> {
             padding: EdgeInsets.only(right: 16.w),
             child: GestureDetector(
               onTap: () {
-                // 이동 장소 미정
+                print("임시 저장되었습니다.");
               },
               child: Text("임시저장", style: FontStyles.S1_reg_13),
             ),

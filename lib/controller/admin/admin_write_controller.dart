@@ -1,3 +1,6 @@
+import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -32,9 +35,9 @@ class WriteController extends GetxController {
   /// 선택된 편지지 인덱스 리스트에 있으면 제거, 없으면 추가하여 선택 및 해제를 표시합니다.
   void toggleSelection(int index) {
     if (selectedIndices.contains(index)) {
-      selectedIndices.remove(index); // 선택 해제
+      selectedIndices.remove(index);
     } else {
-      selectedIndices.add(index); // 새로 선택
+      selectedIndices.add(index);
     }
   }
 }
