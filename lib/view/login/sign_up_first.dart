@@ -2,7 +2,6 @@ import 'package:dear_deer_demo/controller/login/sign_up_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
-import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/widget/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,8 +10,8 @@ import 'package:get/get.dart';
 class SignUpFirst extends StatelessWidget {
   SignUpFirst({super.key});
 
-  final SignUpController signUpController = Get.put(SignUpController());
-  final TextEditingController _textController = TextEditingController();
+  final SignUpController c = Get.put(SignUpController());
+  final RxBool _pressed = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +33,6 @@ class SignUpFirst extends StatelessWidget {
             child: Text(
               '000 가입을 환영합니다:)\n사용하실 닉네임을 알려주세요!',
               style: FontStyles.H1_bold_22,
-              //  기존 방법
-              // style: TextStyle(
-              //     fontFamily: 'KakaoSmallSansBold',
-              //     fontSize: 22.sp,
-              //     fontWeight: FontWeight.bold),
             ),
           ),
           Text(
@@ -60,9 +54,12 @@ class SignUpFirst extends StatelessWidget {
   // MARK: - 닉네임 입력 필드
   Widget _nicknameInputField() {
     return Obx(() {
-      Color borderColor = signUpController.nickname.value.isEmpty
-          ? AppColors.G_02
-          : AppColors.mainGreen;
+      final hasError = c.errorText.value != null;
+      final isEmpty = c.nickname.value.isEmpty;
+
+      final Color borderColor = hasError
+          ? Colors.red
+          : (isEmpty ? AppColors.G_02 : AppColors.mainGreen);
 
       return Container(
         width: 312.w,
@@ -77,9 +74,9 @@ class SignUpFirst extends StatelessWidget {
           children: [
             Expanded(
               child: TextField(
-                controller: _textController,
-                onChanged: (value) => signUpController.updateNickname(value),
-                maxLength: 5,
+                controller: c.nicknameCtrl,
+                // onChanged: (_) {},
+                maxLength: 16,
                 style: FontStyles.B3_bold_15,
                 textAlignVertical: TextAlignVertical.center,
                 cursorColor: AppColors.mainGreen, // 커서 색상 지정
@@ -95,12 +92,10 @@ class SignUpFirst extends StatelessWidget {
               ),
             ),
             // X 버튼 (닉네임 입력 시에만 표시)
-            if (signUpController.nickname.value.isNotEmpty)
+            if (!isEmpty)
               GestureDetector(
                 onTap: () {
-                  // 닉네임 상태와 TextField 값 초기화
-                  signUpController.updateNickname('');
-                  _textController.clear(); // 텍스트 필드 값 초기화
+                  c.nicknameCtrl.clear();
                 },
                 child: Padding(
                   padding: EdgeInsets.only(right: 5.w),
@@ -115,7 +110,7 @@ class SignUpFirst extends StatelessWidget {
               padding: EdgeInsets.only(right: 15.0.w),
               child: Obx(
                 () => Text(
-                  '${signUpController.nickname.value.length}/5',
+                  '${c.nickname.value.length}/16',
                   style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
                 ),
               ),
@@ -128,32 +123,26 @@ class SignUpFirst extends StatelessWidget {
 
 // MARK: - 확인하기 버튼
   Widget _checkButton(BuildContext context) {
-    // 키보드가 올라와 있으면 패딩을 16으로 설정
     double bottomPadding =
         MediaQuery.of(context).viewInsets.bottom > 0 ? 16.h : 80.h;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPadding),
-      child: Obx(
-        () {
-          // 활성화 여부 확인
-          bool isActive = signUpController.nickname.value.isNotEmpty;
-          bool isPressed = signUpController.isPressed.value;
+      child: Obx(() {
+        final bool isActive = c.canSubmit.value && !c.isSubmitting.value;
+        final bool isPressed = _pressed.value;
+        final bool isLoading = c.isSubmitting.value;
 
-          return CustomCheckButton(
-            text: '확인하기',
-            isActive: isActive,
-            isPressed: isPressed,
-            onTap: isActive
-                ? () => logger
-                    .i(signUpController.nickname.value) // 입력된 닉네임 logger로 확인
-                : null,
-            onTapDown: () => signUpController.setPressed(true),
-            onTapUp: () => signUpController.setPressed(false),
-            onTapCancel: () => signUpController.setPressed(false),
-          );
-        },
-      ),
+        return CustomCheckButton(
+          text: isLoading ? '처리중...' : '확인하기',
+          isActive: isActive && !isLoading,
+          isPressed: isPressed,
+          onTap: isActive ? () => c.submit() : null, // 서버 전송
+          onTapDown: () => _pressed.value = true,
+          onTapUp: () => _pressed.value = false,
+          onTapCancel: () => _pressed.value = false,
+        );
+      }),
     );
   }
 }

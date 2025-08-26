@@ -1,12 +1,12 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/util/helper/auth_helper.dart';
+import 'package:dear_deer_demo/util/helper/kakao_auth_helper.dart';
 import 'package:dear_deer_demo/view/home.dart';
 import 'package:dear_deer_demo/view/login/sign_up_first.dart';
-import 'package:dear_deer_demo/view/test_calendar/ksh/calender_test.dart/test_ksh.dart';
-import 'package:dear_deer_demo/view/test_calendar/ycr/calendar/ycr_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dear_deer_demo/view/test_calendar/cse/calendar_screen.dart'; // 경로 수정
 import 'package:get/get.dart';
 
 class LoginMain extends StatelessWidget {
@@ -29,74 +29,30 @@ class LoginMain extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 80.h),
               child: Column(
                 children: [
-                  /*
-                  // 캘린더 연습 - 성현
+                  // MARK: - 로그인 버튼
                   GestureDetector(
-                    onTap: () {
-                      // GetX Page 이동 : Get.to()
-                      Get.to(const CalenderTestKsh());
+                    onTap: () async {
+                      final auth = Get.find<AuthService>();
+                      final result = await auth.login(KakaoAuthHelper());
+
+                      if (!result.isSuccess) {
+                        Get.snackbar('로그인 실패', '잠시 후 다시 시도해 주세요.');
+                        return;
+                      }
+
+                      if (result.isNewUser) {
+                        // 신규 → 닉네임 입력
+                        Get.offAll(() => SignUpFirst());
+                      } else {
+                        // 기존 → 메인
+                        Get.offAll(() => const Home());
+                      }
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10.r)),
-                      width: 300.w,
-                      height: 45.h,
-                      child: const Center(child: Text("캘린더 연습 성현")),
-                    ),
-                  ),
-                  // 캘린더 연습 - 채림
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.to(const YcrCalendar());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      minimumSize: Size(300.w, 45.h),
-                    ),
-                    child: const Text(
-                      "캘린더 연습 채림",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  // 캘린더 연습 - 성은 (Get.to 사용)
-                  GestureDetector(
-                    onTap: () {
-                      Get.to(() => const CalendarScreen());
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.purple,
-                          borderRadius: BorderRadius.circular(10.r)),
-                      width: 300.w,
-                      height: 45.h,
-                      child: const Center(child: Text("캘린더 연습 성은")),
-                    ),
-                  ),
-                  */
-                  // MARK: - 카카오 로그인 테스트 버튼
-                  GestureDetector(
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.r),
                         color: AppColors.mainGreen,
                       ),
-                      width: 312.w,
-                      height: 48.h,
-                    ),
-                  ),
-                  // MARK: - 로그인 버튼
-                  GestureDetector(
-                    // onTap: () => Get.to(() => const Home()),
-                    onTap: () => Get.to(() => SignUpFirst()),
-                    child: Image.asset(
-                      ImagePath.kakaoLoginButton,
                       width: 312.w,
                       height: 48.h,
                     ),
@@ -108,5 +64,25 @@ class LoginMain extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // MARK: - 로그인 함수
+  Future<void> login(AuthHelper helper) async {
+    final auth = Get.find<AuthService>();
+    final result = await auth.login(helper);
+
+    if (!result.isSuccess) {
+      Get.snackbar("로그인 실패", "로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+
+    // 신규가입 여부에 따라 분기
+    if (result.isNewUser) {
+      // 닉네임/프로필 등록 화면
+      Get.offAll(() => SignUpFirst());
+    } else {
+      // 메인 화면
+      Get.offAll(() => const Home());
+    }
   }
 }

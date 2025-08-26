@@ -4,6 +4,8 @@ import 'package:dear_deer_demo/controller/calendar/calendar_controller.dart';
 import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
+import 'package:dear_deer_demo/service/api_service.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,13 +68,17 @@ Future<void> main() async {
   // SharedPreferences 로드
   sharedPreferences = await sharedPrefFuture;
 
+  // Firebase 초기화 완료 대기
+  await firebaseFuture;
+
   // 사용자 세션 확인 및 컨트롤러 등록 등
   await _init();
 
-  // 임시 유저 로그인 값 할당
-  bool isLogined = false; // 값 없음
-  // bool isLogined = true; // 값 있음
-  runApp(App(isLogined: isLogined));
+  // 앱 시작 전에 전역 서비스 주입
+  Get.put<ApiService>(ApiService(), permanent: true);
+  Get.put<AuthService>(AuthService(), permanent: true);
+
+  runApp(const App());
 }
 
 // MARK: - 앱 시작 시 유저 상태 및 컨트롤러 초기화
