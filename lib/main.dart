@@ -1,15 +1,16 @@
 import 'package:dear_deer_demo/app.dart';
-import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
-import 'package:dear_deer_demo/controller/calendar/calendar_controller.dart';
-import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
-import 'package:dear_deer_demo/controller/home/home_controller.dart';
-import 'package:dear_deer_demo/controller/post/post_controller.dart';
-import 'package:dear_deer_demo/service/api_service.dart';
+import 'package:dear_deer_demo/binding/main_bindings.dart';
+import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/util/mem_cache.dart';
+import 'package:dear_deer_demo/view/login/login_main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
@@ -20,6 +21,14 @@ import 'firebase_options.dart';
 
 // SharedPreferences 선언 - 내부 디스크 이용
 late SharedPreferences sharedPreferences;
+
+class SharedPreferencesKeys {
+  static const String isRegistered = "is_registered";
+  static const String dDayData = "dday_data";
+
+  static const String deardeerUserJson = "user_json";
+  static const String firebaseToken = "token";
+}
 
 // MARK: - logger 설정
 Logger logger = Logger(
@@ -71,39 +80,70 @@ Future<void> main() async {
   // Firebase 초기화 완료 대기
   await firebaseFuture;
 
-  // 사용자 세션 확인 및 컨트롤러 등록 등
+  // 캐시 복구
   await _init();
 
-  // 앱 시작 전에 전역 서비스 주입
-  Get.put<ApiService>(ApiService(), permanent: true);
-  Get.put<AuthService>(AuthService(), permanent: true);
+  runApp(Phoenix(child: const MyApp()));
+}
 
-  runApp(const App());
+Future<void> _init() async {
+  final isRegistered =
+      sharedPreferences.getBool(SharedPreferencesKeys.isRegistered) ?? false;
+
+  if (isRegistered) {
+    final cachedUser =
+        sharedPreferences.getString(SharedPreferencesKeys.deardeerUserJson);
+    final fbUser = FirebaseAuth.instance.currentUser;
+
+    if (fbUser != null && cachedUser != null) {
+      // 메모리 캐시에 적재
+      MemCache.put(MemCacheKey.deardeerUserJson, cachedUser);
+      final idToken = await fbUser.getIdToken();
+      MemCache.put(MemCacheKey.firebaseAuthIdToken, idToken);
+    }
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ScreenUtilInit(
+      designSize: const Size(360, 720),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, __) => GetMaterialApp(
+        title: 'Dear.deer Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+          scaffoldBackgroundColor: AppColors.bgColor,
+        ),
+        initialBinding: MainBindings(),
+        home: const _RootGate(),
+      ),
+    );
+  }
+}
+
+class _RootGate extends StatelessWidget {
+  const _RootGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Get.find<AuthService>();
+    final bool loggedIn = auth.user.value != null; // 캐시 복구 성공 시 true
+    return loggedIn ? const App() : const LoginMain();
+  }
 }
 
 // MARK: - 앱 시작 시 유저 상태 및 컨트롤러 초기화
-Future<void> _init() async {
-  bool? isRegistered = sharedPreferences.getBool('is_registered');
-  if (isRegistered == true) {
-    final userJson = sharedPreferences.getString("user_json");
-    if (userJson != null) {
-      logger.i("저장된 사용자 정보 존재");
-      // ex : 캐시 메모리나 GetX 상태에 넣을 수 있음
-    }
-  }
-
-  // MARK: - 컨트롤러 등록
-  /*
-  Get.put(CustomCalendarController()); // ksh calendar controller
-  Get.put(CalendarController());
-  */
-  /// 바텀 네비게이션 컨트롤러
-  /// bot_nav는 항상 필요하므로 Get.put 사용
-  /// 컨트롤러 lazyPut 등록
-  Get.put(BottomNavController());
-
-  Get.lazyPut(() => HomeController());
-  Get.lazyPut(() => PostController());
-  Get.lazyPut(() => CalendarController());
-  Get.lazyPut(() => ContentsController());
+Future<void> resetApp() async {
+  Get.deleteAll(force: true);
+  MemCache.clear();
+  await _init();
+  Phoenix.rebirth(Get.context!);
+  Get.reset();
 }

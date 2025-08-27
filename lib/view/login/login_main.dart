@@ -1,4 +1,7 @@
-import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/app.dart';
+import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
+import 'package:dear_deer_demo/main.dart'
+    show sharedPreferences, SharedPreferencesKeys;
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:dear_deer_demo/util/helper/auth_helper.dart';
@@ -29,30 +32,41 @@ class LoginMain extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 80.h),
               child: Column(
                 children: [
+                  // MARK: - 아이콘
+                  Image.asset(
+                    ImagePath.loginIcon,
+                    width: 215.w,
+                    height: 215.h,
+                  ),
+                  SizedBox(
+                    height: 251.h,
+                  ),
                   // MARK: - 로그인 버튼
                   GestureDetector(
                     onTap: () async {
-                      final auth = Get.find<AuthService>();
-                      final result = await auth.login(KakaoAuthHelper());
+                      final result = await Get.find<AuthService>()
+                          .login(KakaoAuthHelper());
 
                       if (!result.isSuccess) {
                         Get.snackbar('로그인 실패', '잠시 후 다시 시도해 주세요.');
                         return;
                       }
 
+                      sharedPreferences.setBool(
+                          SharedPreferencesKeys.isRegistered,
+                          !result.isNewUser);
+
                       if (result.isNewUser) {
                         // 신규 → 닉네임 입력
                         Get.offAll(() => SignUpFirst());
                       } else {
-                        // 기존 → 메인
-                        Get.offAll(() => const Home());
+                        // 기존 → home
+                        Get.find<BottomNavController>().resetToHome();
+                        Get.offAll(() => const App());
                       }
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        color: AppColors.mainGreen,
-                      ),
+                    child: Image.asset(
+                      ImagePath.kakaoLoginButton,
                       width: 312.w,
                       height: 48.h,
                     ),
@@ -82,7 +96,8 @@ class LoginMain extends StatelessWidget {
       Get.offAll(() => SignUpFirst());
     } else {
       // 메인 화면
-      Get.offAll(() => const Home());
+      Get.find<BottomNavController>().resetToHome();
+      Get.offAll(() => const App());
     }
   }
 }

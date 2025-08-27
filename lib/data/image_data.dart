@@ -27,4 +27,15 @@ class ImagePath {
   static String get kakaoLoginButton => 'assets/images/kakao_login_button.png';
   static String get nicknameDeletdButton =>
       'assets/images/nickname_delete_button.png';
+  static String get loginIcon => 'assets/images/main_icon_login_page.png';
+
+  // MARK: - Bot_nav_icon
+  static String get homeOn => 'assets/images/home_on.png';
+  static String get homeOff => 'assets/images/home_off.png';
+  static String get postOn => 'assets/images/post_on.png';
+  static String get postOff => 'assets/images/post_off.png';
+  static String get calenderOn => 'assets/images/calender_on.png';
+  static String get calenderOff => 'assets/images/calender_off.png';
+  static String get contentsOn => 'assets/images/contents_on.png';
+  static String get contentsOff => 'assets/images/contents_off.png';
 }

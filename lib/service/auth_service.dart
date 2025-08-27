@@ -18,7 +18,23 @@ class AuthService extends GetxService {
 
   @override
   void onInit() {
-    // 1) 캐시 복구 (WeTeam 패턴)
+    try {
+      final cached = sharedPreferences
+          .getString('user_json'); // SharedPreferencesKeys.deardeerUserJson 권장
+      if (cached != null && cached.isNotEmpty) {
+        user.value = DeardeerUser.fromJson(jsonDecode(cached));
+      }
+      final savedToken = sharedPreferences
+          .getString('token'); // SharedPreferencesKeys.firebaseToken 권장
+      if (savedToken != null && savedToken.isNotEmpty) {
+        token = savedToken;
+      }
+    } catch (_) {
+      user.value = null;
+    }
+
+    // 1) 캐시 복구
+
     final firebaseIdToken = MemCache.get(MemCacheKey.firebaseAuthIdToken);
     final userJson = MemCache.get(MemCacheKey.deardeerUserJson);
 
@@ -74,6 +90,7 @@ class AuthService extends GetxService {
       final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
       if (idToken != null && idToken.isNotEmpty) {
         MemCache.put(MemCacheKey.firebaseAuthIdToken, idToken);
+        await sharedPreferences.setString('token', idToken);
       }
 
       // 4) 캐시된 user_json 복구 (있으면)
@@ -142,33 +159,6 @@ class AuthService extends GetxService {
     }
   }
 
-  /// 닉네임 등록/수정 후 최신 유저를 반영 (백엔드 응답으로만 user 세팅)
-  // Future<DeardeerUser?> setNicknameAndRefresh(String nickname) async {
-  //   try {
-  //     final api = Get.find<ApiService>();
-  //     final u = await api.setNickname(nickname);
-  //     if (u != null) {
-  //       user.value = u;
-
-  //       // 캐싱 (MemCache + SharedPreferences)
-  //       final jsonStr = jsonEncode({
-  //         'pri': u.pri,
-  //         'providerId': u.providerId,
-  //         'nickname': u.nickname,
-  //         'imageIdx': u.imageIdx,
-  //         'createdAt': u.createdAt?.toIso8601String(),
-  //       });
-  //       MemCache.put(MemCacheKey.deardeerUserJson, jsonStr);
-  //       await sharedPreferences.setString('user_json', jsonStr);
-  //     }
-  //     return u;
-  //   } catch (e, st) {
-  //     debugPrint("닉네임 반영 실패: $e");
-  //     debugPrintStack(stackTrace: st);
-  //     return null;
-  //   }
-  // }
-
   /// 외부에서 user_json을 전달받아 반영하고 싶을 때 사용(옵션)
   void setUserFromJsonString(String jsonStr) {
     try {
@@ -193,9 +183,6 @@ class AuthService extends GetxService {
         if (nn is String && nn.trim().isNotEmpty) {
           return false; // 닉네임 있으면 기존 사용자
         }
-        // 만약 profile 기반 판단을 쓰고 싶다면:
-        // final profile = map['profile'];
-        // if (profile is Map) return false;
       }
     } catch (_) {/* ignore */}
     return true;
