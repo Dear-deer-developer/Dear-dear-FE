@@ -18,13 +18,23 @@ class Home extends GetView<HomeController> {
     return Column(
       children: [
         _topWidget(),
-        // 임시 홈 배경화면
+        // 홈배경
         Expanded(
-          child: Image.asset(
-            ImagePath.homeBgImage,
-            fit: BoxFit.cover,
-            width: double.infinity,
-          ),
+          child: Obx(() {
+            final bgPath = controller.isNight.value
+                ? ImagePath.homeBgImagePm // 밤
+                : ImagePath.homeBgImageAm; // 낮
+
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              child: Image.asset(
+                bgPath,
+                key: ValueKey(bgPath),
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            );
+          }),
         ),
       ],
     );

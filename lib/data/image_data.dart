@@ -38,4 +38,8 @@ class ImagePath {
   static String get calenderOff => 'assets/images/calender_off.png';
   static String get contentsOn => 'assets/images/contents_on.png';
   static String get contentsOff => 'assets/images/contents_off.png';
+
+  // MARK: - Home
+  static String get homeBgImagePm => 'assets/images/home_bgimage_pm.png'; // 밤
+  static String get homeBgImageAm => 'assets/images/home_bgimage_am.png'; // 낮
 }

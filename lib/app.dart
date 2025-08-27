@@ -157,8 +157,8 @@ class _NavItem extends StatelessWidget {
               // 아이콘
               ImageData(
                 path: selected ? iconOn : iconOff,
-                width: 28.w,
-                height: 28.h,
+                width: 48.w,
+                height: 48.h,
               ),
               SizedBox(height: 4.h),
               // 라벨
