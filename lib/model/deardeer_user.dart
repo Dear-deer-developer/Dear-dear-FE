@@ -3,9 +3,9 @@ import 'package:dear_deer_demo/model/deardeer_profile.dart';
 class DeardeerUser {
   int id;
   String? username;
-  String? email; // 서버 스펙에 따라 optional
-  String? organization; // optional
-  String? role; // optional
+  String? email;
+  String? organization;
+  // String? role;
   DeardeerProfile? profile;
 
   DeardeerUser({
@@ -13,7 +13,7 @@ class DeardeerUser {
     required this.username,
     required this.email,
     this.organization,
-    this.role,
+    // this.role,
     this.profile,
   });
 
@@ -29,7 +29,7 @@ class DeardeerUser {
       username: json['username'] as String?,
       email: json['email'] as String?,
       organization: json['organization'] as String?,
-      role: json['role'] as String?,
+      // role: json['role'] as String?,
       profile: profile,
     );
   }

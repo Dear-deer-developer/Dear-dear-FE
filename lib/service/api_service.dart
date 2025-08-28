@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ApiService extends CustomGetConnect implements GetxService {
-  // final String _baseUrl = "https://dearxmas.com";
   final String _baseUrl = "https://dearxmas.com";
 
   @override
