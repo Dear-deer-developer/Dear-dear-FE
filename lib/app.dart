@@ -1,3 +1,5 @@
+import 'package:dear_deer_demo/view/admin/contents_view.dart';
+
 import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';

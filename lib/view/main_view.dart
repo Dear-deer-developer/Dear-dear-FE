@@ -31,11 +31,11 @@ class MainView extends GetView<BottomNavController> {
   Widget _body() {
     return IndexedStack(
       index: controller.index,
-      children: const [
-        Home(), // 0
+      children: [
+        const Home(), // 0
         PostMain(), // 1
-        CalendarMain(), // 2
-        ContentsMain(), // 3
+        const CalendarMain(), // 2
+        const ContentsMain(), // 3
       ],
     );
   }
