@@ -6,6 +6,7 @@ import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:logger/logger.dart';
@@ -54,4 +55,14 @@ void main() async {
   // bool isLogined = false; // 값 없음
   bool isLogined = true; // 값 있음
   runApp(App(isLogined: isLogined));
+
+  // MARK: -
+  MaterialApp(
+    // 한글 로케일 초기화용 위젯 세팅
+    // 날짜, 시간, 위젯 텍스트 등을 한국어로 표시하기 위한 필수 설정
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
+
+    // 지원 로케일 리스트 지정 (여기서는 한국어)
+    supportedLocales: [Locale('ko', 'KR')],
+  );
 }

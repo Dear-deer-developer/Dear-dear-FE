@@ -106,7 +106,7 @@ class FontStyles {
   );
 
   static TextStyle C2_reg_24 = TextStyle(
-    fontFamily: 'KCC-Ganpan',
+    fontFamily: 'KCCGanpan',
     fontSize: 24.sp,
     height: 1.3.h,
   );

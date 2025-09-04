@@ -15,10 +15,14 @@ dependencies:
   flutter_screenutil: ^5.9.3
   get: ^4.7.2
 
+  modal_bottom_sheet: ^3.0.0
+  table_calendar: ^3.0.0
+  flutter_localizations:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
 
   flutter_lints: ^3.0.0
 
@@ -28,31 +32,39 @@ flutter:
   assets:
   - assets/images/
 
-fonts:
-    - family: KakaoSmallSansBold
-      fonts:
-        - asset: assets/fonts/KakaoSmallSans-Bold.ttf
+  fonts:
+      - family: KakaoSmallSansBold
+        fonts:
+          - asset: assets/fonts/KakaoSmallSans-Bold.ttf
 
-    - family: KakaoSmallSansRegular
-      fonts:
-        - asset: assets/fonts/KakaoSmallSans-Regular.ttf
+      - family: KakaoSmallSansRegular
+        fonts:
+          - asset: assets/fonts/KakaoSmallSans-Regular.ttf
 
-    - family: KakaoSmallSansLight
-      fonts:
-        - asset: assets/fonts/KakaoSmallSans-Light.ttf
+      - family: KakaoSmallSansLight
+        fonts:
+          - asset: assets/fonts/KakaoSmallSans-Light.ttf
 
-    - family: KakaoBigSansBold
-      fonts:
-        - asset: assets/fonts/KakaoBigSans-Bold.ttf
+      - family: KakaoBigSansBold
+        fonts:
+          - asset: assets/fonts/KakaoBigSans-Bold.ttf
 
-    - family: KakaoBigSansExtraBold
-      fonts:
-        - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
+      - family: KakaoBigSansExtraBold
+        fonts:
+          - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
 
-    - family: KakaoBigSansRegular
-      fonts:
-        - asset: assets/fonts/KakaoBigSans-Regular.ttf
+      - family: KakaoBigSansRegular
+        fonts:
+          - asset: assets/fonts/KakaoBigSans-Regular.ttf
 
-    - family: LeeSeoyun
-      fonts:
-        - asset: assets/fonts/LeeSeoyun.ttf
+      - family: LeeSeoyun
+        fonts:
+          - asset: assets/fonts/LeeSeoyun.ttf
+
+      - family: TJJoyofSinging
+        fonts:
+          - asset: assets/fonts/TJJoyofSinging.ttf
+
+      - family: KCCGanpan
+        fonts:
+          - asset: assets/fonts/KCC-Ganpan.ttf

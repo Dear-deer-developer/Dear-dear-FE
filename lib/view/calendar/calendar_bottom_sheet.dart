@@ -1,28 +1,40 @@
+import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../controller/test_calendar/cse/calendar_controller.dart';
+import '../../../controller/calendar/calendar_controller.dart';
 
 final calendarController = Get.find<CalendarController>();
 
 class CalendarBottomSheet extends StatelessWidget {
   final DateTime date;
+  final List<CalendarEvent> events;
+  final void Function(String) onDeleteEvent;
 
-  const CalendarBottomSheet({super.key, required this.date});
+  const CalendarBottomSheet({
+    Key? key,
+    required this.date,
+    required this.events,
+    required this.onDeleteEvent,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // 날짜 포맷
-    final String formattedDate = DateFormat('dd.').format(date);
+    final String formattedDate = DateFormat('d.').format(date);
     final String weekDay = DateFormat('E', 'ko').format(date); // 요일
     final Duration dDay = DateTime(date.year, 12, 25).difference(date);
     final int dDayCount = dDay.inDays;
 
     return FractionallySizedBox(
       child: Container(
-        padding: const EdgeInsets.all(20),
+        height: 300.h,
+        padding: const EdgeInsets.only(top: 15, left: 30, right: 30),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.bgColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -32,7 +44,7 @@ class CalendarBottomSheet extends StatelessWidget {
             Center(
               child: Container(
                 width: 40,
-                height: 4,
+                height: 5,
                 margin: const EdgeInsets.only(bottom: 15),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -47,105 +59,83 @@ class CalendarBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   "$formattedDate $weekDay",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
                 ),
                 Text(
-                  "🎄D-Day ${dDayCount >= 0 ? dDayCount : 0}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  "D-${dDayCount >= 0 ? dDayCount : 0}",
+                  style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
                 ),
               ],
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
             // 일정 목록
-            Obx(() {
-              final events = calendarController.getEventsForDate(date);
-              if (events.isEmpty) {
-                return const Text(
-                  "등록된 일정이 없습니다.",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: events
-                    .map((e) => Dismissible(
-                          key: Key(e),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 20),
-                            color: Colors.redAccent,
-                            child:
-                                const Icon(Icons.delete, color: Colors.white),
-                          ),
-                          onDismissed: (direction) {
-                            calendarController.deleteEvent(date, e);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              "✔️$e",
-                              style: const TextStyle(fontSize: 14),
+            events.isEmpty
+                ? Text("등록된 일정이 없습니다.",
+                    style: FontStyles.B1_reg_16.copyWith(color: AppColors.G_03))
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: events
+                        .map(
+                          (event) => Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10.h),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 카테고리 등 기준 컬러라인 (예시로 왼쪽 세로선)
+                                Container(
+                                  width: 3.w,
+                                  height: 40.h,
+                                  margin:
+                                      EdgeInsets.only(right: 10.w, top: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: _categoryColor(event.category),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                // 제목과 메모를 Column으로
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(event.title,
+                                          style: FontStyles.B1_bold_15.copyWith(
+                                              color: AppColors.Black)),
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        event.memo,
+                                        style: FontStyles.B1_reg_13.copyWith(
+                                            color: AppColors.G_06),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ))
-                    .toList(),
-              );
-            }),
-
-            const Spacer(),
-
-            // 일정 추가 버튼
-            ElevatedButton(
-              onPressed: () => _showAddEventDialog(context, date),
-              child: const Text("일정 추가"),
-            ),
-
-            const SizedBox(height: 16),
+                        )
+                        .toList(),
+                  )
           ],
         ),
       ),
     );
   }
 
-  // 일정 추가 다이얼로그
-  void _showAddEventDialog(BuildContext context, DateTime date) {
-    TextEditingController eventController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("일정 추가"),
-        content: TextField(
-          controller: eventController,
-          decoration: const InputDecoration(labelText: "일정 내용"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("취소"),
-          ),
-          TextButton(
-            onPressed: () {
-              final event = eventController.text.trim();
-              if (event.isNotEmpty) {
-                calendarController.addEvent(date, event);
-              }
-              Navigator.pop(context);
-            },
-            child: const Text("추가"),
-          ),
-        ],
-      ),
-    );
+  Color _categoryColor(String category) {
+    switch (category) {
+      case '약속':
+        return Colors.red;
+      case '팝업':
+        return Colors.green;
+      case '티켓팅&예약':
+        return Colors.yellow;
+      case '기타':
+        return Colors.black;
+      default:
+        return Colors.grey;
+    }
   }
 }
