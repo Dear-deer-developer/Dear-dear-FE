@@ -58,7 +58,7 @@ class ScrapView extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20.r),
                       ),
-                      child: Text(text, style: FontStyles.B1_reg_15),
+                      child: Text(text, style: FontStyles.B3_reg_15),
                     ),
                   ),
                 );
@@ -79,7 +79,7 @@ class ScrapView extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             // 콘텐츠 클릭 시 상세 페이지로 이동
-            Get.to(() => ContentsDetailView());
+            Get.to(() => const ContentsDetailView());
           },
           child: Padding(
             padding: EdgeInsets.only(bottom: 32.h),
@@ -98,7 +98,7 @@ class ScrapView extends StatelessWidget {
                   padding: EdgeInsets.only(top: 8.h, bottom: 4.h),
                   child: Text(
                     "콘텐츠 제목 자리입니다.",
-                    style: FontStyles.B1_reg_16,
+                    style: FontStyles.B2_reg_16,
                   ),
                 ),
                 Padding(

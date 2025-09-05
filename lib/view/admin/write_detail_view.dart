@@ -1,4 +1,3 @@
-import 'package:dear_deer_demo/controller/admin/admin_write_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/view/admin/catagory_select_view.dart';
@@ -7,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class WriteDetailView extends StatefulWidget {
-  WriteDetailView({super.key});
+  const WriteDetailView({super.key});
 
   @override
   State<WriteDetailView> createState() => _WriteDetailViewState();
@@ -140,12 +139,12 @@ class _WriteDetailViewState extends State<WriteDetailView> {
                   controller: _contentController,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
-                  style: FontStyles.B1_reg_16.copyWith(
+                  style: FontStyles.B2_reg_16.copyWith(
                     color: AppColors.Black,
                   ),
                   decoration: InputDecoration(
                     hintText: "본문 내용을 입력하세요.",
-                    hintStyle: FontStyles.B1_reg_16.copyWith(
+                    hintStyle: FontStyles.B2_reg_16.copyWith(
                       color: AppColors.G_05,
                     ),
                     border: InputBorder.none,

@@ -98,15 +98,15 @@ class _DraftsScreenState extends State<DraftsScreen> {
           children: [
             TextSpan(
               text: "총 ",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
             ),
             TextSpan(
               text: "${drafts.length}",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.mainRed),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.mainRed),
             ),
             TextSpan(
               text: "개",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
             ),
           ],
         ),
@@ -118,15 +118,15 @@ class _DraftsScreenState extends State<DraftsScreen> {
           children: [
             TextSpan(
               text: "총 ",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
             ),
             TextSpan(
               text: "${selectedIndexes.length}",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.mainRed),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.mainRed),
             ),
             TextSpan(
               text: "개 선택됨",
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
             ),
           ],
         ),
@@ -165,7 +165,7 @@ class _DraftsScreenState extends State<DraftsScreen> {
   Widget _buildDraftList() {
     return ListView.separated(
       itemCount: drafts.length,
-      separatorBuilder: (_, __) => Divider(
+      separatorBuilder: (_, __) => const Divider(
         color: AppColors.G_02,
         height: 1,
         thickness: 1,
@@ -182,7 +182,8 @@ class _DraftsScreenState extends State<DraftsScreen> {
 
   /// 임시 편지 하나를 표시하는 위젯입니다.
   /// 삭제 모드일 때는 체크박스가 표시되고, 탭하여 선택/해제할 수 있습니다.
-  Widget _buildDraftItem(Map<String, String> draft, int index, bool isSelected) {
+  Widget _buildDraftItem(
+      Map<String, String> draft, int index, bool isSelected) {
     return InkWell(
       onTap: isSelectMode
           ? () {
@@ -207,7 +208,8 @@ class _DraftsScreenState extends State<DraftsScreen> {
                 children: [
                   Text(
                     "Dear. ${draft['nickname']}",
-                    style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+                    style:
+                        FontStyles.L1_reg_20.copyWith(color: AppColors.Black),
                   ),
                   SizedBox(height: 6.h),
                   Text(
@@ -254,7 +256,7 @@ class _DraftsScreenState extends State<DraftsScreen> {
               child: Container(
                 width: 16.w,
                 height: 16.w,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.mainRed,
                 ),

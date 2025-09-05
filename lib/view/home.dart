@@ -1,5 +1,6 @@
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/view/profile/profile_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,46 +16,135 @@ class Home extends GetView<HomeController> {
   }
 
   Widget _body(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        _topWidget(),
-        // 임시 홈 배경화면
-        Expanded(
-          child: Image.asset(
-            ImagePath.homeBgImage,
-            fit: BoxFit.cover,
-            width: double.infinity,
+        // === 배경 ===
+        Positioned.fill(
+          child: Obx(() {
+            final bgPath = controller.isNight.value
+                ? ImagePath.homeBgImagePm
+                : ImagePath.homeBgImageAm;
+
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              child: Transform.translate(
+                offset: Offset(0, -75.h),
+                child: Transform.scale(
+                  key: ValueKey(bgPath),
+                  scale: 1.02,
+                  child: Image.asset(
+                    bgPath,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    alignment: Alignment.center,
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+
+        // MARK: - 위젯
+        SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _topWidget(), // 상단바
+              _mainWidget(), // 메인 트리
+            ],
           ),
         ),
+        _bottomIcon(context), // 하단 아이콘
       ],
     );
   }
 
+  // MARK: - 상단 위젯
   Widget _topWidget() {
     return Padding(
-      padding:
-          EdgeInsets.only(left: 24.w, right: 20.w, top: 14.h, bottom: 10.h),
+      padding: EdgeInsets.only(left: 12.w, right: 7.w, top: 24.h, bottom: 15.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 94.w,
-            height: 38.h,
-            decoration: const BoxDecoration(
-              color: Color(0xFFD9D9D9),
-            ),
+          Image.asset(
+            ImagePath.homeTopWidget,
+            width: 88.w,
+            height: 46.h,
           ),
-          // 프로필 이미지
-          Container(
-            width: 36.w,
-            height: 36.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFD9D9D9),
-            ),
+          SizedBox(
+            height: 5.h,
           ),
+          GestureDetector(
+              onTap: () {
+                Get.to(() => const ProfileMain());
+              },
+              child: _profileIcon()),
         ],
       ),
+    );
+  }
+
+  // MARK: - 프로필 (임시)
+  Widget _profileIcon() {
+    return Container(
+      width: 44.w,
+      height: 44.h,
+      decoration:
+          const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+    );
+  }
+
+  Widget _mainWidget() {
+    return Stack(
+      children: [
+        Image.asset(
+          ImagePath.normalTree,
+          width: 369.w,
+          height: 548.h,
+        )
+      ],
+    );
+  }
+
+  Widget _bottomIcon(BuildContext context) {
+    return Stack(
+      children: [
+        // 알람 아이콘
+        Positioned(
+          top: 570.h,
+          left: 28.w,
+          right: 293.w,
+          child: Image.asset(
+            ImagePath.alarmIcon,
+            width: 48.w,
+            height: 48.h,
+          ),
+        ),
+        // 선물함
+        Positioned(
+          top: 507.h,
+          left: 292.w,
+          right: 28.h,
+          child: Image.asset(
+            ImagePath.giftBoxIcon,
+            width: 48.w,
+            height: 48.h,
+          ),
+        ),
+        // 배경음악
+        Positioned(
+          top: 571.h,
+          left: 292.w,
+          right: 28.h,
+          child: Image.asset(
+            ImagePath.bgMusicIcon,
+            width: 48.w,
+            height: 48.h,
+          ),
+        ),
+      ],
     );
   }
 }

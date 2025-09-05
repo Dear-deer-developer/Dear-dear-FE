@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class SelectRecipient extends StatefulWidget {
-  SelectRecipient({Key? key}) : super(key: key);
+  const SelectRecipient({super.key});
 
   @override
   State<SelectRecipient> createState() => _SelectRecipientState();
@@ -122,7 +122,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
           padding: const EdgeInsets.only(left: 30, top: 16, bottom: 16),
           child: Text(
             isSearching ? '검색 결과' : '친구',
-            style: FontStyles.B1_bold_14,
+            style: FontStyles.B4_bold_14,
           ),
         ),
       );
@@ -196,7 +196,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 "내용을 모두 확인하신 후, \n우측 상단의 확인을 눌러 주세요!",
-                style: FontStyles.B1_reg_13.copyWith(color: AppColors.G_06),
+                style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06),
               ),
             )
           ],
@@ -210,7 +210,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('검색 결과가 없어요!',
-                  style: FontStyles.B1_reg_15.copyWith(color: AppColors.G_06)),
+                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06)),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: _notice(),
@@ -235,7 +235,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
               radius: 24,
               child: Icon(Icons.person, color: Colors.white, size: 32),
             ),
-            title: Text(friend['name'] ?? '', style: FontStyles.B1_bold_14),
+            title: Text(friend['name'] ?? '', style: FontStyles.B4_bold_14),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -278,22 +278,22 @@ class _SelectRecipientState extends State<SelectRecipient> {
             Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 8, left: 14),
               child: Text("아직 디어 디어에 가입하지 않은 친구는",
-                  style: FontStyles.B1_reg_15.copyWith(color: AppColors.G_06)),
+                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 14),
               child: Text("1. 미가입자를 선택 후",
-                  style: FontStyles.B1_reg_15.copyWith(color: AppColors.G_06)),
+                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 14),
               child: Text("2. 편지 작성하고",
-                  style: FontStyles.B1_reg_15.copyWith(color: AppColors.G_06)),
+                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 14),
               child: Text("3. 직접 링크를 전달해 주세요~!",
-                  style: FontStyles.B1_reg_15.copyWith(color: AppColors.G_06)),
+                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
             ),
           ],
         ),

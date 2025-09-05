@@ -70,7 +70,7 @@ class LetterPreviewController extends GetxController {
               const SizedBox(height: 16),
               Text(
                 "한 번 전송한 편지는\n취소하거나 수정할 수 없습니다. 🥺",
-                style: FontStyles.B1_reg_16,
+                style: FontStyles.B2_reg_16,
                 textAlign: TextAlign.center,
               ),
               Padding(
@@ -82,7 +82,7 @@ class LetterPreviewController extends GetxController {
                       onTap: () => Get.back(),
                       child: Text(
                         "뒤로",
-                        style: FontStyles.B1_reg_16,
+                        style: FontStyles.B2_reg_16,
                       ),
                     ),
                     Padding(
@@ -90,8 +90,8 @@ class LetterPreviewController extends GetxController {
                       child: GestureDetector(
                           onTap: () {},
                           child: Text(
-                            "확인",
-                            style: FontStyles.B1_reg_16,
+                            "전송",
+                            style: FontStyles.B2_reg_16,
                           )),
                     ),
                   ],

@@ -25,28 +25,28 @@ class SelectLetterButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: isEnabled ? onPressed : null,
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.resolveWith<Color>(
+            backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (states) {
-                if (states.contains(WidgetState.disabled)) {
+                if (states.contains(MaterialState.disabled)) {
                   return AppColors.Green01;
                 }
                 return AppColors.mainGreen;
               },
             ),
-            foregroundColor: WidgetStateProperty.resolveWith<Color>(
+            foregroundColor: MaterialStateProperty.resolveWith<Color>(
               (states) {
-                if (states.contains(WidgetState.disabled)) {
+                if (states.contains(MaterialState.disabled)) {
                   return AppColors.Green02;
                 }
                 return AppColors.White;
               },
             ),
-            shape: WidgetStateProperty.all(
+            shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
               ),
             ),
-            elevation: WidgetStateProperty.all(0),
+            elevation: MaterialStateProperty.all(0),
           ),
           child: Text(
             buttonText, // 변경: 파라미터로 받은 텍스트 사용

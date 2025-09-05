@@ -1,7 +1,6 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
-import 'package:dear_deer_demo/view/admin/admin_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -61,7 +60,7 @@ class ContentsDetailView extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 16.h),
-                            Column(
+                            const Column(
                               children: [
                                 Text(
                                   "글 수정",
@@ -140,7 +139,7 @@ class ContentsDetailView extends StatelessWidget {
               padding: EdgeInsets.only(left: 24.w),
               child: Text(
                 "본문 자리입니다.",
-                style: FontStyles.B1_reg_16,
+                style: FontStyles.B2_reg_16,
               ),
             ),
           )

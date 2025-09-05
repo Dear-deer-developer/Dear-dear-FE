@@ -1,10 +1,11 @@
+import 'package:dear_deer_demo/view/letter/letter_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/widget/custom_button.dart';
-import 'package:dear_deer_demo/view/%08letter/letter_preview.dart';
+import 'package:dear_deer_demo/view/letter/letter_preview.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'select_recipient.dart';
 
@@ -99,13 +100,13 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           // 받는 사람 라벨
           Text(
             "받는 사람",
-            style: FontStyles.B1_bold_14.copyWith(color: AppColors.Black),
+            style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
           ),
           SizedBox(height: 4.h),
           // 받는 사람 입력 필드
           GestureDetector(
             onTap: () async {
-              final selectedName = await Get.to(() => SelectRecipient());
+              final selectedName = await Get.to(() => const SelectRecipient());
               if (selectedName != null) {
                 setState(() {
                   _recipientName = selectedName;
@@ -144,14 +145,14 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Text(
             "내용",
-            style: FontStyles.B1_bold_14.copyWith(color: AppColors.Black),
+            style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
           ),
         ),
         SizedBox(height: 4.h),
         // 내용 입력 컨테이너
         Container(
           width: 360.w,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             border: Border(
               top: BorderSide(color: AppColors.G_02, width: 1),
@@ -233,7 +234,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             if (value.length > 500) {
               _textController.value = TextEditingValue(
                 text: value.substring(0, 500),
-                selection: TextSelection.collapsed(offset: 500),
+                selection: const TextSelection.collapsed(offset: 500),
               );
             }
             setState(() {});
@@ -241,7 +242,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           decoration: InputDecoration(
             border: InputBorder.none,
             contentPadding:
-                EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 20),
+                const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 20),
             hintText: "내용을 입력해주세요.",
             hintStyle: FontStyles.L1_reg_16.copyWith(color: AppColors.G_06),
           ),
@@ -295,7 +296,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
               // 보내는 사람 라벨
               Text(
                 "보내는 사람",
-                style: FontStyles.B1_bold_14.copyWith(color: AppColors.Black),
+                style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
               ),
               SizedBox(height: 4.h),
               // 보내는 사람 입력 필드

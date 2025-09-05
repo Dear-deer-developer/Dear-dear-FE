@@ -47,14 +47,14 @@ class transferCompleted extends StatelessWidget {
             child: Center(
               child: Text(
                 '우편이 성공적으로 접수되었습니다!',
-                style: FontStyles.B1_bold_15,
+                style: FontStyles.B3_bold_15,
               ),
             ),
           ),
           Center(
             child: Text(
               '이 편지는 12 월 25 일 00 시부터 열람 가능합니다. ',
-              style: FontStyles.B1_reg_13,
+              style: FontStyles.B5_reg_13,
             ),
           ),
         ],

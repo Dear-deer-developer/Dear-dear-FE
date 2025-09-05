@@ -80,7 +80,7 @@ class CategorySelectView extends StatelessWidget {
               Text(
                 text,
                 style:
-                    isSelected ? FontStyles.B1_bold_15 : FontStyles.B1_reg_15,
+                    isSelected ? FontStyles.B3_bold_15 : FontStyles.B3_reg_15,
               ),
               if (isSelected)
                 Icon(
@@ -134,7 +134,7 @@ class CategorySelectView extends StatelessWidget {
               SizedBox(height: 16.h),
               Text(
                 "다른 관리자와 함께\n숨긴 글에서 공개글로 전환하세요.",
-                style: FontStyles.B1_reg_16,
+                style: FontStyles.B2_reg_16,
                 textAlign: TextAlign.center,
               ),
               Padding(
@@ -145,7 +145,7 @@ class CategorySelectView extends StatelessWidget {
                     GestureDetector(
                       onTap: () => Get.back(),
                       child: Text("뒤로",
-                          style: FontStyles.B1_reg_16.copyWith(
+                          style: FontStyles.B2_reg_16.copyWith(
                               color: AppColors.G_05)),
                     ),
                     SizedBox(width: 120.w),
@@ -154,7 +154,7 @@ class CategorySelectView extends StatelessWidget {
                         // 업로드 처리
                         Get.back();
                       },
-                      child: Text("확인", style: FontStyles.B1_reg_16),
+                      child: Text("확인", style: FontStyles.B2_reg_16),
                     ),
                   ],
                 ),

@@ -2,7 +2,6 @@ import 'package:dear_deer_demo/controller/post/temporay_storage_controller.dart'
 
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/view/%08letter/letter_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -52,12 +51,12 @@ class TemporaryStorage extends StatelessWidget {
 
             return RichText(
               text: TextSpan(
-                style: FontStyles.B1_bold_15.copyWith(color: Colors.black),
+                style: FontStyles.B3_reg_15.copyWith(color: Colors.black),
                 children: [
                   const TextSpan(text: "총 "),
                   TextSpan(
                     text: "$count",
-                    style: FontStyles.B1_bold_15.copyWith(
+                    style: FontStyles.B3_bold_15.copyWith(
                         color: AppColors.mainRed),
                   ),
                   TextSpan(text: " $text"),
@@ -99,7 +98,7 @@ class TemporaryStorage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Dear. 닉네임", style: FontStyles.B1_bold_14),
+                              Text("Dear. 닉네임", style: FontStyles.B4_bold_14),
                               Text(
                                 "작성하던 편지 내용 한줄. 작성하던 편지 내용 한줄. 작성하던",
                                 style: FontStyles.S1_reg_10,

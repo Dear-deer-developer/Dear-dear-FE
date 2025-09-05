@@ -64,4 +64,12 @@ class BottomNavController extends GetxController {
       return false;
     }
   }
+
+  // MARK: - 회원가입 완료 후 홈으로 초기화
+  void resetToHome() {
+    _history
+      ..clear()
+      ..add(0);
+    _pageIndex(0);
+  }
 }

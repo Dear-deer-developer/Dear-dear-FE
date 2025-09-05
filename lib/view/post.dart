@@ -9,12 +9,13 @@ import 'package:dear_deer_demo/data/image_data.dart';
 /// 우체국 메인 화면(우편함)입니다.
 /// 사용자는 이 화면에서 편지 보내기, 내 사서함 확인, 보낸 편지함, 임시 보관함 등
 /// 다양한 우체국 서비스를 이용할 수 있습니다.
-class PostMain extends StatelessWidget {
-  PostMain({super.key});
+class PostMain extends GetView<PostController> {
+  const PostMain({super.key});
 
   // MARK: - Controller
   /// 우체국 관련 비즈니스 로직을 담당하는 컨트롤러입니다.
-  final controller = Get.put(PostController());
+  // @override
+  // final controller = Get.put(PostController());
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +116,7 @@ class PostMain extends StatelessWidget {
                   SizedBox(height: 12.h),
                   Text(
                     title,
-                    style: FontStyles.B1_bold_14.copyWith(color: Colors.black),
+                    style: FontStyles.B4_bold_14.copyWith(color: Colors.black),
                   ),
                   SizedBox(height: 4.h),
                   Text(
@@ -163,7 +164,7 @@ class PostMain extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             label,
-            style: FontStyles.B1_reg_15.copyWith(color: Colors.black),
+            style: FontStyles.B3_reg_15.copyWith(color: Colors.black),
             textAlign: TextAlign.left,
           ),
         ),

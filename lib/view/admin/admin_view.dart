@@ -62,15 +62,15 @@ class AdminView extends StatelessWidget {
                 onTap: () => Get.to(() => WriteView()),
                 child: Text(
                   "글 쓰기",
-                  style: FontStyles.B1_reg_15,
+                  style: FontStyles.B3_reg_15,
                 ),
               ),
               SizedBox(height: 24.h),
               GestureDetector(
-                onTap: () => Get.to(() => TempSavedView()),
+                onTap: () => Get.to(() => const TempSavedView()),
                 child: Text(
                   "임시 저장글 확인",
-                  style: FontStyles.B1_reg_15,
+                  style: FontStyles.B3_reg_15,
                 ),
               ),
               SizedBox(height: 24.h),
@@ -78,7 +78,7 @@ class AdminView extends StatelessWidget {
                 onTap: () => Get.to(() => HiddenPostsView()),
                 child: Text(
                   "숨긴 글 확인",
-                  style: FontStyles.B1_reg_15,
+                  style: FontStyles.B3_reg_15,
                 ),
               ),
             ],
