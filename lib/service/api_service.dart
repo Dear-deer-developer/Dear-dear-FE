@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/model/deardeer_user.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:dear_deer_demo/util/custom_get_connect.dart';
 import 'package:dear_deer_demo/util/mem_cache.dart';
 import 'package:flutter/widgets.dart';
@@ -18,7 +19,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       ..baseUrl = _baseUrl
       ..timeout = const Duration(seconds: 15);
 
-// 모든 요청에 Firebase ID Token 자동 첨부 (WeTeam의 CustomGetConnect 역할)
+// 모든 요청에 Firebase ID Token 자동 첨부
     httpClient.addRequestModifier<dynamic>((request) async {
       // 1) MemCache 시도
       String? idToken =
@@ -36,7 +37,7 @@ class ApiService extends CustomGetConnect implements GetxService {
     });
   }
   // ---------------------------------------------------------------------------
-  // AUTH
+  // MARK: - AUTH
   // ---------------------------------------------------------------------------
 
   /// Kakao accessToken → Firebase customToken 교환
@@ -86,16 +87,6 @@ class ApiService extends CustomGetConnect implements GetxService {
   // ---------------------------------------------------------------------------
 
   /// 사용자 닉네임 생성/수정
-  /// - PATCH /users/nickname
-  /// Request: { "nickname": "디디디어" }
-  /// Response(200):
-  /// {
-  ///   "pri": 1,
-  ///   "providerId": "123456789",
-  ///   "nickname": "디디디어",
-  ///   "imageIdx": 1001,
-  ///   "createdAt": "2025-01-05T08:00:00.000Z"
-  /// }
   Future<DeardeerUser?> setNickname(String nickname) async {
     final res = await patch(
       '/users/nickname',
@@ -103,13 +94,20 @@ class ApiService extends CustomGetConnect implements GetxService {
       headers: {'Content-Type': 'application/json'},
     );
 
-    if (res.statusCode == 200 && res.bodyString != null) {
+    // === 정상 응답(JSON Body 포함) ===
+    if (res.statusCode == 200 && (res.bodyString?.isNotEmpty ?? false)) {
       try {
         final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
         final user = DeardeerUser.fromJson(map);
 
-        // 캐시(재시작 복구 용)
-        await sharedPreferences.setString('user_json', res.bodyString!);
+        // 캐시 갱신
+        await sharedPreferences.setString(
+            'user_json', jsonEncode(user.toJson()));
+
+        // 전역 상태(AuthService.user)도 같이 갱신해두면 편리
+        if (Get.isRegistered<AuthService>()) {
+          Get.find<AuthService>().user.value = user;
+        }
 
         return user;
       } catch (e) {
@@ -118,7 +116,36 @@ class ApiService extends CustomGetConnect implements GetxService {
       }
     }
 
+    // === No Content(204) ===
+    if (res.statusCode == 204) {
+      // 서버가 바디 없이 성공만 주는 경우 → 바로 getUser() 호출해서 최신화 필요
+      return null;
+    }
+
+    // === 기타 실패 ===
     debugPrint('setNickname 실패: ${res.statusCode} / ${res.bodyString}');
+    return null;
+  }
+
+  Future<DeardeerUser?> getUser() async {
+    final res = await get('/users/me');
+
+    if (res.statusCode == 200 && res.bodyString != null) {
+      try {
+        final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
+        final user = DeardeerUser.fromJson(map);
+
+        // 재시작 복구용 캐시
+        await sharedPreferences.setString('user_json', res.bodyString!);
+
+        return user;
+      } catch (e) {
+        debugPrint('getMe 파싱 실패: $e / ${res.bodyString}');
+        return null;
+      }
+    }
+
+    debugPrint('getMe 실패: ${res.statusCode} / ${res.bodyString}');
     return null;
   }
 
@@ -142,5 +169,17 @@ class ApiService extends CustomGetConnect implements GetxService {
       jsonEncode(data),
       headers: {'Content-Type': 'application/json', ...?headers},
     );
+  }
+
+  /// 캐시된 유저 JSON을 우선 복구
+  DeardeerUser? getCachedUser() {
+    final raw = sharedPreferences.getString('user_json');
+    if (raw == null) return null;
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return DeardeerUser.fromJson(map);
+    } catch (_) {
+      return null;
+    }
   }
 }

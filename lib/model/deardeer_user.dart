@@ -1,36 +1,42 @@
-import 'package:dear_deer_demo/model/deardeer_profile.dart';
-
+// lib/model/deardeer_user.dart
 class DeardeerUser {
-  int id;
-  String? username;
-  String? email;
-  String? organization;
-  // String? role;
-  DeardeerProfile? profile;
+  final int id;
+  final String nickname;
+  final int zipCode;
+  final String providerId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  DeardeerUser({
+  const DeardeerUser({
     required this.id,
-    required this.username,
-    required this.email,
-    this.organization,
-    // this.role,
-    this.profile,
+    required this.nickname,
+    required this.zipCode,
+    required this.providerId,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory DeardeerUser.fromJson(Map<String, dynamic> json) {
-    DeardeerProfile? profile;
-    if (json['profile'] != null) {
-      profile =
-          DeardeerProfile.fromJson(json['profile'] as Map<String, dynamic>);
-    }
-
+  factory DeardeerUser.fromJson(Map<String, dynamic> j) {
     return DeardeerUser(
-      id: json['id'] as int,
-      username: json['username'] as String?,
-      email: json['email'] as String?,
-      organization: json['organization'] as String?,
-      // role: json['role'] as String?,
-      profile: profile,
+      id: j['id'] as int,
+      nickname: (j['nickname'] ?? '') as String,
+      zipCode: j['zipCode'] is int
+          ? j['zipCode'] as int
+          : int.tryParse(j['zipCode']?.toString() ?? '') ?? 0,
+      providerId: (j['providerId'] ?? '') as String,
+      createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt: DateTime.tryParse(j['updatedAt']?.toString() ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'nickname': nickname,
+        'zipCode': zipCode,
+        'providerId': providerId,
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+      };
 }

@@ -4,6 +4,7 @@ import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/home.dart';
+import 'package:dear_deer_demo/view/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -43,7 +44,7 @@ class App extends GetView<BottomNavController> {
       index: controller.index,
       children: const [
         Home(),
-        // Post(),
+        PostMain(),
         // Calender(),
         // Contents(),
       ],
@@ -51,7 +52,7 @@ class App extends GetView<BottomNavController> {
   }
 }
 
-/// 떠 있는 바텀 네비게이션 (배경은 완전 투명)
+/// MARK: - 바텀 네비게이션 (배경은 완전 투명)
 class _FloatingBottomNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTap;
@@ -128,6 +129,7 @@ class _FloatingBottomNav extends StatelessWidget {
   }
 }
 
+// MARK: - Nav item
 class _NavItem extends StatelessWidget {
   final bool selected;
   final String label;

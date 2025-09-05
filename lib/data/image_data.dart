@@ -26,6 +26,8 @@ class ImagePath {
 
   static String get homeBgImage => 'assets/images/temp_home.png';
 
+  static String get backIcon => 'assets/images/icon_back.png';
+
   // MARK: - Login
   static String get kakaoLoginButton => 'assets/images/kakao_login_button.png';
   static String get nicknameDeletdButton =>
@@ -45,6 +47,18 @@ class ImagePath {
   // MARK: - Home
   static String get homeBgImagePm => 'assets/images/home_bgimage_pm.png'; // 밤
   static String get homeBgImageAm => 'assets/images/home_bgimage_am.png'; // 낮
+
+  static String get homeTopWidget => 'assets/images/home_top_left_widget.png';
+
+  static String get normalTree => 'assets/images/normal_room.png';
+
+  static String get alarmIcon => 'assets/images/alarm_widget.png';
+  static String get giftBoxIcon => 'assets/images/giftbox_widget.png';
+  static String get bgMusicIcon => 'assets/images/bgmusic_widget.png';
+
+  // MARK: - Setting
+  static String get cameraIcon => 'assets/images/camera_icon.png';
+  static String get sampleImage => 'assets/images/profile_sample_image.png';
 
   // MARK: - Post
   static String get postBoxIconSelected =>
