@@ -1,11 +1,11 @@
 // lib/model/deardeer_user.dart
 class DeardeerUser {
   final int id;
-  final String nickname;
-  final int zipCode;
-  final String providerId;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String nickname; // 닉네임
+  final int zipCode; // 우편번호
+  final String providerId; // 고유 식별자
+  final DateTime createdAt; // 사용자 가입일
+  final DateTime updatedAt; // 사용자 정보 변경
 
   const DeardeerUser({
     required this.id,
