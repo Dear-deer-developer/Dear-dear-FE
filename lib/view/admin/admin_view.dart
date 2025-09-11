@@ -32,7 +32,7 @@ class AdminView extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text("콘텐츠", style: FontStyles.H1_bold_17),
+        title: Text("콘텐츠", style: FontStyles.H2_bold_17),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.w),
@@ -59,7 +59,7 @@ class AdminView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () => Get.to(() => WriteView()),
+                onTap: () => Get.to(() => const WriteView()),
                 child: Text(
                   "글 쓰기",
                   style: FontStyles.B3_reg_15,

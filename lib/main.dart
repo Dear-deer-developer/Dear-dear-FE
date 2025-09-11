@@ -48,7 +48,8 @@ Future<void> main() async {
 
   // 상태바, UI 표시 설정
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-      overlays: SystemUiOverlay.values);
+      overlays: [SystemUiOverlay.bottom] // 상단바 숨기기
+      );
 
   // 가로모드 X
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -58,6 +59,14 @@ Future<void> main() async {
 
   // 디버깅 체크 로그
   logger.d('Debug check');
+
+  Future<void> loadLeeSeoyunFont() async {
+    final loader = FontLoader('LeeSeoyun')
+      ..addFont(rootBundle.load('assets/fonts/LeeSeoyun.ttf'));
+    await loader.load();
+  }
+
+  await loadLeeSeoyunFont();
 
   // Futures
   final firebaseFuture = Firebase.initializeApp(

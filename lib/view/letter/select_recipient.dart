@@ -89,7 +89,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
           children: [
             Text(
               title,
-              style: FontStyles.H1_bold_16.copyWith(
+              style: FontStyles.H3_bold_16.copyWith(
                 color: isSelected ? Colors.black : Colors.grey,
               ),
             ),

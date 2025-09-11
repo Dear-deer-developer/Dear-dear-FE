@@ -73,7 +73,7 @@ class _DraftsScreenState extends State<DraftsScreen> {
         centerTitle: true,
         title: Text(
           "임시보관함",
-          style: FontStyles.H1_bold_17,
+          style: FontStyles.H2_bold_17,
         ),
       );
 

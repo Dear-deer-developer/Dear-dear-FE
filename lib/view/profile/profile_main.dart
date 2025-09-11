@@ -49,7 +49,7 @@ class ProfileMain extends GetView<ProfileController> {
           Text(
             '설정',
             textAlign: TextAlign.center,
-            style: FontStyles.H1_bold_17, // H2로 변경해야함.
+            style: FontStyles.H2_bold_17, // H2로 변경해야함.
           ),
         ],
       ),
@@ -140,7 +140,7 @@ class ProfileMain extends GetView<ProfileController> {
           padding: EdgeInsets.only(left: 24.w),
           child: Text(
             '사용자 설정',
-            style: FontStyles.H1_bold_16, // H3로 변경
+            style: FontStyles.H3_bold_16, // H3로 변경
           ),
         ),
         // 계정 설정

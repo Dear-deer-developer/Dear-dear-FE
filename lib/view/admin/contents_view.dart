@@ -46,7 +46,7 @@ class ContentsView extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text("콘텐츠", style: FontStyles.H1_bold_17),
+        title: Text("콘텐츠", style: FontStyles.H2_bold_17),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.w),
@@ -80,7 +80,7 @@ class ContentsView extends StatelessWidget {
                     children: [
                       Text(
                         titles[index],
-                        style: FontStyles.H1_bold_16.copyWith(
+                        style: FontStyles.H3_bold_16.copyWith(
                           color: isSelected ? AppColors.Black : AppColors.G_04,
                         ),
                       ),

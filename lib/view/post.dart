@@ -44,7 +44,7 @@ class PostMain extends GetView<PostController> {
         centerTitle: true,
         title: Text(
           "우체국",
-          style: FontStyles.H1_bold_17,
+          style: FontStyles.H2_bold_17,
         ),
       );
 
@@ -141,7 +141,7 @@ class PostMain extends GetView<PostController> {
           children: [
             Text(
               "그 외 업무",
-              style: FontStyles.H1_bold_16.copyWith(color: Colors.black),
+              style: FontStyles.H3_bold_16.copyWith(color: Colors.black),
             ),
             SizedBox(height: 16.h),
             _serviceTextButton("보낸 편지함", controller.openSentLetters),

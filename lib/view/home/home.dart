@@ -1,7 +1,11 @@
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/view/home/alarm_onboarding.dart';
+import 'package:dear_deer_demo/view/home/bg_music.dart';
+import 'package:dear_deer_demo/view/home/gift_main.dart';
 import 'package:dear_deer_demo/view/profile/profile_main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -25,21 +29,31 @@ class Home extends GetView<HomeController> {
                 ? ImagePath.homeBgImagePm
                 : ImagePath.homeBgImageAm;
 
+            // return AnimatedSwitcher(
+            //   duration: const Duration(milliseconds: 500),
+            //   child: Transform.translate(
+            //     offset: Offset(0, -75.h),
+            //     child: Transform.scale(
+            //       key: ValueKey(bgPath),
+            //       scale: 1.02,
+            //       child: Image.asset(
+            //         bgPath,
+            //         fit: BoxFit.cover,
+            //         width: double.infinity,
+            //         height: double.infinity,
+            //         alignment: Alignment.center,
+            //       ),
+            //     ),
+            //   ),
+            // );
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
-              child: Transform.translate(
-                offset: Offset(0, -75.h),
-                child: Transform.scale(
-                  key: ValueKey(bgPath),
-                  scale: 1.02,
-                  child: Image.asset(
-                    bgPath,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    alignment: Alignment.center,
-                  ),
-                ),
+              child: Image.asset(
+                bgPath,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                alignment: Alignment.center,
               ),
             );
           }),
@@ -63,7 +77,7 @@ class Home extends GetView<HomeController> {
   // MARK: - 상단 위젯
   Widget _topWidget() {
     return Padding(
-      padding: EdgeInsets.only(left: 12.w, right: 7.w, top: 24.h, bottom: 15.h),
+      padding: EdgeInsets.only(left: 12.w, right: 7.w, top: 8.h, bottom: 15.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,40 +122,56 @@ class Home extends GetView<HomeController> {
     );
   }
 
+  // MARK: - 하단 아이콘
   Widget _bottomIcon(BuildContext context) {
     return Stack(
       children: [
         // 알람 아이콘
         Positioned(
-          top: 570.h,
+          bottom: 87.h,
           left: 28.w,
           right: 293.w,
-          child: Image.asset(
-            ImagePath.alarmIcon,
-            width: 48.w,
-            height: 48.h,
+          child: GestureDetector(
+            onTap: () {
+              Get.to(() => const AlarmOnboarding());
+            },
+            child: Image.asset(
+              ImagePath.alarmIcon,
+              width: 48.w,
+              height: 48.h,
+            ),
           ),
         ),
         // 선물함
         Positioned(
-          top: 507.h,
+          bottom: 136.h,
           left: 292.w,
           right: 28.h,
-          child: Image.asset(
-            ImagePath.giftBoxIcon,
-            width: 48.w,
-            height: 48.h,
+          child: GestureDetector(
+            onTap: () {
+              Get.to(() => const GiftMain());
+            },
+            child: Image.asset(
+              ImagePath.giftBoxIcon,
+              width: 48.w,
+              height: 48.h,
+            ),
           ),
         ),
         // 배경음악
         Positioned(
-          top: 571.h,
+          bottom: 87.h,
           left: 292.w,
           right: 28.h,
-          child: Image.asset(
-            ImagePath.bgMusicIcon,
-            width: 48.w,
-            height: 48.h,
+          child: GestureDetector(
+            onTap: () {
+              Get.to(() => const BgMusic());
+            },
+            child: Image.asset(
+              ImagePath.bgMusicIcon,
+              width: 48.w,
+              height: 48.h,
+            ),
           ),
         ),
       ],

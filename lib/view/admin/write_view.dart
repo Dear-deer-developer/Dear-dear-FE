@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class WriteView extends StatefulWidget {
-  WriteView({super.key});
+  const WriteView({super.key});
 
   @override
   State<WriteView> createState() => _WriteViewState();
@@ -32,7 +32,7 @@ class _WriteViewState extends State<WriteView> {
         elevation: 0,
         backgroundColor: AppColors.White,
         scrolledUnderElevation: 0,
-        title: Text("글 쓰기", style: FontStyles.H1_bold_17),
+        title: Text("글 쓰기", style: FontStyles.H2_bold_17),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.w),
@@ -41,7 +41,7 @@ class _WriteViewState extends State<WriteView> {
                 if (controller.selectedIndices.isEmpty) {
                   return;
                 }
-                Get.to(() => WriteDetailView());
+                Get.to(() => const WriteDetailView());
               },
               child: Text("다음", style: FontStyles.S1_reg_13),
             ),

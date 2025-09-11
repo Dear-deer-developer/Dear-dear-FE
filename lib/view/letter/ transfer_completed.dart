@@ -25,7 +25,7 @@ class transferCompleted extends StatelessWidget {
           padding: const EdgeInsets.only(left: 24),
           child: Text(
             '전송 완료',
-            style: FontStyles.H1_bold_17,
+            style: FontStyles.H2_bold_17,
           ),
         ),
         centerTitle: false,
