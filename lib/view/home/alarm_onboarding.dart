@@ -65,12 +65,14 @@ class AlarmOnboarding extends StatelessWidget {
   Widget _ment(String nickname) {
     return Column(
       children: [
-        Text('Dear. $nickname',
-            style: const TextStyle(
-              fontFamily: 'LeeSeoyun',
-              fontSize: 20,
-              fontWeight: FontWeight.w400,
-            )),
+        Text(
+          'Dear. $nickname',
+          style: TextStyle(
+            fontFamily: 'LeeSeoyun',
+            fontSize: 20.sp,
+            // fontWeight: FontWeight.w400,
+          ),
+        ),
         Text(
           '크리스마스를 기다리는 마음,\n올해도 여전히 설레죠?\n그 특별한 시작을 우리가 알람으로 살짝 알려드릴게요.\n가장 반짝이는 순간, 함께 준비해요. 🎁',
           style: FontStyles.L3_reg_16,

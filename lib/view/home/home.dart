@@ -28,24 +28,6 @@ class Home extends GetView<HomeController> {
             final bgPath = controller.isNight.value
                 ? ImagePath.homeBgImagePm
                 : ImagePath.homeBgImageAm;
-
-            // return AnimatedSwitcher(
-            //   duration: const Duration(milliseconds: 500),
-            //   child: Transform.translate(
-            //     offset: Offset(0, -75.h),
-            //     child: Transform.scale(
-            //       key: ValueKey(bgPath),
-            //       scale: 1.02,
-            //       child: Image.asset(
-            //         bgPath,
-            //         fit: BoxFit.cover,
-            //         width: double.infinity,
-            //         height: double.infinity,
-            //         alignment: Alignment.center,
-            //       ),
-            //     ),
-            //   ),
-            // );
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               child: Image.asset(
