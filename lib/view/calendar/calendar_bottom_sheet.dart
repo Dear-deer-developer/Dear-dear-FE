@@ -15,11 +15,11 @@ class CalendarBottomSheet extends StatelessWidget {
   final void Function(String) onDeleteEvent;
 
   const CalendarBottomSheet({
-    Key? key,
+    super.key,
     required this.date,
     required this.events,
     required this.onDeleteEvent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +59,11 @@ class CalendarBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   "$formattedDate $weekDay",
-                  style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
                 ),
                 Text(
                   "D-${dDayCount >= 0 ? dDayCount : 0}",
-                  style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
                 ),
               ],
             ),
@@ -73,7 +73,7 @@ class CalendarBottomSheet extends StatelessWidget {
             // 일정 목록
             events.isEmpty
                 ? Text("등록된 일정이 없습니다.",
-                    style: FontStyles.B1_reg_16.copyWith(color: AppColors.G_03))
+                    style: FontStyles.B2_reg_16.copyWith(color: AppColors.G_03))
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: events
@@ -101,12 +101,12 @@ class CalendarBottomSheet extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(event.title,
-                                          style: FontStyles.B1_bold_15.copyWith(
+                                          style: FontStyles.B3_bold_15.copyWith(
                                               color: AppColors.Black)),
                                       SizedBox(height: 4.h),
                                       Text(
                                         event.memo,
-                                        style: FontStyles.B1_reg_13.copyWith(
+                                        style: FontStyles.B5_reg_13.copyWith(
                                             color: AppColors.G_06),
                                       ),
                                     ],

@@ -8,10 +8,10 @@ class CategoryDropdown extends StatefulWidget {
   final ValueChanged<String> onCategorySelected;
 
   const CategoryDropdown({
-    Key? key,
+    super.key,
     required this.selectedCategory,
     required this.onCategorySelected,
-  }) : super(key: key);
+  });
 
   static const List<String> categories = [
     "약속",
@@ -44,7 +44,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
           color: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: AppColors.G_03, width: 1),
+            side: const BorderSide(color: AppColors.G_03, width: 1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
@@ -58,7 +58,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
         ),
         itemBuilder: (context) {
           final double itemHeight = 40.h;
-          final double dividerHeight = 1.0;
+          const double dividerHeight = 1.0;
           final items = <PopupMenuEntry<String>>[];
           for (int i = 0; i < CategoryDropdown.categories.length; i++) {
             final cat = CategoryDropdown.categories[i];
@@ -75,7 +75,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
-                        child: Text(cat, style: FontStyles.B1_reg_14),
+                        child: Text(cat, style: FontStyles.L1_reg_16),
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: 5.w),
@@ -123,8 +123,8 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
               ),
             ),
             SizedBox(width: 8.w),
-            Text(widget.selectedCategory, style: FontStyles.B1_bold_15),
-            Icon(Icons.arrow_drop_down, color: AppColors.G_05),
+            Text(widget.selectedCategory, style: FontStyles.B3_bold_15),
+            const Icon(Icons.arrow_drop_down, color: AppColors.G_05),
           ],
         ),
       ),
