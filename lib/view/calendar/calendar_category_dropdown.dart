@@ -75,7 +75,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
-                        child: Text(cat, style: FontStyles.L1_reg_16),
+                        child: Text(cat, style: FontStyles.L3_reg_16),
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: 5.w),
