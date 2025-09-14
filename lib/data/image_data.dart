@@ -79,6 +79,12 @@ class ImagePath {
   static String get imageIcon => 'assets/images/image_icon.png';
   static String get imageIconDisabled => 'assets/images/image_icon_disable.png';
 
+  // MARK: - Calendar
+  static String get calendarBackground =>
+      'assets/images/calendar_background.png';
+  static String get dayBackground => 'assets/images/day.png';
+  static String get nightBackground => 'assets/images/night.png';
+
   // MARK: Admin
   static String get adminIcon => 'assets/images/_people_G_04_48px.png';
   static String get vector => 'assets/images/Vector.png';
