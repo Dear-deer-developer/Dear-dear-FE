@@ -30,34 +30,34 @@ class FontStyles {
     fontWeight: FontWeight.bold,
     height: 1.2.h,
   );
-  static TextStyle B1_reg_16 = TextStyle(
+  static TextStyle B2_reg_16 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 16.sp,
     height: 1.2.h,
   );
-  static TextStyle B1_bold_15 = TextStyle(
+  static TextStyle B3_bold_15 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',
     fontSize: 15.sp,
     fontWeight: FontWeight.bold,
     height: 1.2.h,
   );
-  static TextStyle B1_reg_15 = TextStyle(
+  static TextStyle B3_reg_15 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 15.sp,
     height: 1.2.h,
   );
-  static TextStyle B1_bold_14 = TextStyle(
+  static TextStyle B4_bold_14 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',
     fontSize: 14.sp,
     fontWeight: FontWeight.bold,
     height: 1.2.h,
   );
-  static TextStyle B1_reg_14 = TextStyle(
+  static TextStyle B4_reg_14 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 14.sp,
     height: 1.2.h,
   );
-  static TextStyle B1_reg_13 = TextStyle(
+  static TextStyle B5_reg_13 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 13.sp,
     height: 1.2.h,

@@ -3,22 +3,28 @@ description: "A new Flutter project."
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
+  smooth_page_indicator: ^1.2.1
 
   cupertino_icons: ^1.0.6
   logger: ^2.5.0
   intl: ^0.20.2
   flutter_screenutil: ^5.9.3
   get: ^4.7.2
-
-  modal_bottom_sheet: ^3.0.0
+  kakao_flutter_sdk: ^1.9.5
+  flutter_dotenv: ^5.2.1
+  firebase_core: ^3.4.0
+  firebase_auth: ^5.2.0
+  shared_preferences: ^2.2.3
+  cloud_firestore: ^5.4.0
+  cloud_functions: ^5.1.0
+  flutter_phoenix: ^1.1.1
   table_calendar: ^3.0.0
-  flutter_localizations:
-    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -26,45 +32,37 @@ dev_dependencies:
 
   flutter_lints: ^3.0.0
 
-
 flutter:
   uses-material-design: true
   assets:
   - assets/images/
+  - .env
 
-  fonts:
-      - family: KakaoSmallSansBold
-        fonts:
-          - asset: assets/fonts/KakaoSmallSans-Bold.ttf
+fonts:
+  - family: KakaoSmallSansBold
+    fonts:
+      - asset: assets/fonts/KakaoSmallSans-Bold.ttf
 
-      - family: KakaoSmallSansRegular
-        fonts:
-          - asset: assets/fonts/KakaoSmallSans-Regular.ttf
+  - family: KakaoSmallSansRegular
+    fonts:
+      - asset: assets/fonts/KakaoSmallSans-Regular.ttf
 
-      - family: KakaoSmallSansLight
-        fonts:
-          - asset: assets/fonts/KakaoSmallSans-Light.ttf
+  - family: KakaoSmallSansLight
+    fonts:
+      - asset: assets/fonts/KakaoSmallSans-Light.ttf
 
-      - family: KakaoBigSansBold
-        fonts:
-          - asset: assets/fonts/KakaoBigSans-Bold.ttf
+  - family: KakaoBigSansBold
+    fonts:
+      - asset: assets/fonts/KakaoBigSans-Bold.ttf
 
-      - family: KakaoBigSansExtraBold
-        fonts:
-          - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
+  - family: KakaoBigSansExtraBold
+    fonts:
+      - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
 
-      - family: KakaoBigSansRegular
-        fonts:
-          - asset: assets/fonts/KakaoBigSans-Regular.ttf
+  - family: KakaoBigSansRegular
+    fonts:
+      - asset: assets/fonts/KakaoBigSans-Regular.ttf
 
-      - family: LeeSeoyun
-        fonts:
-          - asset: assets/fonts/LeeSeoyun.ttf
-
-      - family: TJJoyofSinging
-        fonts:
-          - asset: assets/fonts/TJJoyofSinging.ttf
-
-      - family: KCCGanpan
-        fonts:
-          - asset: assets/fonts/KCC-Ganpan.ttf
+  - family: LeeSeoyun
+    fonts:
+      - asset: assets/fonts/LeeSeoyun.ttf

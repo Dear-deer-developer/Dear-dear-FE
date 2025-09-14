@@ -10,10 +10,10 @@ class CustomCalendarWidget extends StatefulWidget {
   final ValueChanged<DateTime> onDateSelected;
 
   const CustomCalendarWidget({
-    Key? key,
+    super.key,
     required this.selectedDate,
     required this.onDateSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomCalendarWidget> createState() => _CustomCalendarWidgetState();
@@ -22,7 +22,7 @@ class CustomCalendarWidget extends StatefulWidget {
 class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
   late DateTime focusedDay;
 
-  final TextStyle _commonTextStyle = TextStyle(color: AppColors.G_06);
+  final TextStyle _commonTextStyle = const TextStyle(color: AppColors.G_06);
 
   @override
   void initState() {
@@ -48,10 +48,10 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
-        leftChevronIcon: Icon(Icons.chevron_left),
-        rightChevronIcon: Icon(Icons.chevron_right),
+        leftChevronIcon: const Icon(Icons.chevron_left),
+        rightChevronIcon: const Icon(Icons.chevron_right),
         titleTextFormatter: (date, _) => '${date.year}년 ${date.month}월',
-        titleTextStyle: FontStyles.B1_bold_14,
+        titleTextStyle: FontStyles.B4_bold_14,
       ),
       daysOfWeekHeight: 20,
       daysOfWeekStyle: DaysOfWeekStyle(
@@ -67,11 +67,11 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
         defaultTextStyle: _commonTextStyle,
         weekendTextStyle: _commonTextStyle,
         holidayTextStyle: _commonTextStyle,
-        selectedDecoration: BoxDecoration(
+        selectedDecoration: const BoxDecoration(
           color: AppColors.mainRed,
           shape: BoxShape.circle,
         ),
-        selectedTextStyle: TextStyle(
+        selectedTextStyle: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
