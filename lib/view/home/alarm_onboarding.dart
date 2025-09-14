@@ -52,7 +52,7 @@ class AlarmOnboarding extends StatelessWidget {
           Text(
             '크리스마스 알람',
             textAlign: TextAlign.center,
-            style: FontStyles.H1_bold_17,
+            style: FontStyles.H2_bold_17,
           ),
           SizedBox(
             height: 19.h,
@@ -68,21 +68,16 @@ class AlarmOnboarding extends StatelessWidget {
         Text(
           'Dear. $nickname',
           style: TextStyle(
-              fontFamily: 'LeeSeoyun',
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.0,
-              height: 1.2),
+            fontFamily: 'LeeSeoyun',
+            fontSize: 20.sp,
+            // fontWeight: FontWeight.w400,
+          ),
         ),
         Text(
-          '크리스마스를 기다리는 마음,\n올해도 여전히 설레죠?',
-          style: TextStyle(
-              fontFamily: 'LeeSeoyun',
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.0,
-              height: 1.2),
-        ),
+          '크리스마스를 기다리는 마음,\n올해도 여전히 설레죠?\n그 특별한 시작을 우리가 알람으로 살짝 알려드릴게요.\n가장 반짝이는 순간, 함께 준비해요. 🎁',
+          style: FontStyles.L3_reg_16,
+          textAlign: TextAlign.left,
+        )
       ],
     );
   }

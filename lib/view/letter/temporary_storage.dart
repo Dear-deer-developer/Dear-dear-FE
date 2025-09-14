@@ -35,7 +35,7 @@ class TemporaryStorage extends StatelessWidget {
         scrolledUnderElevation: 0,
         title: Text(
           '임시 보관함',
-          style: FontStyles.H1_bold_17,
+          style: FontStyles.H2_bold_17,
         ),
       );
 
@@ -137,7 +137,7 @@ class TemporaryStorage extends StatelessWidget {
                                         child: Container(
                                           width: 16.w, // 바깥 원보다 작게
                                           height: 16.h,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
                                             color: AppColors
                                                 .mainRed, // 내부 작은 원만 주황색
@@ -151,7 +151,7 @@ class TemporaryStorage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Divider(
+                    const Divider(
                       color: AppColors.G_02,
                       thickness: 1,
                       height: 1,

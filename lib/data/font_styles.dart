@@ -10,13 +10,13 @@ class FontStyles {
         .bold, // Flutter에서는 폰트 파일과 무게를 따로 인식, fontWeight를 지정해주지 않으면 기본값(Regular)로 인식할 수 있음.
     height: 1.2.h, // 줄 간 간격을 폰트 크기의 120%로 설정하여 텍스트가 뭉치지 않고 가독성을 높임.
   );
-  static TextStyle H1_bold_17 = TextStyle(
+  static TextStyle H2_bold_17 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',
     fontSize: 17.sp,
     fontWeight: FontWeight.bold,
     height: 1.2.h,
   );
-  static TextStyle H1_bold_16 = TextStyle(
+  static TextStyle H3_bold_16 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',
     fontSize: 16.sp,
     fontWeight: FontWeight.bold,
@@ -86,13 +86,15 @@ class FontStyles {
     fontSize: 20.sp,
     height: 1.2.h,
   );
-  static TextStyle L1_reg_18 = TextStyle(
+
+  static TextStyle L2_reg_18 = TextStyle(
     fontFamily: 'LeeSeoyun',
     fontSize: 18.sp,
     height: 1.2.h,
   );
-  static TextStyle L1_reg_16 = TextStyle(
-    fontFamily: 'LeeSeoyun',
+
+  static TextStyle L3_reg_16 = TextStyle(
+    fontFamily: 'Lsy',
     fontSize: 16.sp,
     height: 1.2.h,
   );

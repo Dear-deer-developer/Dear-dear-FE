@@ -65,7 +65,7 @@ class LetterPreviewController extends GetxController {
             children: [
               Text(
                 "확인",
-                style: FontStyles.H1_bold_17,
+                style: FontStyles.H2_bold_17,
               ),
               const SizedBox(height: 16),
               Text(

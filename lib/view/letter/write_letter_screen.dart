@@ -76,7 +76,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           alignment: Alignment.centerLeft,
           child: Text(
             "편지 쓰기",
-            style: FontStyles.H1_bold_17,
+            style: FontStyles.H2_bold_17,
             textAlign: TextAlign.left,
           ),
         ),
@@ -244,7 +244,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             contentPadding:
                 const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 20),
             hintText: "내용을 입력해주세요.",
-            hintStyle: FontStyles.L1_reg_16.copyWith(color: AppColors.G_06),
+            hintStyle: FontStyles.L3_reg_16.copyWith(color: AppColors.G_06),
           ),
         ),
       );

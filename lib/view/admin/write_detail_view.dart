@@ -75,7 +75,7 @@ class _WriteDetailViewState extends State<WriteDetailView> {
         elevation: 0,
         backgroundColor: AppColors.White,
         scrolledUnderElevation: 0,
-        title: Text("글 쓰기", style: FontStyles.H1_bold_17),
+        title: Text("글 쓰기", style: FontStyles.H2_bold_17),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.w),

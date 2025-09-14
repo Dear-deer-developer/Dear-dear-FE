@@ -6,7 +6,7 @@ import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:dear_deer_demo/util/helper/auth_helper.dart';
 import 'package:dear_deer_demo/util/helper/kakao_auth_helper.dart';
-import 'package:dear_deer_demo/view/home.dart';
+import 'package:dear_deer_demo/view/home/home.dart';
 import 'package:dear_deer_demo/view/login/sign_up_first.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

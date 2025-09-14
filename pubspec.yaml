@@ -37,8 +37,13 @@ flutter:
   assets:
   - assets/images/
   - .env
+  - assets/fonts/LeeSeoyun.ttf
 
 fonts:
+  - family: LeeSeoyun
+    fonts:
+      - asset: assets/fonts/LeeSeoyun.ttf
+
   - family: KakaoSmallSansBold
     fonts:
       - asset: assets/fonts/KakaoSmallSans-Bold.ttf
@@ -62,7 +67,3 @@ fonts:
   - family: KakaoBigSansRegular
     fonts:
       - asset: assets/fonts/KakaoBigSans-Regular.ttf
-
-  - family: LeeSeoyun
-    fonts:
-      - asset: assets/fonts/LeeSeoyun.ttf

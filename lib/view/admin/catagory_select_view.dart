@@ -30,7 +30,7 @@ class CategorySelectView extends StatelessWidget {
         backgroundColor: AppColors.White,
         title: Text(
           "글 쓰기 (카테고리 선택)",
-          style: FontStyles.H1_bold_17,
+          style: FontStyles.H2_bold_17,
         ),
       );
 
@@ -58,7 +58,7 @@ class CategorySelectView extends StatelessWidget {
           padding: EdgeInsets.only(left: 24.w, top: 20.h, bottom: 8.h),
           child: Text(
             title,
-            style: FontStyles.H1_bold_16,
+            style: FontStyles.H3_bold_16,
           ),
         ),
       );
@@ -130,7 +130,7 @@ class CategorySelectView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("확인", style: FontStyles.H1_bold_17),
+              Text("확인", style: FontStyles.H2_bold_17),
               SizedBox(height: 16.h),
               Text(
                 "다른 관리자와 함께\n숨긴 글에서 공개글로 전환하세요.",

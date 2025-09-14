@@ -13,7 +13,8 @@ class SelectLetterPaperScreen extends StatefulWidget {
   const SelectLetterPaperScreen({super.key});
 
   @override
-  State<SelectLetterPaperScreen> createState() => _SelectLetterPaperScreenState();
+  State<SelectLetterPaperScreen> createState() =>
+      _SelectLetterPaperScreenState();
 }
 
 class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
@@ -60,7 +61,7 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
           alignment: Alignment.centerLeft,
           child: Text(
             "편지지 고르기",
-            style: FontStyles.H1_bold_17,
+            style: FontStyles.H2_bold_17,
             textAlign: TextAlign.left,
           ),
         ),

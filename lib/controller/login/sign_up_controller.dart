@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dear_deer_demo/model/deardeer_user.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
-import 'package:dear_deer_demo/view/home.dart';
+import 'package:dear_deer_demo/view/home/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

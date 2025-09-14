@@ -27,7 +27,7 @@ class LetterSent extends StatelessWidget {
           padding: const EdgeInsets.only(left: 24),
           child: Text(
             '보낸 편지함',
-            style: FontStyles.H1_bold_17,
+            style: FontStyles.H2_bold_17,
           ),
         ),
       );
@@ -83,7 +83,7 @@ class LetterSent extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -100,10 +100,10 @@ class LetterSent extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: SingleChildScrollView(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 child: Text(
                   controller.pagedTexts[index],
-                  style: FontStyles.L1_reg_16,
+                  style: FontStyles.L3_reg_16,
                 ),
               ),
             ),
@@ -115,10 +115,10 @@ class LetterSent extends StatelessWidget {
               child: index == controller.pagedTexts.length - 1
                   ? Text(
                       "2025년 12월 20일 \nFrom. OOO",
-                      style: FontStyles.L1_reg_16,
+                      style: FontStyles.L3_reg_16,
                       textAlign: TextAlign.right,
                     )
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
             ),
           ),
         ],
@@ -131,7 +131,7 @@ class LetterSent extends StatelessWidget {
         child: SmoothPageIndicator(
           controller: controller.pageController,
           count: controller.pagedTexts.length,
-          effect: SlideEffect(
+          effect: const SlideEffect(
             dotWidth: 6,
             dotHeight: 6,
             activeDotColor: AppColors.mainRed,

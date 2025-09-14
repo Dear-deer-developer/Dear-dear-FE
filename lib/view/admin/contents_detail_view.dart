@@ -27,7 +27,7 @@ class ContentsDetailView extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text("숨긴 글 확인", style: FontStyles.H1_bold_17),
+        title: Text("숨긴 글 확인", style: FontStyles.H2_bold_17),
         actions: [
           Row(
             children: [
