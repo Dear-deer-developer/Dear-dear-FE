@@ -28,6 +28,9 @@ class SharedPreferencesKeys {
 
   static const String deardeerUserJson = "user_json";
   static const String firebaseToken = "token";
+
+  // bgmusic
+  static String bgMusicSelectedIndex = "bg_music_selected_index";
 }
 
 // MARK: - logger 설정

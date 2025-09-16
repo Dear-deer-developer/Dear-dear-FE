@@ -2,8 +2,8 @@ import 'package:dear_deer_demo/controller/home/bg_music_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/widget/bg_music_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -23,7 +23,8 @@ class BgMusic extends GetView<BgMusicController> {
       children: [
         _head(),
         SizedBox(height: 19.h),
-        // _musicList(),
+        Expanded(child: _musicList()),
+        _playWidget(),
       ],
     );
   }
@@ -54,79 +55,33 @@ class BgMusic extends GetView<BgMusicController> {
     );
   }
 
-  // MARK: - 음악 리스트
-// Widget _musicList() {
-//   return Column(
-//     children: List.generate(
-//       6,
-//       (index) => _musicItem(
-//         title: '음악 제목 자리입니다.',
-//         artist: '가수 자리입니다.',
-//         cover: ImagePath.defaultMusicCover, // 기본 이미지
-//         onTap: () {
-//           controller.playMusic(index); // 컨트롤러에서 처리
-//         },
-//       ),
-//     ),
-//   );
-// }
+  // MARK: - 음악 리스트 (내부 위젯)
+  Widget _musicList() {
+    return Obx(() {
+      final items = controller.tracks; // 컨트롤러가 보유한 데이터
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: ListView.builder(
+            itemCount: controller.tracks.length,
+            itemBuilder: (context, i) {
+              return BgMusicWidget(
+                index: i,
+                track: controller.tracks[i],
+              );
+            }),
+      );
+    });
+  }
 
-// 개별 음악 아이템 위젯
-  Widget _musicItem({
-    required String title,
-    required String artist,
-    required String cover,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 앨범 커버
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: Image.asset(
-              cover,
-              width: 48.w,
-              height: 48.h,
-              fit: BoxFit.cover,
-            ),
-          ),
-          SizedBox(width: 12.w),
-
-          // 제목 & 가수
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: FontStyles.B3_bold_15,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  artist,
-                  style: FontStyles.B5_reg_13.copyWith(color: AppColors.G_05),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-
-          // 재생 버튼
-          GestureDetector(
-            onTap: onTap,
-            child: Icon(
-              Icons.play_arrow,
-              color: Colors.black,
-              size: 24.w,
-            ),
-          ),
-        ],
+  Widget _playWidget() {
+    return Container(
+      width: 360.w,
+      height: 72.h,
+      decoration: const BoxDecoration(
+        color: AppColors.mainRed,
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.start,
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/controller/calendar/calendar_controller.dart';
 import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
+import 'package:dear_deer_demo/controller/home/bg_music_controller.dart';
 import 'package:dear_deer_demo/controller/home/gift_controller.dart';
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
@@ -24,5 +25,6 @@ class MainBindings extends Bindings {
     Get.lazyPut(() => CalendarController());
     Get.lazyPut(() => ContentsController());
     Get.lazyPut(() => GiftController());
+    Get.lazyPut(() => BgMusicController());
   }
 }

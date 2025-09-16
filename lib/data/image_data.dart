@@ -56,6 +56,17 @@ class ImagePath {
   static String get giftBoxIcon => 'assets/images/giftbox_widget.png';
   static String get bgMusicIcon => 'assets/images/bgmusic_widget.png';
 
+  // MARK: - Background Music
+  static String get cover_image_1 => 'assets/images/music_image_1.png';
+  static String get cover_image_2 => 'assets/images/music_image_2.png';
+  static String get cover_image_3 => 'assets/images/music_image_3.png';
+  static String get cover_image_4 => 'assets/images/music_image_4.png';
+  static String get cover_image_5 => 'assets/images/music_image_5.png';
+  static String get cover_image_6 => 'assets/images/music_image_6.png';
+
+  static String get musicPlayIcon => 'assets/images/music_play_icon.png';
+  static String get musicStopIcon => 'assets/images/music_stop_icon.png';
+
   // MARK: - Setting
   static String get cameraIcon => 'assets/images/camera_icon.png';
   static String get sampleImage => 'assets/images/profile_sample_image.png';
