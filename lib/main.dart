@@ -13,6 +13,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,6 +50,13 @@ Future<void> main() async {
   // Widget 시스템 초기화 ( 플랫폼 채널 사용 등 사전 준비 )
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Background Audio init
+  // TODO: iOS => Xcode -> Singing & Capabilities -> Background modes => Audio,AirPlay, and Picutre in Picture check
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'bgmusic.channel.audio',
+    androidNotificationChannelName: 'Background Music',
+  );
+
   // 상태바, UI 표시 설정
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom] // 상단바 숨기기
@@ -69,6 +77,7 @@ Future<void> main() async {
     await loader.load();
   }
 
+  // 이서연체 적용
   await loadLeeSeoyunFont();
 
   // Futures
