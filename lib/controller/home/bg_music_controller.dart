@@ -1,27 +1,27 @@
 import 'package:audio_session/audio_session.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/model/music.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:dear_deer_demo/main.dart';
 import 'package:just_audio/just_audio.dart';
 
-class BgMusicController extends GetxController {
+class BgMusicController extends GetxController with WidgetsBindingObserver {
   // 기본 인덱스 값 -> 0
   final RxInt selectedIndex = 0.obs;
   // 현재 재생 여부
   final RxBool isPlaying = false.obs;
-
-  bool isSelected(int index) => selectedIndex.value == index;
-
   // Audio Player
   final AudioPlayer player = AudioPlayer();
 
-  // Utils
+  bool isSelected(int index) => selectedIndex.value == index;
+
+  bool _wasPlayingBeforePause = false; // 백그라운드로 갈 때 재생 중이었는지 기억
+
   // -------------------- 내부 유틸 --------------------
   Future<void> _configureAudioSession() async {
     final session = await AudioSession.instance;
-    await session
-        .configure(const AudioSessionConfiguration.music()); // ✅ 음악용 세션
+    await session.configure(const AudioSessionConfiguration.music());
   }
 
   Future<void> _loadAndPlay(int index) async {
@@ -63,10 +63,13 @@ class BgMusicController extends GetxController {
     }
   }
 
+  // MARK: onInit
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     _configureAudioSession();
+
     // 저장값 복원 (없으면 0 유지)
     final saved =
         sharedPreferences.getInt(SharedPreferencesKeys.bgMusicSelectedIndex);
@@ -74,7 +77,7 @@ class BgMusicController extends GetxController {
 
     // 현재 선택된 곡 정보
     final currentTrack = tracks[selectedIndex.value];
-    logger.d("🎵 BgMusic 초기화 완료: index=${selectedIndex.value}, "
+    logger.d("🎵 BgMusic : index=${selectedIndex.value}, "
         "title=${currentTrack.title}, artist=${currentTrack.artist}");
 
     // 재생 상태 변경 로그
@@ -87,10 +90,10 @@ class BgMusicController extends GetxController {
   }
 
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
     // 앱 시작 시 이전 곡 자동 재생
-    _autoplayLastSelected();
+    await _autoplayLastSelected();
   }
 
   Future<void> _autoplayLastSelected() async {
@@ -99,6 +102,27 @@ class BgMusicController extends GetxController {
       logger.d("🚀 자동 재생 완료: ${tracks[selectedIndex.value].title}");
     } catch (e) {
       logger.e("자동 재생 실패: $e");
+    }
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this); // <- 해제
+    player.dispose();
+    super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_wasPlayingBeforePause) {
+        player.play(); // 복귀 시 이어재생
+      }
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _wasPlayingBeforePause = isPlaying.value;
+      player.pause(); // 앱 배경/전환 시 일시정지
     }
   }
 

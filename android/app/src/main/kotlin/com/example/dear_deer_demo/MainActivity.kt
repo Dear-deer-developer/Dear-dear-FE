@@ -1,5 +1,4 @@
 package com.example.dear_deer_demo
+import io.flutter.embedding.android.FlutterActivity
 
-import com.ryanheise.audioservice.AudioServiceActivity
-
-class MainActivity : AudioServiceActivity()
+class MainActivity : FlutterActivity()

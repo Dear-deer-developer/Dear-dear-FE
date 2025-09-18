@@ -15,6 +15,7 @@ class MainBindings extends Bindings {
     // 서비스
     Get.put<AuthService>(AuthService(), permanent: true);
     Get.put<ApiService>(ApiService(), permanent: true);
+    Get.put<BgMusicController>(BgMusicController(), permanent: true);
 
     // 네비/탭 컨트롤러
     Get.put(BottomNavController(), permanent: true);
@@ -25,6 +26,5 @@ class MainBindings extends Bindings {
     Get.lazyPut(() => CalendarController());
     Get.lazyPut(() => ContentsController());
     Get.lazyPut(() => GiftController());
-    Get.lazyPut(() => BgMusicController());
   }
 }
