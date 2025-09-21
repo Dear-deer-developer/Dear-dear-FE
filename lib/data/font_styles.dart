@@ -69,7 +69,7 @@ class FontStyles {
     fontSize: 13.sp,
     height: 1.2.h,
   );
-  static TextStyle S1_reg_12 = TextStyle(
+  static TextStyle S2_reg_12 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 12.sp,
     height: 1.2.h,

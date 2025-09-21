@@ -73,7 +73,7 @@ class BgMusicWidget extends GetView<BgMusicController> {
                     Text(
                       track.artist,
                       style:
-                          FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
+                          FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
                     )
                   ],
                 ),

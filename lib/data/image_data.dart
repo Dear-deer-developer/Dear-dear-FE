@@ -67,6 +67,11 @@ class ImagePath {
   static String get musicPlayIcon => 'assets/images/music_play_icon.png';
   static String get musicStopIcon => 'assets/images/music_stop_icon.png';
 
+  static String get musicPlayIconWhite => 'assets/images/icon_play_white.png';
+  static String get musicStopIconWhite => 'assets/images/music_pause_icon.png';
+  static String get musicNextIconWhite =>
+      'assets/images/ic_round_skip_next.png';
+
   // MARK: - Setting
   static String get cameraIcon => 'assets/images/camera_icon.png';
   static String get sampleImage => 'assets/images/profile_sample_image.png';

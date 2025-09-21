@@ -63,6 +63,22 @@ class BgMusicController extends GetxController with WidgetsBindingObserver {
     }
   }
 
+  Future<void> playNext() async {
+    if (tracks.isEmpty) return;
+
+    final nextIndex = (selectedIndex.value + 1) % tracks.length;
+    selectedIndex.value = nextIndex;
+
+    // 선택값 저장
+    sharedPreferences.setInt(
+      SharedPreferencesKeys.bgMusicSelectedIndex,
+      nextIndex,
+    );
+
+    // 로드 & 재생
+    await _loadAndPlay(nextIndex);
+  }
+
   // MARK: onInit
   @override
   void onInit() {

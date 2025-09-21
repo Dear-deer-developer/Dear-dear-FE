@@ -74,15 +74,85 @@ class BgMusic extends GetView<BgMusicController> {
   }
 
   Widget _playWidget() {
-    return Container(
-      width: 360.w,
-      height: 72.h,
-      decoration: const BoxDecoration(
-        color: AppColors.mainRed,
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-      ),
-    );
+    return Obx(() {
+      final i =
+          controller.selectedIndex.value.clamp(0, controller.tracks.length - 1);
+      final track = controller.tracks[i];
+      final isPlaying = controller.isPlaying.value;
+
+      return Container(
+        width: 360.w,
+        height: 72.h,
+        decoration: const BoxDecoration(
+          color: AppColors.mainRed,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // 앨범 커버
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: Image.asset(
+                track.coverAssetPath,
+                width: 50.w,
+                height: 50.h,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(
+              width: 11.w,
+            ),
+            // 제목 / 아티스트
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // title
+                  Text(
+                    track.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: FontStyles.B4_bold_14.copyWith(color: Colors.white),
+                  ),
+                  // artist
+                  Text(
+                    track.artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: FontStyles.S2_reg_12.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 일시정지/재생
+            GestureDetector(
+              onTap: () => controller.togglePlay(i),
+              child: Image.asset(
+                isPlaying
+                    ? ImagePath.musicStopIconWhite
+                    : ImagePath.musicPlayIconWhite,
+                width: 40.w,
+                height: 40.h,
+              ),
+            ),
+            SizedBox(width: 8.w),
+
+            // 다음 곡
+            GestureDetector(
+              onTap: controller.playNext,
+              child: Image.asset(
+                ImagePath.musicNextIconWhite,
+                width: 40.w,
+                height: 40.h,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

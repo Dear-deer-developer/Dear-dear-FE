@@ -21,7 +21,7 @@ class CalendarWeekdayHeader extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               days[i],
-              style: FontStyles.S1_reg_12.copyWith(color: AppColors.White),
+              style: FontStyles.S2_reg_12.copyWith(color: AppColors.White),
             ),
           );
         }),

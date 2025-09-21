@@ -55,8 +55,8 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
       ),
       daysOfWeekHeight: 20,
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
-        weekdayStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
+        weekendStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
+        weekdayStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
         dowTextFormatter: (date, locale) =>
             ['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7],
       ),
