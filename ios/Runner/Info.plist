@@ -22,6 +22,15 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<!-- 카카오톡으로 로그인 -->
+		<string>kakaokompassauth</string>
+		<!-- 카카오톡 공유 -->
+		<string>kakaolink</string>
+		<!-- 카카오톡 채널 -->
+		<string>kakaoplus</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
