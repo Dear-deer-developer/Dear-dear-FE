@@ -27,6 +27,8 @@ dependencies:
   table_calendar: ^3.0.0
   audio_session: ^0.2.2
   just_audio: 0.10.5
+  timezone: ^0.10.1
+  firebase_messaging: ^16.0.2
   
 
 dev_dependencies:

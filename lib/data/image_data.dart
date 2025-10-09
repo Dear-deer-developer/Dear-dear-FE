@@ -56,6 +56,11 @@ class ImagePath {
   static String get giftBoxIcon => 'assets/images/giftbox_widget.png';
   static String get bgMusicIcon => 'assets/images/bgmusic_widget.png';
 
+  static String get alarmEve => 'assets/images/alarm_image_eve.png';
+  static String get alarmXmas => 'assets/images/alarm_image_xmas.png';
+
+  static String get greyArrow => 'assets/images/grey_arrow.png';
+
   // MARK: - Background Music
   static String get cover_image_1 => 'assets/images/music_image_1.png';
   static String get cover_image_2 => 'assets/images/music_image_2.png';
