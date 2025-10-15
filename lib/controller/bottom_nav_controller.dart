@@ -3,6 +3,7 @@ import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:dear_deer_demo/main.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:get/get.dart';
 
 // Page 구분 enum

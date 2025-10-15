@@ -1,6 +1,7 @@
 import 'package:audio_session/audio_session.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/model/music.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:dear_deer_demo/main.dart';

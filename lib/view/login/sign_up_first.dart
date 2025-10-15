@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/controller/login/sign_up_controller.dart';
+import 'package:dear_deer_demo/controller/login/auth_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
@@ -7,11 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-class SignUpFirst extends StatelessWidget {
-  SignUpFirst({super.key});
+class SignUpFirst extends GetView<AuthController> {
+  const SignUpFirst({super.key});
 
-  final SignUpController c = Get.put(SignUpController());
-  final RxBool _pressed = false.obs;
+  // 뷰 로컬 상태 (UX용)
+  static final RxString _nickname = ''.obs;
+  static final RxnString _errorText = RxnString();
+  static final RxBool _canSubmit = false.obs;
+  static final RxBool _pressed = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +57,8 @@ class SignUpFirst extends StatelessWidget {
   // MARK: - 닉네임 입력 필드
   Widget _nicknameInputField() {
     return Obx(() {
-      final hasError = c.errorText.value != null;
-      final isEmpty = c.nickname.value.isEmpty;
+      final hasError = _errorText.value != null;
+      final isEmpty = _nickname.value.isEmpty;
 
       final Color borderColor = hasError
           ? Colors.red
@@ -74,7 +77,7 @@ class SignUpFirst extends StatelessWidget {
           children: [
             Expanded(
               child: TextField(
-                controller: c.nicknameCtrl,
+                controller: controller.signNicknameCtrl,
                 // onChanged: (_) {},
                 maxLength: 16,
                 style: FontStyles.B3_bold_15,
@@ -95,7 +98,10 @@ class SignUpFirst extends StatelessWidget {
             if (!isEmpty)
               GestureDetector(
                 onTap: () {
-                  c.nicknameCtrl.clear();
+                  controller.signNicknameCtrl.clear();
+                  _nickname.value = '';
+                  _errorText.value = null;
+                  _canSubmit.value = false;
                 },
                 child: Padding(
                   padding: EdgeInsets.only(right: 5.w),
@@ -110,7 +116,7 @@ class SignUpFirst extends StatelessWidget {
               padding: EdgeInsets.only(right: 15.0.w),
               child: Obx(
                 () => Text(
-                  '${c.nickname.value.length}/16',
+                  '${_nickname.value.length}/16',
                   style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
                 ),
               ),
@@ -129,15 +135,15 @@ class SignUpFirst extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPadding),
       child: Obx(() {
-        final bool isActive = c.canSubmit.value && !c.isSubmitting.value;
+        final bool isActive = _canSubmit.value && !controller.isLoading.value;
         final bool isPressed = _pressed.value;
-        final bool isLoading = c.isSubmitting.value;
+        final bool isLoading = controller.isLoading.value;
 
         return CustomCheckButton(
           text: isLoading ? '처리중...' : '확인하기',
           isActive: isActive && !isLoading,
           isPressed: isPressed,
-          onTap: isActive ? () => c.submit() : null, // 서버 전송
+          onTap: isActive ? controller.submitNickname : null, // 서버 전송
           onTapDown: () => _pressed.value = true,
           onTapUp: () => _pressed.value = false,
           onTapCancel: () => _pressed.value = false,

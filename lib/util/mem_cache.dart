@@ -1,7 +1,7 @@
 class MemCache {
   static final Map<MemCacheKey, dynamic> _map = {};
 
-  static put(MemCacheKey key, dynamic value) {
+  static void put(MemCacheKey key, dynamic value) {
     _map[key] = value;
   }
 
@@ -9,11 +9,11 @@ class MemCache {
     return _map[key];
   }
 
-  static contains(MemCacheKey key) {
+  static bool contains(MemCacheKey key) {
     return _map[key] == null;
   }
 
-  static remove(MemCacheKey key) {
+  static dynamic remove(MemCacheKey key) {
     return _map.remove(key);
   }
 
@@ -25,4 +25,6 @@ class MemCache {
 enum MemCacheKey {
   firebaseAuthIdToken,
   deardeerUserJson,
+  jwtAccessToken,
+  jwtRefreshToken,
 }

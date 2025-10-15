@@ -6,6 +6,7 @@ import 'package:dear_deer_demo/controller/home/alarm_controller.dart';
 import 'package:dear_deer_demo/controller/home/bg_music_controller.dart';
 import 'package:dear_deer_demo/controller/home/gift_controller.dart';
 import 'package:dear_deer_demo/controller/home/home_controller.dart';
+import 'package:dear_deer_demo/controller/login/auth_controller.dart';
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
@@ -15,8 +16,8 @@ class MainBindings extends Bindings {
   @override
   void dependencies() {
     // 서비스
-    Get.put<AuthService>(AuthService(), permanent: true);
     Get.put<ApiService>(ApiService(), permanent: true);
+    Get.put<AuthService>(AuthService(), permanent: true);
     Get.put<BgMusicController>(BgMusicController(), permanent: true);
     Get.put<AppStartController>(AppStartController(), permanent: true);
 
@@ -24,6 +25,7 @@ class MainBindings extends Bindings {
     Get.put(BottomNavController(), permanent: true);
 
     // 페이지 컨트롤러 (lazy로 두어도 OK)
+    Get.lazyPut(() => AuthController());
     Get.lazyPut(() => HomeController());
     Get.lazyPut(() => PostController());
     Get.lazyPut(() => CalendarController());

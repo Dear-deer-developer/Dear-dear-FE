@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/model/deardeer_gift.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:get/get.dart';
 
 class GiftController extends GetxController {

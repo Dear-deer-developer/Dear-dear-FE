@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/util/helper/auth_helper.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get_connect/connect.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
