@@ -1,5 +1,7 @@
 import 'package:dear_deer_demo/controller/login/auth_controller.dart';
+import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/view/login/jwt_sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -40,6 +42,20 @@ class LoginMain extends GetView<AuthController> {
                       ImagePath.kakaoLoginButton,
                       width: 312.w,
                       height: 48.h,
+                    ),
+                  ),
+                  // MARK: - 임시 회원 가입 버튼
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => JwtSignUp());
+                    },
+                    child: Container(
+                      width: 312.w,
+                      height: 48.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.mainGreen,
+                      ),
+                      child: Text('임시 회원 가입'),
                     ),
                   ),
                 ],

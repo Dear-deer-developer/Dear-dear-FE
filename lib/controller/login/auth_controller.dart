@@ -32,7 +32,7 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  // 로그인
+  // MARK: 로그인
   Future<void> login() async {
     final email = loginEmailCtrl.text.trim();
     final pw = loginPwCtrl.text;
@@ -64,42 +64,61 @@ class AuthController extends GetxController {
     }
   }
 
-  // 회원가입
+//MARK: 회원가입
   Future<void> register() async {
     final email = signEmailCtrl.text.trim();
     final pw1 = signPwCtrl.text;
-    final pw2 = signPw2Ctrl.text;
     final nick = signNicknameCtrl.text.trim();
 
-    if (!_validEmail(email) ||
-        !_validPw(pw1) ||
-        pw1 != pw2 ||
-        !_validNick(nick)) {
+    logger.i('[회원가입 버튼 클릭됨]');
+    logger.i('입력값 => email:$email, pw1_len:${pw1.length}, nick:$nick');
+
+    final emailValid = _validEmail(email);
+    // 비밀번호 정책은 기존대로 (예: 8~20자 영문+숫자)
+    final pwValid = _validPw(pw1);
+    final nickValid = _validNick(nick);
+
+    logger.i(
+        '검증 결과 => emailValid:$emailValid, pwValid:$pwValid, nickValid:$nickValid');
+
+    if (!emailValid || !pwValid || !nickValid) {
+      logger.w('⚠️ 입력값 유효성 실패, 회원가입 중단');
       Get.snackbar('회원가입', '입력값을 확인해주세요.');
       return;
     }
 
     isLoading(true);
     try {
+      logger.i('서버 요청 시작 → /auth/register');
       final api = Get.find<ApiService>();
-      final res = await api.postJson('/auth/register', {
+      final payload = {
         'email': email,
         'password': pw1,
-        'passwordConfirm': pw2,
         'nickname': nick,
-      });
+        // 'passwordConfirm': pw1,   // 서버가 필요하면 이 줄을 주석 해제
+      };
+      logger.i('요청 바디: $payload');
+
+      final res = await api.postJson('/auth/register', payload);
+
+      logger.i('서버 응답 상태코드: ${res.statusCode}');
+      logger.i('서버 응답 본문: ${res.bodyString}');
 
       if (res.statusCode == 200 || res.statusCode == 201) {
+        logger.i('✅ 회원가입 성공: $email');
         Get.snackbar('회원가입', '완료되었습니다. 로그인해주세요!');
         Get.offAll(() => const LoginMain());
         return;
       }
+
+      logger.w('❌ 회원가입 실패 - status:${res.statusCode}');
       Get.snackbar('회원가입 실패', res.bodyString ?? '서버 오류');
     } catch (e, st) {
       logger.e('register 예외', error: e, stackTrace: st);
       Get.snackbar('오류', '일시적 오류가 발생했습니다.');
     } finally {
       isLoading(false);
+      logger.i('회원가입 처리 완료, isLoading=false');
     }
   }
 
