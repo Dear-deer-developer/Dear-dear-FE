@@ -23,7 +23,6 @@ class MemCache {
 }
 
 enum MemCacheKey {
-  firebaseAuthIdToken,
   deardeerUserJson,
   jwtAccessToken,
   jwtRefreshToken,
