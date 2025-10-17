@@ -125,7 +125,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // 확인하기
+  // MARK: 확인하기
   Future<void> submitNickname() async {
     final nick = signNicknameCtrl.text.trim();
 
@@ -149,6 +149,24 @@ class AuthController extends GetxController {
     } catch (e, st) {
       logger.e('submitNickname 예외', error: e, stackTrace: st);
       Get.snackbar('오류', '일시적 오류가 발생했습니다.');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  //MARK: 로그아웃
+  Future<void> logout() async {
+    if (isLoading.value) return;
+    isLoading(true);
+    try {
+      final auth = Get.find<AuthService>();
+      await auth.logout(); // 토큰/유저/캐시 정리
+
+      logger.i('✅ 로그아웃 성공');
+      Get.offAll(() => const LoginMain()); // 로그인 화면으로
+    } catch (e, st) {
+      logger.e('❌ 로그아웃 실패', error: e, stackTrace: st);
+      rethrow;
     } finally {
       isLoading(false);
     }

@@ -1,7 +1,10 @@
+import 'package:dear_deer_demo/controller/login/auth_controller.dart';
 import 'package:dear_deer_demo/controller/profile/profile_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/util/logger.dart';
+import 'package:dear_deer_demo/widget/logout_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -185,16 +188,42 @@ class ProfileMain extends GetView<ProfileController> {
             ),
           ),
         ),
-        // 로그아웃
+        // MARK: 로그아웃
         SizedBox(
           height: 48.h,
           child: Padding(
             padding: EdgeInsets.only(left: 24.w),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '로그아웃',
-                style: FontStyles.B3_reg_15,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () async {
+                final ok = await LogoutDialog.show();
+                if (!ok) {
+                  logger.i('[UI] 로그아웃 다이얼로그: 취소/닫힘');
+                  return;
+                }
+
+                // AuthController 가져오기 (미등록 시 안전하게 put)
+                final authCtrl = Get.isRegistered<AuthController>()
+                    ? Get.find<AuthController>()
+                    : Get.put(AuthController());
+
+                logger.i('[UI] 로그아웃 확인 클릭 → AuthController.logout() 호출');
+                try {
+                  await authCtrl.logout(); // ← AuthController에 구현된 로그아웃 사용
+                  logger.i('[UI] AuthController.logout() 완료');
+                } catch (e, st) {
+                  logger.e('[UI] AuthController.logout() 예외',
+                      error: e, stackTrace: st);
+                  Get.snackbar('로그아웃 실패', '잠시 후 다시 시도해주세요.');
+                }
+              },
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '로그아웃',
+                  style: FontStyles.B3_reg_15.copyWith(
+                      color: const Color(0xFFFF5656)),
+                ),
               ),
             ),
           ),

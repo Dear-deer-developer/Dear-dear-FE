@@ -29,7 +29,7 @@ class AuthService extends GetxService {
     _restoreFromStorage();
   }
 
-  // MARK: 로그인: POST /auth/login
+  // MARK: 로그인: POST /auth/native/login
   Future<LoginResult> loginWithEmail({
     required String email,
     required String password,

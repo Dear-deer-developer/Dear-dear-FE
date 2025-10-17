@@ -33,6 +33,9 @@ class ImagePath {
   static String get nicknameDeletdButton =>
       'assets/images/nickname_delete_button.png';
   static String get loginIcon => 'assets/images/main_icon_login_page.png';
+  static String get textDeleteIcon => 'assets/images/icon_textdelete.png';
+  static String get eyeOffIcon => 'assets/images/eye_off.png';
+  static String get eyeOnIcon => 'assets/images/eye_on.png';
 
   // MARK: - Bot_nav_icon
   static String get homeOn => 'assets/images/home_on.png';
