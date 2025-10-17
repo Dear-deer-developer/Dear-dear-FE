@@ -160,10 +160,18 @@ class AuthController extends GetxController {
     isLoading(true);
     try {
       final auth = Get.find<AuthService>();
-      await auth.logout(); // 토큰/유저/캐시 정리
+      await auth.logout();
 
-      logger.i('✅ 로그아웃 성공');
-      Get.offAll(() => const LoginMain()); // 로그인 화면으로
+      // 🔧 기존 AuthController 완전히 제거 (내부 TextEditingController들도 같이 정리됨)
+      await Get.delete<AuthController>(force: true);
+
+      // 🔧 LoginMain으로 이동하면서 새 AuthController 바인딩
+      Get.offAll(
+        () => const LoginMain(),
+        binding: BindingsBuilder(() {
+          Get.put(AuthController()); // 새 인스턴스
+        }),
+      );
     } catch (e, st) {
       logger.e('❌ 로그아웃 실패', error: e, stackTrace: st);
       rethrow;
