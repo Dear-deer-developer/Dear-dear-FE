@@ -13,7 +13,7 @@ class LogoutDialog extends StatelessWidget {
     final result = await Get.dialog<bool>(
       const LogoutDialog(),
       barrierDismissible: true, // 바깥 탭 시 닫힘
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.3),
     );
     return result ?? false;
   }
@@ -21,110 +21,70 @@ class LogoutDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      elevation: 0, // 그림자 제거
+      insetPadding: EdgeInsets.zero, // 고정 폭/높이 사용
       backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.symmetric(horizontal: 36.w),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 12.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // MARK: - 타이틀
-            Text(
-              '로그아웃',
-              style: FontStyles.H3_bold_16,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12.h),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      child: SizedBox(
+        width: 312.w,
+        height: 224.h, // ✅ 고정 사이즈
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+          child: Column(
+            children: [
+              // 제목
+              Text('로그아웃',
+                  style: FontStyles.H2_bold_17, textAlign: TextAlign.center),
 
-            // MARK: - 본문 문구
-            Text(
-              '편지는 계속 쌓아 두고 있을게요🥲\n또 만나요👋',
-              style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16.h),
+              SizedBox(height: 42.h),
 
-            // MARK: - 구분선
-            Divider(height: 1.h, color: AppColors.G_01),
-            SizedBox(height: 8.h),
+              // 본문 (구분선 없음)
+              Text(
+                '편지는 계속 쌓아 두고 있을게요🥲\n또 만나요👋👋',
+                style: FontStyles.B2_reg_16,
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              // 하단 버튼
+              SizedBox(
+                height: 44.h,
+                child: Row(
+                  children: [
+                    // 뒤로
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Get.back(result: false),
+                        child: Center(
+                          // ✅ 중앙 정렬로 변경
+                          child: Text(
+                            '뒤로',
+                            style: FontStyles.B2_reg_16.copyWith(
+                                color: AppColors.G_05),
+                          ),
+                        ),
+                      ),
+                    ),
 
-            // MARK: - 버튼 영역
-            Row(
-              children: [
-                Expanded(
-                  child: _GhostButton(
-                    label: '뒤로',
-                    onTap: () => Get.back(result: false),
-                  ),
+                    // 로그아웃
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Get.back(result: true),
+                        child: Center(
+                          // ✅ 중앙 정렬로 변경
+                          child: Text(
+                            '로그아웃',
+                            style: FontStyles.B2_reg_16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: _PrimaryButton(
-                    label: '로그아웃',
-                    onTap: () => Get.back(result: true),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// MARK: - 내부 버튼 위젯들 ------------------------------
-
-class _PrimaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _PrimaryButton({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 44.h,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.mainGreen,
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: Text(
-          label,
-          style: FontStyles.B2_reg_16.copyWith(color: Colors.white),
-        ),
-      ),
-    );
-  }
-}
-
-class _GhostButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _GhostButton({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 44.h,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: AppColors.G_02, width: 1.w),
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: Text(
-          label,
-          style: FontStyles.B2_reg_16.copyWith(color: AppColors.G_05),
+              ),
+            ],
+          ),
         ),
       ),
     );

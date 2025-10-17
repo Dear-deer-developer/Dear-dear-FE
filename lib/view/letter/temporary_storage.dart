@@ -101,11 +101,11 @@ class TemporaryStorage extends StatelessWidget {
                               Text("Dear. 닉네임", style: FontStyles.B4_bold_14),
                               Text(
                                 "작성하던 편지 내용 한줄. 작성하던 편지 내용 한줄. 작성하던",
-                                style: FontStyles.S1_reg_10,
+                                style: FontStyles.S3_reg_10,
                               ),
                               Text(
                                 "마지막 저장 : 2025. 11. 28. 23: 45",
-                                style: FontStyles.S1_reg_10,
+                                style: FontStyles.S3_reg_10,
                               ),
                             ],
                           ),

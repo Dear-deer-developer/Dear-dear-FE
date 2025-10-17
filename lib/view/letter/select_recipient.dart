@@ -240,9 +240,9 @@ class _SelectRecipientState extends State<SelectRecipient> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('사서함 번호 : ${friend['number']}',
-                    style: FontStyles.S1_reg_10),
+                    style: FontStyles.S3_reg_10),
                 Text('사용자 닉네임 : ${friend['nickname']}',
-                    style: FontStyles.S1_reg_10),
+                    style: FontStyles.S3_reg_10),
               ],
             ),
             trailing: Radio<int>(

@@ -543,7 +543,7 @@ class _DayCard extends StatelessWidget {
               Image.asset(imagePath, width: 80.w, height: 80.h),
               Text(title, style: FontStyles.B4_bold_14),
               SizedBox(height: 2.h),
-              Text(subtitle, style: FontStyles.S1_reg_10)
+              Text(subtitle, style: FontStyles.S3_reg_10)
             ],
           ),
         ),

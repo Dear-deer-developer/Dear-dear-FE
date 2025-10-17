@@ -121,7 +121,7 @@ class PostMain extends GetView<PostController> {
                   SizedBox(height: 4.h),
                   Text(
                     subtitle,
-                    style: FontStyles.S1_reg_10.copyWith(color: AppColors.G_05),
+                    style: FontStyles.S3_reg_10.copyWith(color: AppColors.G_05),
                   ),
                 ],
               ),

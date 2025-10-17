@@ -4,6 +4,7 @@ import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/model/deardeer_user.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
@@ -17,7 +18,12 @@ class ProfileController extends GetxController {
   }
 
   // === 게터들 (뷰에서 사용) ===
-  String getUserName() => me.value?.nickname ?? '';
+  String getUserName() {
+    final name = me.value?.nickname ?? '';
+    logger.i('User Nickname: $name');
+    return name;
+  }
+
   String getZipCodeText() {
     final zc = me.value?.zipCode ?? 0;
     // 0 이거나 미설정이면 대시로 표시

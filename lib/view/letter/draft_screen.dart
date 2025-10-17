@@ -214,13 +214,13 @@ class _DraftsScreenState extends State<DraftsScreen> {
                   SizedBox(height: 6.h),
                   Text(
                     draft['preview'] ?? '',
-                    style: FontStyles.S1_reg_10.copyWith(color: AppColors.G_06),
+                    style: FontStyles.S3_reg_10.copyWith(color: AppColors.G_06),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     "마지막 저장 : ${draft['date']}",
-                    style: FontStyles.S1_reg_10.copyWith(color: AppColors.G_06),
+                    style: FontStyles.S3_reg_10.copyWith(color: AppColors.G_06),
                   ),
                 ],
               ),
