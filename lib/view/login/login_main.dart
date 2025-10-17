@@ -2,6 +2,7 @@ import 'package:dear_deer_demo/controller/login/auth_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/view/login/jwt_sign_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -48,17 +49,15 @@ class LoginMain extends GetView<AuthController> {
                   SizedBox(
                     height: 24.h,
                   ),
-                  // MARK: - 로그인 필드
+                  // MARK: - 로그인 입력
                   _idField(),
                   SizedBox(
                     height: 8.h,
                   ),
                   _passwordField(),
-
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 24.h),
                   _loginButton(),
-
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 24.h),
                   _helperLinks(),
                 ],
               ),
@@ -69,173 +68,171 @@ class LoginMain extends GetView<AuthController> {
     );
   }
 
+  // MARK: 아이디 입력 필드
   Widget _idField() {
-    return Obx(() {
-      return Container(
-        width: 312.w,
-        height: 48.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: AppColors.G_02, width: 1.w),
-        ),
-        child: Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            // TextField
-            TextField(
-              controller: controller.loginEmailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              onChanged: (v) {
-                _email.value = v.trim();
+    return Container(
+      width: 312.w,
+      height: 48.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: AppColors.G_02, width: 1.w),
+      ),
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          // TextField
+          TextField(
+            controller: controller.loginEmailCtrl,
+            keyboardType: TextInputType.emailAddress,
+            onChanged: (v) {
+              _email.value = v.trim();
+              _recalcSubmit();
+            },
+            style: FontStyles.B3_bold_15,
+            textAlignVertical: TextAlignVertical.center,
+            cursorColor: AppColors.mainGreen,
+            decoration: InputDecoration(
+              hintText: '아이디',
+              hintStyle: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
+              // 오른쪽 패딩 추가 (X 아이콘 영역 확보)
+            ),
+          ),
+
+          // X 삭제 버튼 (오른쪽 끝 정렬)
+          Positioned(
+            right: 0.w, // ← 오른쪽 테두리에 완전히 붙임
+            top: 0,
+            bottom: 0,
+            child: GestureDetector(
+              onTap: () {
+                controller.loginEmailCtrl.clear();
+                _email.value = '';
                 _recalcSubmit();
               },
-              style: FontStyles.B3_bold_15,
-              textAlignVertical: TextAlignVertical.center,
-              cursorColor: AppColors.mainGreen,
-              decoration: InputDecoration(
-                hintText: '아이디',
-                hintStyle: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
-                // 오른쪽 패딩 추가 (X 아이콘 영역 확보)
+              behavior: HitTestBehavior.translucent, // 터치 영역
+              child: Image.asset(
+                ImagePath.textDeleteIcon,
+                width: 48.w,
+                height: 48.h,
               ),
             ),
-
-            // X 삭제 버튼 (오른쪽 끝 정렬)
-            Positioned(
-              right: 0.w, // ← 오른쪽 테두리에 완전히 붙임
-              top: 0,
-              bottom: 0,
-              child: GestureDetector(
-                onTap: () {
-                  controller.loginEmailCtrl.clear();
-                  _email.value = '';
-                  _recalcSubmit();
-                },
-                behavior: HitTestBehavior.translucent, // 터치 영역
-                child: Image.asset(
-                  ImagePath.textDeleteIcon,
-                  width: 48.w,
-                  height: 48.h,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 
   // MARK: 비밀번호 입력 필드
   Widget _passwordField() {
-    return Obx(() {
-      final hasError = _loginError.value != null;
+    final hasError = _loginError.value != null;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 312.w,
-            height: 48.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(color: AppColors.G_02, width: 1.w),
-            ),
-            child: Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                // TextField
-                TextField(
-                  controller: controller.loginPwCtrl,
-                  obscureText: !_pwVisible.value,
-                  onChanged: (v) {
-                    _pw.value = v;
-                    if (_loginError.value != null) _loginError.value = null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 312.w,
+          height: 48.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: AppColors.G_02, width: 1.w),
+          ),
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              // TextField
+              TextField(
+                controller: controller.loginPwCtrl,
+                obscureText: !_pwVisible.value,
+                onChanged: (v) {
+                  _pw.value = v;
+                  if (_loginError.value != null) _loginError.value = null;
+                  _recalcSubmit();
+                },
+                style: FontStyles.B3_bold_15,
+                textAlignVertical: TextAlignVertical.center,
+                cursorColor: AppColors.mainGreen,
+                decoration: InputDecoration(
+                  hintText: '비밀번호',
+                  hintStyle:
+                      FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
+                  border: InputBorder.none,
+                  isDense: true,
+                  // 오른쪽 여백 확보 (eye + delete 아이콘 영역)
+                  contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
+                ),
+              ),
+
+              // 눈 아이콘 (보이기/가리기)
+              Positioned(
+                right: 48.w, // ← 삭제 버튼 바로 왼쪽에 붙음
+                top: 0,
+                bottom: 0,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => _pwVisible.value = !_pwVisible.value,
+                  child: SizedBox(
+                    width: 18.w,
+                    height: 18.h,
+                    child: Center(
+                      child: Image.asset(
+                        _pwVisible.value
+                            ? ImagePath.eyeOffIcon
+                            : ImagePath.eyeOnIcon,
+                        width: 18.w,
+                        height: 18.h,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // X 삭제 버튼 (오른쪽 끝)
+              Positioned(
+                right: 0.w,
+                top: 0,
+                bottom: 0,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    controller.loginPwCtrl.clear();
+                    _pw.value = '';
                     _recalcSubmit();
                   },
-                  style: FontStyles.B3_bold_15,
-                  textAlignVertical: TextAlignVertical.center,
-                  cursorColor: AppColors.mainGreen,
-                  decoration: InputDecoration(
-                    hintText: '비밀번호',
-                    hintStyle:
-                        FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
-                    border: InputBorder.none,
-                    isDense: true,
-                    // 오른쪽 여백 확보 (eye + delete 아이콘 영역)
-                    contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
-                  ),
-                ),
-
-                // 눈 아이콘 (보이기/가리기)
-                Positioned(
-                  right: 48.w, // ← 삭제 버튼 바로 왼쪽에 붙음
-                  top: 0,
-                  bottom: 0,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () => _pwVisible.value = !_pwVisible.value,
-                    child: SizedBox(
-                      width: 18.w,
-                      height: 18.h,
-                      child: Center(
-                        child: Image.asset(
-                          _pwVisible.value
-                              ? ImagePath.eyeOffIcon
-                              : ImagePath.eyeOnIcon,
-                          width: 18.w,
-                          height: 18.h,
-                        ),
+                  child: SizedBox(
+                    width: 48.w,
+                    height: 48.h,
+                    child: Center(
+                      child: Image.asset(
+                        ImagePath.textDeleteIcon,
+                        width: 48.w,
+                        height: 48.h,
                       ),
                     ),
                   ),
                 ),
-
-                // X 삭제 버튼 (오른쪽 끝)
-                Positioned(
-                  right: 0.w,
-                  top: 0,
-                  bottom: 0,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      controller.loginPwCtrl.clear();
-                      _pw.value = '';
-                      _recalcSubmit();
-                    },
-                    child: SizedBox(
-                      width: 48.w,
-                      height: 48.h,
-                      child: Center(
-                        child: Image.asset(
-                          ImagePath.textDeleteIcon,
-                          width: 48.w,
-                          height: 48.h,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
 
-          // 에러 메시지
-          if (hasError) ...[
-            SizedBox(height: 6.h),
-            Text(
-              _loginError.value!,
-              style: FontStyles.S1_reg_13.copyWith(color: AppColors.mainRed),
-            ),
-          ],
+        // 에러 메시지
+        if (hasError) ...[
+          SizedBox(height: 6.h),
+          Text(
+            _loginError.value!,
+            style: FontStyles.S1_reg_13.copyWith(color: AppColors.mainRed),
+          ),
         ],
-      );
-    });
+      ],
+    );
   }
 
+  // MARK: 로그인 버튼
   Widget _loginButton() {
     return Obx(() {
       final enabled = _canSubmit.value && !_loading.value;
@@ -247,7 +244,7 @@ class LoginMain extends GetView<AuthController> {
           height: 48.h,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: enabled ? AppColors.mainGreen : AppColors.G_01,
+            color: enabled ? AppColors.mainGreen : AppColors.Green01,
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: _loading.value
@@ -259,7 +256,7 @@ class LoginMain extends GetView<AuthController> {
               : Text(
                   '로그인',
                   style: FontStyles.Button_bold_17.copyWith(
-                    color: enabled ? Colors.white : AppColors.G_02,
+                    color: enabled ? Colors.white : AppColors.Green02,
                   ),
                 ),
         ),
@@ -267,9 +264,11 @@ class LoginMain extends GetView<AuthController> {
     });
   }
 
+  // MARK: 비밀번호, 아이디 찾기, 회원가입
   Widget _helperLinks() {
     return SizedBox(
-      width: 312.w,
+      width: 238.w,
+      height: 14.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -280,7 +279,8 @@ class LoginMain extends GetView<AuthController> {
             // TODO: 라우팅 연결
           }),
           _link('회원가입', () {
-            // TODO: Get.to(() => JwtSignUp());
+            TODO:
+            Get.to(() => JwtSignUp());
           }),
         ],
       ),
@@ -292,7 +292,7 @@ class LoginMain extends GetView<AuthController> {
       onTap: onTap,
       child: Text(
         text,
-        style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
+        style: FontStyles.S2_reg_12,
       ),
     );
   }

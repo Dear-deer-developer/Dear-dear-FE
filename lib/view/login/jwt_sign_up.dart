@@ -85,7 +85,7 @@ class JwtSignUp extends GetView<AuthController> {
     if (v.length < 8 || v.length > 20) return '비밀번호는 8~20자';
     final hasLetter = RegExp(r'[A-Za-z]').hasMatch(v);
     final hasDigit = RegExp(r'\d').hasMatch(v);
-    if (!(hasLetter && hasDigit)) return '영문과 숫자를 포함';
+    if (!(hasLetter && hasDigit)) return '영문과 숫자,특수기호를 포함';
     return null;
   }
 
@@ -311,7 +311,7 @@ class JwtSignUp extends GetView<AuthController> {
                 textAlignVertical: TextAlignVertical.center,
                 cursorColor: AppColors.mainGreen,
                 decoration: InputDecoration(
-                  hintText: '비밀번호 (8~20자, 영문+숫자)',
+                  hintText: '비밀번호 (8~20자, 영문+숫자+특수기호)',
                   hintStyle:
                       FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
                   border: InputBorder.none,
