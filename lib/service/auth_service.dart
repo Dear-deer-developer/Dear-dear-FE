@@ -29,14 +29,15 @@ class AuthService extends GetxService {
     _restoreFromStorage();
   }
 
-  // 로그인: POST /auth/login
+  // MARK: 로그인: POST /auth/login
   Future<LoginResult> loginWithEmail({
     required String email,
     required String password,
   }) async {
     try {
       final api = Get.find<ApiService>();
-      final res = await api.postJson('/auth/login', {
+
+      final res = await api.postJson('/auth/native/login', {
         'email': email,
         'password': password,
       });
@@ -57,20 +58,31 @@ class AuthService extends GetxService {
 
       final access = body['accessToken'] as String?;
       final refresh = body['refreshToken'] as String?;
-      final userMap = body['user'] as Map<String, dynamic>?;
 
-      if ((access == null || access.isEmpty) || userMap == null) {
-        logger.e('loginWithEmail 응답 누락: $bodyStr');
-        return const LoginResult(isSuccess: false, message: '응답 데이터 누락');
+      if (access == null || access.isEmpty) {
+        logger.e('loginWithEmail 토큰 없음: $bodyStr');
+        return const LoginResult(isSuccess: false, message: '토큰 없음');
       }
 
-      final u = DeardeerUser.fromJson(userMap);
-
       await _persistTokens(access, refresh);
-      await _persistUser(u);
-      user.value = u;
 
-      logger.i('로그인 성공: ${u.email ?? u.nickname ?? 'no-identifier'}');
+      // 유저 프로필 시도 (/users/me) — 실패해도 로그인은 성공
+      DeardeerUser? u;
+      try {
+        final me = await api.get('/users/me');
+        if (me.statusCode == 200 && me.bodyString?.isNotEmpty == true) {
+          final map = jsonDecode(me.bodyString!) as Map<String, dynamic>;
+          u = DeardeerUser.fromJson(map);
+          await _persistUser(u);
+          user.value = u;
+        } else {
+          logger.w('get /users/me 실패: ${me.statusCode} ${me.bodyString}');
+        }
+      } catch (e, st) {
+        logger.w('get /users/me 예외', error: e, stackTrace: st);
+      }
+
+      logger.i('로그인 성공(토큰 기반). user=${u?.email ?? u?.nickname ?? 'null'}');
       return LoginResult(isSuccess: true, user: u);
     } catch (e, st) {
       logger.e('loginWithEmail 예외', error: e, stackTrace: st);
@@ -78,7 +90,7 @@ class AuthService extends GetxService {
     }
   }
 
-  // 로그아웃
+  // MARK: 로그아웃
   Future<bool> logout() async {
     try {
       await _clearAuthLocal();

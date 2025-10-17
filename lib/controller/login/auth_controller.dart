@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:dear_deer_demo/app.dart';
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
@@ -69,6 +70,7 @@ class AuthController extends GetxController {
     final email = signEmailCtrl.text.trim();
     final pw1 = signPwCtrl.text;
     final nick = signNicknameCtrl.text.trim();
+    final randomZip = 10000 + Random().nextInt(90000); // 0~89999 → 10000~99999
 
     logger.i('[회원가입 버튼 클릭됨]');
     logger.i('입력값 => email:$email, pw1_len:${pw1.length}, nick:$nick');
@@ -89,17 +91,18 @@ class AuthController extends GetxController {
 
     isLoading(true);
     try {
-      logger.i('서버 요청 시작 → /auth/register');
+      logger.i('서버 요청 시작 → /auth/native/register');
       final api = Get.find<ApiService>();
       final payload = {
         'email': email,
         'password': pw1,
         'nickname': nick,
+        'zipCode': randomZip,
         // 'passwordConfirm': pw1,   // 서버가 필요하면 이 줄을 주석 해제
       };
       logger.i('요청 바디: $payload');
 
-      final res = await api.postJson('/auth/register', payload);
+      final res = await api.postJson('/auth/native/register', payload);
 
       logger.i('서버 응답 상태코드: ${res.statusCode}');
       logger.i('서버 응답 본문: ${res.bodyString}');
