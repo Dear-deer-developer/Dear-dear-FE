@@ -10,10 +10,10 @@ class CustomCalendarWidget extends StatefulWidget {
   final ValueChanged<DateTime> onDateSelected;
 
   const CustomCalendarWidget({
-    super.key,
+    Key? key,
     required this.selectedDate,
     required this.onDateSelected,
-  });
+  }) : super(key: key);
 
   @override
   State<CustomCalendarWidget> createState() => _CustomCalendarWidgetState();
@@ -22,7 +22,7 @@ class CustomCalendarWidget extends StatefulWidget {
 class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
   late DateTime focusedDay;
 
-  final TextStyle _commonTextStyle = const TextStyle(color: AppColors.G_06);
+  final TextStyle _commonTextStyle = TextStyle(color: AppColors.G_06);
 
   @override
   void initState() {
@@ -51,12 +51,12 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
         leftChevronIcon: const Icon(Icons.chevron_left),
         rightChevronIcon: const Icon(Icons.chevron_right),
         titleTextFormatter: (date, _) => '${date.year}년 ${date.month}월',
-        titleTextStyle: FontStyles.B4_bold_14,
+        titleTextStyle: FontStyles.B1_bold_14,
       ),
       daysOfWeekHeight: 20,
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
-        weekdayStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
+        weekendStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
+        weekdayStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
         dowTextFormatter: (date, locale) =>
             ['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7],
       ),

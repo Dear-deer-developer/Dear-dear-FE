@@ -4,62 +4,58 @@ import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/view/calendar/calendar_day_box.dart';
-import 'package:dear_deer_demo/view/calendar/calendar_blank_box.dart';
-import 'package:dear_deer_demo/view/calendar/calendar_weekday_header.dart';
+import 'calendar_day_box.dart';
+import 'calendar_blank_box.dart';
+import 'calendar_weekday_header.dart';
+import 'calendar_event.dart';
 
 class CalendarView extends StatelessWidget {
   final DateTime monthDate;
-  final void Function(DateTime) onDayTap;
+  final Function(DateTime) onDayTap;
+  final DateTime? selectedDate;
+  final DateTime today;
+  final List<CalendarEvent> Function(DateTime) getEventsForDate;
 
   const CalendarView({
-    super.key,
+    Key? key,
     required this.monthDate,
     required this.onDayTap,
-  });
+    this.selectedDate,
+    required this.today,
+    required this.getEventsForDate,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final today = fakeToday;
     final year = monthDate.year;
     final month = monthDate.month;
-
     final firstDay = DateTime(year, month, 1);
     final lastDay = DateTime(year, month + 1, 0).day;
     final startWeekday = firstDay.weekday % 7;
 
     List<Widget> boxWidgets = [];
 
-    // 지난달 날짜 or 빈칸
     for (int i = 0; i < startWeekday; i++) {
-      if (month == 12) {
-        final prevMonthLastDay = DateTime(year, month, 0).day;
-        final dayNumber = prevMonthLastDay - (startWeekday - i - 1);
-        boxWidgets.add(CalendarDayBox(
-          day: dayNumber,
-          isPast: true,
-          isToday: false,
-          date: DateTime(year, month - 1, dayNumber),
-          onTap: (_) {},
-        ));
-      } else {
-        boxWidgets.add(const CalendarBlankBox());
-      }
+      boxWidgets.add(const CalendarBlankBox());
     }
 
-    // 이번달 날짜
     for (int day = 1; day <= lastDay; day++) {
       final thisDay = DateTime(year, month, day);
-      final isToday = _isSameDate(thisDay, today);
       final isPast =
           thisDay.isBefore(DateTime(today.year, today.month, today.day));
+      final isToday = _isSameDate(thisDay, today);
+      final isSelected =
+          selectedDate != null && _isSameDate(thisDay, selectedDate!);
+      final dayEvents = getEventsForDate(thisDay);
 
       boxWidgets.add(CalendarDayBox(
         day: day,
         isPast: isPast,
+        isSelected: isSelected,
         isToday: isToday,
         date: thisDay,
         onTap: onDayTap,
+        events: dayEvents,
       ));
     }
 
@@ -73,7 +69,7 @@ class CalendarView extends StatelessWidget {
             style: FontStyles.C2_reg_24.copyWith(color: AppColors.White),
           ),
           SizedBox(height: 20.h),
-          CalendarWeekdayHeader(),
+          const CalendarWeekdayHeader(),
           SizedBox(
             width: (34.w * 7) + (5.w * 6),
             child: GridView.builder(

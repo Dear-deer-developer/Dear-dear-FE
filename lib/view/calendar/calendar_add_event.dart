@@ -11,11 +11,12 @@ class AddEvent extends StatefulWidget {
   final DateTime initialDate;
   final void Function(DateTime date, String title, String memo, String category)
       onAddEvent;
+
   const AddEvent({
-    super.key,
+    Key? key,
     required this.initialDate,
     required this.onAddEvent,
-  });
+  }) : super(key: key);
 
   @override
   State<AddEvent> createState() => _AddEventState();
@@ -49,20 +50,29 @@ class _AddEventState extends State<AddEvent> {
     return SizedBox(
       height: 620.h,
       child: Scaffold(
-        backgroundColor: AppColors.bgColor,
-        appBar: _appBar(),
+        backgroundColor: Colors.transparent,
         body: Container(
-          // 기존 UI 유지
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _titleAndMemoFields(),
-                _dateField(formattedDate),
-                _categoryField(),
-              ],
-            ),
+          decoration: const BoxDecoration(
+            color: AppColors.bgColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              _appBar(),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _titleAndMemoFields(),
+                      _dateField(formattedDate),
+                      _categoryField(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -72,7 +82,7 @@ class _AddEventState extends State<AddEvent> {
   PreferredSizeWidget _appBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: AppColors.bgColor,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
       titleSpacing: 0,
@@ -83,21 +93,29 @@ class _AddEventState extends State<AddEvent> {
           children: [
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: Text("취소",
-                  style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05)),
+              child: Text(
+                "취소",
+                style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
+              ),
             ),
             GestureDetector(
               onTap: () {
                 final title = _titleController.text.trim();
                 if (title.isNotEmpty) {
-                  widget.onAddEvent(_selectedDate, _titleController.text.trim(),
-                      _memoController.text.trim(), _selectedCategory);
+                  widget.onAddEvent(
+                    _selectedDate,
+                    _titleController.text.trim(),
+                    _memoController.text.trim(),
+                    _selectedCategory,
+                  );
                 } else {
-                  // 제목 없으면 에러 처리 or 안내 (선택)
+                  // 필요 시 빈 제목 처리
                 }
               },
-              child: Text("추가",
-                  style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05)),
+              child: Text(
+                "추가",
+                style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
+              ),
             ),
           ],
         ),
@@ -121,10 +139,10 @@ class _AddEventState extends State<AddEvent> {
         children: [
           TextField(
             controller: _titleController,
-            style: FontStyles.B3_bold_15,
+            style: FontStyles.B1_bold_15,
             decoration: InputDecoration(
               hintText: '제목',
-              hintStyle: FontStyles.B3_bold_15.copyWith(color: AppColors.G_04),
+              hintStyle: FontStyles.B1_bold_15.copyWith(color: AppColors.G_04),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -132,18 +150,14 @@ class _AddEventState extends State<AddEvent> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 14.h),
-            child: const Divider(
-              thickness: 1,
-              color: AppColors.G_02,
-              height: 1,
-            ),
+            child: Divider(thickness: 1, color: AppColors.G_02, height: 1),
           ),
           TextField(
             controller: _memoController,
-            style: FontStyles.B3_bold_15,
+            style: FontStyles.B1_bold_15,
             decoration: InputDecoration(
               hintText: '메모',
-              hintStyle: FontStyles.B3_bold_15.copyWith(color: AppColors.G_04),
+              hintStyle: FontStyles.B1_bold_15.copyWith(color: AppColors.G_04),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -167,22 +181,16 @@ class _AddEventState extends State<AddEvent> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           GestureDetector(
-            onTap: () {
-              setState(() => _showCalendar = !_showCalendar);
-            },
+            onTap: () => setState(() => _showCalendar = !_showCalendar),
             child: Text(
               formattedDate,
-              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
             ),
           ),
           if (_showCalendar) ...[
             Padding(
               padding: EdgeInsets.only(top: 14.h),
-              child: const Divider(
-                thickness: 1,
-                color: AppColors.G_02,
-                height: 1,
-              ),
+              child: Divider(thickness: 1, color: AppColors.G_02, height: 1),
             ),
             CustomCalendarWidget(
               selectedDate: _selectedDate,
@@ -215,7 +223,7 @@ class _AddEventState extends State<AddEvent> {
         children: [
           Text(
             "카테고리",
-            style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05),
+            style: FontStyles.B1_bold_15.copyWith(color: AppColors.G_05),
           ),
           CategoryDropdown(
             selectedCategory: _selectedCategory,
