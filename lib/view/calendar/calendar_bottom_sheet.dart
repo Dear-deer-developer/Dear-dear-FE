@@ -7,12 +7,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../controller/calendar/calendar_controller.dart';
 
+// 기존 CalendarController를 쓰고 있지만, 현재 파일에서는 표시만 담당
 final calendarController = Get.find<CalendarController>();
 
 class CalendarBottomSheet extends StatelessWidget {
   final DateTime date;
   final List<CalendarEvent> events;
-  final void Function(String) onDeleteEvent;
+  final void Function(String) onDeleteEvent; // 아직 UI에서 미사용
 
   const CalendarBottomSheet({
     super.key,
@@ -23,9 +24,8 @@ class CalendarBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 날짜 포맷
     final String formattedDate = DateFormat('d.').format(date);
-    final String weekDay = DateFormat('E', 'ko').format(date); // 요일
+    final String weekDay = DateFormat('E', 'ko').format(date);
     final Duration dDay = DateTime(date.year, 12, 25).difference(date);
     final int dDayCount = dDay.inDays;
 
@@ -40,7 +40,7 @@ class CalendarBottomSheet extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 바텀시트 상단 핸들바
+            // 핸들바
             Center(
               child: Container(
                 width: 40,
@@ -52,24 +52,19 @@ class CalendarBottomSheet extends StatelessWidget {
                 ),
               ),
             ),
-
             // 날짜 & D-Day
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "$formattedDate $weekDay",
-                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
-                ),
-                Text(
-                  "D-${dDayCount >= 0 ? dDayCount : 0}",
-                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
-                ),
+                Text("$formattedDate $weekDay",
+                    style:
+                        FontStyles.B3_bold_15.copyWith(color: AppColors.Black)),
+                Text("D-${dDayCount >= 0 ? dDayCount : 0}",
+                    style:
+                        FontStyles.B3_bold_15.copyWith(color: AppColors.Black)),
               ],
             ),
-
             const SizedBox(height: 30),
-
             // 일정 목록
             events.isEmpty
                 ? Text("등록된 일정이 없습니다.",
@@ -83,7 +78,6 @@ class CalendarBottomSheet extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // 카테고리 등 기준 컬러라인 (예시로 왼쪽 세로선)
                                 Container(
                                   width: 3.w,
                                   height: 40.h,
@@ -94,7 +88,6 @@ class CalendarBottomSheet extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
-                                // 제목과 메모를 Column으로
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -104,11 +97,9 @@ class CalendarBottomSheet extends StatelessWidget {
                                           style: FontStyles.B3_bold_15.copyWith(
                                               color: AppColors.Black)),
                                       SizedBox(height: 4.h),
-                                      Text(
-                                        event.memo,
-                                        style: FontStyles.B5_reg_13.copyWith(
-                                            color: AppColors.G_06),
-                                      ),
+                                      Text(event.memo,
+                                          style: FontStyles.B5_reg_13.copyWith(
+                                              color: AppColors.G_06)),
                                     ],
                                   ),
                                 ),
