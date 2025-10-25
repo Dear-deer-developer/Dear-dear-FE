@@ -30,9 +30,9 @@ class _SelectRecipientState extends State<SelectRecipient> {
             onPressed: () {
               final friend = controller.getSelectedFriend();
               if (friend != null) {
-                Get.back(result: friend); // 👈 선택된 친구 전체 Map 전달
+                Get.back(result: friend);
               } else {
-                Get.back(); // 선택 없으면 그냥 닫기
+                Get.back();
               }
             },
             child: Text(
@@ -45,8 +45,8 @@ class _SelectRecipientState extends State<SelectRecipient> {
       // MARK: - Body
       body: Column(
         children: [
-          _topTabs(), // 상단 탭
-          _searchBar(), // 검색 바
+          _topTabs(),
+          _searchBar(),
           Expanded(child: _content()),
         ],
       ),
@@ -81,7 +81,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
     final isSelected = controller.selectedTabIdx.value == index;
 
     return GestureDetector(
-      onTap: () => controller.selectedTabIdx.value = index, // 탭 선택 시 상태 변경
+      onTap: () => controller.selectedTabIdx.value = index,
       child: Padding(
         padding: const EdgeInsets.only(right: 24.0),
         child: Column(
@@ -118,8 +118,8 @@ class _SelectRecipientState extends State<SelectRecipient> {
         child: Container(
           height: 44.h,
           decoration: BoxDecoration(
-            color: Colors.white, // 배경 흰색
-            border: Border.all(color: AppColors.G_02), // 테두리 색
+            color: Colors.white,
+            border: Border.all(color: AppColors.G_02),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -131,7 +131,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
               Expanded(
                 child: TextField(
                   onChanged: (value) {
-                    controller.searchQuery.value = value; // 검색어 상태 갱신
+                    controller.searchQuery.value = value;
                   },
                   decoration: const InputDecoration(
                     hintText: '사서함 번호 검색',
@@ -214,7 +214,6 @@ class _SelectRecipientState extends State<SelectRecipient> {
         );
       }
 
-      // ✅ 여기가 핵심 수정 (UI 동일, 토글만 정상 반응)
       return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: friendsList.length,
@@ -261,9 +260,9 @@ class _SelectRecipientState extends State<SelectRecipient> {
                     activeColor: Colors.red,
                     onChanged: (int? value) {
                       if (controller.selectedIdx.value == value) {
-                        controller.selectFriend(null); // 선택 해제
+                        controller.selectFriend(null);
                       } else {
-                        controller.selectFriend(value); // 선택
+                        controller.selectFriend(value);
                       }
                       print('현재 선택 인덱스: ${controller.selectedIdx.value}');
                     },

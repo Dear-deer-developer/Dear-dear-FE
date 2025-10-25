@@ -1,6 +1,6 @@
-import 'package:dear_deer_demo/controller/post/select_recipient_controller.dart';
+import 'dart:io';
+
 import 'package:dear_deer_demo/view/letter/letter_preview.dart';
-import 'package:dear_deer_demo/view/letter/select_letter_paper_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,6 +9,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/widget/custom_button.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'select_recipient.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// 편지 작성 화면입니다.
 /// 사용자는 이 화면에서 받는 사람, 편지 내용, 보내는 사람을 입력하고,
@@ -25,6 +26,18 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   // MARK: - State
   String? _recipientName;
   String? _recipientBoxNumber;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    }
+  }
 
   /// 이미지 박스 표시 여부를 관리하는 상태 변수입니다.
   bool _showImageBox = false;
@@ -44,7 +57,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   @override
   Widget build(BuildContext context) {
     final arguments = Get.arguments ?? {};
-    final selectedPaper = arguments['selectedPaper']; // ✅ 선택한 편지지 정보 받기
+    final selectedPaper = arguments['selectedPaper'];
 
     return Scaffold(
       backgroundColor: AppColors.bgColor,
@@ -58,7 +71,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
               _receiverSection(),
               _contentSection(),
               _senderSection(),
-              _submitButton(selectedPaper), // ✅ 여기서 selectedPaper 전달
+              _submitButton(selectedPaper),
               _bottomPadding(),
             ],
           ),
@@ -88,7 +101,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             TextButton(
               onPressed: _textController.text.isNotEmpty
                   ? () {
-                      Get.snackbar("임시저장", "편지가 임시저장되었습니다.");
+                      _showSaveToast(context);
                     }
                   : null,
               child: Text(
@@ -199,33 +212,81 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           ),
         ),
         SizedBox(height: 4.h),
-        Container(
-          width: 360.w,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              top: BorderSide(color: AppColors.G_02, width: 1),
-              bottom: BorderSide(color: AppColors.G_02, width: 1),
-            ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 15.h, 24.w, 15.h),
-              child: Column(
+
+        // ✅ 동적 높이 컨테이너
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final textLength = _textController.text.length;
+            // 글 길이에 따라 높이 증가 (최소 330, 최대 600)
+            double dynamicHeight = (330 + (textLength / 3)).clamp(330, 600).h;
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 360.w,
+              height: dynamicHeight,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: AppColors.G_02, width: 1),
+              ),
+              child: Stack(
                 children: [
-                  if (_showImageBox) _imageBox(),
-                  _contentField(),
-                  _imageIconButton(),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24.w, 15.h, 24.w, 50.h),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_selectedImage != null) ...[
+                            _imageBox(),
+                            SizedBox(height: 8.h),
+                          ],
+                          TextField(
+                            controller: _textController,
+                            maxLines: null,
+                            onChanged: (value) {
+                              setState(() {}); // height 다시 계산됨
+                            },
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "내용을 입력해주세요.",
+                              hintStyle: FontStyles.L2_reg_18.copyWith(
+                                color: AppColors.G_06,
+                              ),
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // 🖼 왼쪽 하단 고정 아이콘
+                  Positioned(
+                    left: 24.w,
+                    bottom: 15.h,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      behavior: HitTestBehavior.opaque,
+                      child: Image.asset(
+                        _selectedImage == null
+                            ? ImagePath.imageIcon
+                            : ImagePath.imageIconDisabled,
+                        width: 22.w,
+                        height: 22.h,
+                        color: _selectedImage == null ? null : AppColors.G_04,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
   }
 
-  // MARK: - 이미지 박스
   Widget _imageBox() => Stack(
         children: [
           Container(
@@ -233,8 +294,16 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             height: 184.h,
             margin: EdgeInsets.only(bottom: 8.h),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(5.r),
+              image: _selectedImage != null
+                  ? DecorationImage(
+                      image: FileImage(_selectedImage!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              color: _selectedImage == null
+                  ? Colors.grey.shade300
+                  : Colors.transparent,
             ),
           ),
           Positioned(
@@ -243,7 +312,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  _showImageBox = false;
+                  _selectedImage = null;
                 });
               },
               child: Container(
@@ -293,27 +362,20 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
   // MARK: - 이미지 아이콘 버튼
   Widget _imageIconButton() {
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: _showImageBox
-          ? Image.asset(
-              ImagePath.imageIconDisabled,
-              width: 20.w,
-              height: 20.h,
-              color: AppColors.G_04,
-            )
-          : GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showImageBox = true;
-                });
-              },
-              child: Image.asset(
-                ImagePath.imageIcon,
-                width: 20.w,
-                height: 20.h,
-              ),
-            ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        print("📸 눌림 확인");
+        _pickImage();
+      },
+      child: Container(
+        color: Colors.transparent,
+        width: 50,
+        height: 50,
+        child: Center(
+          child: Icon(Icons.image, color: Colors.green),
+        ),
+      ),
     );
   }
 
@@ -381,6 +443,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                 'selectedPaper': selectedPaper,
                 'recipientName': _recipientName,
                 'recipientNumber': _recipientBoxNumber,
+                'selectedImage': _selectedImage,
               },
             );
           },
@@ -392,4 +455,59 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
   // MARK: - 하단 여백
   Widget _bottomPadding() => SizedBox(height: 20.h);
+
+// MARK: - 임시저장 완료 토스트
+  void _showSaveToast(BuildContext context) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 100.h,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Container(
+            width: 312.w,
+            height: 48.h,
+            decoration: BoxDecoration(
+              color: AppColors.G_06,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: 24.w,
+                  height: 24.h,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF8CC08C),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  "임시저장이 완료되었어요",
+                  style: FontStyles.B3_bold_15.copyWith(
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(milliseconds: 1800), () {
+      overlayEntry.remove();
+    });
+  }
 }

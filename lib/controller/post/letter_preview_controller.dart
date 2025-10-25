@@ -37,13 +37,13 @@ class LetterPreviewController extends GetxController {
     pagedTexts.value = pages;
   }
 
-  // ✅ 실제 전송 처리
+  // MARK: 실제 전송 처리
   void onSend() {
     print("📩 편지를 전송했습니다!");
-    Get.offAll(() => transferCompleted()); // ✅ 전송 완료 화면으로 이동
+    Get.offAll(() => transferCompleted());
   }
 
-  // ✅ 전송 전 확인 다이얼로그
+  // MARK: 전송 전 확인 다이얼로그
   void onEdit() {
     Get.dialog(
       Dialog(
@@ -81,8 +81,8 @@ class LetterPreviewController extends GetxController {
                       padding: const EdgeInsets.only(left: 120),
                       child: GestureDetector(
                         onTap: () {
-                          Get.back(); // 다이얼로그 닫기
-                          onSend(); // 전송 + 완료 화면 이동
+                          Get.back();
+                          onSend();
                         },
                         child: Text(
                           "전송",
@@ -101,7 +101,7 @@ class LetterPreviewController extends GetxController {
     );
   }
 
-  // ✅ 내용 세팅 함수
+  // MARK: 편지 내용 설정
   void setLetterContent(String content) {
     final pages = <String>[];
     const pageLimit = 500;
