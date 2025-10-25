@@ -103,6 +103,21 @@ class ImagePath {
   static String get imageIcon => 'assets/images/image_icon.png';
   static String get imageIconDisabled => 'assets/images/image_icon_disable.png';
 
+  static String get imageLetter1 => 'assets/images/letter1.png';
+  static String get imageLetter2 => 'assets/images/letter2.png';
+  static String get imageLetter3 => 'assets/images/letter3.png';
+  static String get imageLetter4 => 'assets/images/letter4.png';
+  static String get imageLetter5 => 'assets/images/letter5.png';
+  static String get imageLetter6 => 'assets/images/letter6.png';
+  static String get imageLetter7 => 'assets/images/letter7.png';
+  static String get imageLetter8 => 'assets/images/letter8.png';
+  static String get imageLetter9 => 'assets/images/letter9.png';
+  static String get imageLetter10 => 'assets/images/letter10.png';
+  static String get imageLetter11 => 'assets/images/letter11.png';
+
+  static String get imageLetterEnvelope => 'assets/images/letter_envelope.png';
+  static String get imageOpenLetter => 'assets/images/open_letter.png';
+
   // MARK: - Calendar
   static String get calendarBackground =>
       'assets/images/calendar_background.png';

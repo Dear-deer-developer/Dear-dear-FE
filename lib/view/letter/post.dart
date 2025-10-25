@@ -1,4 +1,5 @@
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
+import 'package:dear_deer_demo/view/letter/letter_sent_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -27,6 +28,7 @@ class PostMain extends GetView<PostController> {
           children: [
             _deerPostImage(),
             _mainButtonsRow(),
+            _number(),
             _otherServicesSection(),
           ],
         ),
@@ -40,7 +42,7 @@ class PostMain extends GetView<PostController> {
   /// "우체국" 타이틀을 가운데 정렬로 표시합니다.
   AppBar _appBar() => AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // FIXME: 그림자 제거
+        elevation: 0,
         centerTitle: true,
         title: Text(
           "우체국",
@@ -144,7 +146,10 @@ class PostMain extends GetView<PostController> {
               style: FontStyles.H3_bold_16.copyWith(color: Colors.black),
             ),
             SizedBox(height: 16.h),
-            _serviceTextButton("보낸 편지함", controller.openSentLetters),
+            _serviceTextButton(
+              "보낸 편지함",
+              () => Get.to(() => const LetterSentList()),
+            ),
             SizedBox(height: 12.h),
             _serviceTextButton("임시 보관함", controller.openDrafts),
           ],
@@ -166,6 +171,49 @@ class PostMain extends GetView<PostController> {
             label,
             style: FontStyles.B3_reg_15.copyWith(color: Colors.black),
             textAlign: TextAlign.left,
+          ),
+        ),
+      );
+
+  //MARK: 사서함 번호
+  Widget _number() => Padding(
+        padding: EdgeInsets.only(top: 14.h),
+        child: Container(
+          width: 312.w,
+          height: 48.h,
+          decoration: BoxDecoration(
+            color: AppColors.G_01,
+            borderRadius: BorderRadius.circular(7.r),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "내 사서함 번호: 8888-8888",
+                style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
+              ),
+              SizedBox(
+                width: 38.w,
+                height: 22.h,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    "공유",
+                    style: FontStyles.S3_reg_10.copyWith(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );

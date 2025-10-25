@@ -1,19 +1,23 @@
 import 'package:get/get.dart';
 
 /// 친구 선택 화면의 상태를 관리하는 컨트롤러입니다.
-/// 친구 목록을 필터링, 탭 상태, 선택된 친구 인덱스를 관리합니다.
+/// 친구 목록, 검색, 탭 상태, 선택된 친구, 선택된 이름을 관리합니다.
+/// UI에서 선택된 친구 1명을 바로 Radio 버튼과 연동합니다.
 class SelectRecipientController extends GetxController {
+  // MARK: - 선택된 친구 인덱스
+  /// 선택된 친구의 인덱스를 저장합니다.
+  /// 선택 안 됐으면 null
   final Rxn<int> selectedIdx = Rxn<int>();
 
-  /// 선택된 상단 탭 인덱스를 의미합니다.
-  /// 0: 카카오 친구, 1: 사서함 번호, 2: 미가입자
+  // MARK: - 상단 탭 인덱스
+  /// 0: 사서함 번호, 1: 링크로 보내기
   RxInt selectedTabIdx = 0.obs;
 
-  /// 검색어를 의미합니다.
+  // MARK: - 검색어
   final searchQuery = ''.obs;
 
-  /// 친구 목록을 의미합니다.
-  /// 현재 더미 데이터로 구성.
+  // MARK: - 친구 목록
+  /// 서버에서 받아올 때는 이 부분만 교체하면 됨
   final friends = List.generate(10, (index) {
     return {
       'name': '친구 이름 $index',
@@ -22,57 +26,73 @@ class SelectRecipientController extends GetxController {
     };
   }).obs;
 
-  /// 필터링이 된 친구 목록이며, 검색 및 탭에 따라 변동됩니다.
+  // MARK: - 필터링된 친구 목록
+  /// 검색어 및 탭에 따라 변동
   final filteredFriends = <Map<String, String>>[].obs;
+
+  // MARK: - 선택된 친구 이름
+  /// UI에서 바로 쓸 수 있도록 Rx 상태
+  Rxn<String> selectedName = Rxn<String>();
 
   @override
   void onInit() {
     super.onInit();
 
-    /// 초기 상태에는 전체 친구를 보여 줍니다.
-    /// 검색어가 변경되거나 선택된 탭이 변경될 때마다 친구 목록을 필터링합니다.
+    /// 초기에는 전체 친구 표시
     _filterFriends();
+
+    /// 검색어나 탭 변경 시 필터링
     ever(searchQuery, (_) => _filterFriends());
     ever(selectedTabIdx, (_) => _filterFriends());
+
+    /// 선택 인덱스 변경 시 selectedName 갱신
+    ever(selectedIdx, (_) => _updateSelectedName());
   }
 
-  /// 검색어와 탭에 따라 친구 목록을 필터링합니다.
-  /// 미가입자 탭(2번) 에서는 친구 목록을 보여 주지 않습니다.
-  /// 검색어가 비어 있을 경우, 전체 친구 목록을 노출합니다.
-  /// 검색어가 있을 경우, 검색어가 포함된 친구들만 필터링합니다.
-
+  // MARK: - 친구 목록 필터링
   void _filterFriends() {
-    // 미가입자 탭일 경우 친구 목록 비우기
-    if (selectedTabIdx.value == 2) {
+    // 링크로 보내기 탭이면 친구 목록 비움
+    if (selectedTabIdx.value == 1) {
       filteredFriends.clear();
       return;
     }
 
-    // 검색어가 없으면 전체 친구 목록 보여줌
+    // 검색어 없으면 전체
     if (searchQuery.value.isEmpty) {
       filteredFriends.assignAll(friends);
     } else {
       filteredFriends.assignAll(
         friends
-            .where((friend) => friend['name']!
-                .toLowerCase()
-                .contains(searchQuery.value.toLowerCase()))
+            .where((friend) =>
+                friend['number']!.contains(searchQuery.value)) // 사서함 번호 검색
             .toList(),
       );
     }
+
+    // 선택 인덱스 초기화
+    selectedIdx.value = null;
   }
 
+  // MARK: - 선택된 친구 이름 갱신
+  void _updateSelectedName() {
+    final idx = selectedIdx.value;
+    if (idx != null && idx < filteredFriends.length) {
+      selectedName.value = filteredFriends[idx]['name'];
+    } else {
+      selectedName.value = null;
+    }
+  }
+
+  // MARK: - 친구 선택
   void selectFriend(int? index) {
     selectedIdx.value = index;
   }
 
-  /// 선택된 친구들 출력하고, 선택된 친구가 없는 경우 예외 메세지를 출력.
-  void confirmSelection() {
+  Map<String, String>? getSelectedFriend() {
     final idx = selectedIdx.value;
     if (idx != null && idx < filteredFriends.length) {
-      print('선택된 친구: ${filteredFriends[idx]['name']}');
-    } else {
-      print('선택된 친구 없음');
+      return filteredFriends[idx];
     }
+    return null;
   }
 }

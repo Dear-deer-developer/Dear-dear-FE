@@ -4,7 +4,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/calendar.dart';
 import 'package:dear_deer_demo/view/home/home.dart';
-import 'package:dear_deer_demo/view/post.dart';
+import 'package:dear_deer_demo/view/letter/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

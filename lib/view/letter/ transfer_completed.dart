@@ -1,7 +1,10 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/letter/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class transferCompleted extends StatelessWidget {
   const transferCompleted({super.key});
@@ -70,7 +73,7 @@ class transferCompleted extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: () {},
+          onPressed: () => Get.offAll(() => const PostMain()),
           child: Text('우체국 로비로 이동하기',
               style:
                   FontStyles.Button_bold_17.copyWith(color: AppColors.White)),
