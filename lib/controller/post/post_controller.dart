@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/view/letter/%20transfer_completed.dart';
+import 'package:dear_deer_demo/view/letter/transfer_completed.dart';
 import 'package:dear_deer_demo/view/letter/letter_sent.dart';
 import 'package:dear_deer_demo/view/letter/select_letter_paper_screen.dart';
 import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';

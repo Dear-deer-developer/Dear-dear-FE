@@ -123,7 +123,9 @@ class LetterPreview extends StatelessWidget {
                         child: index == controller.pagedTexts.length - 1
                             ? Text(
                                 "2025년 12월 20일\nFrom. $senderName",
-                                style: FontStyles.L3_reg_16,
+                                style: FontStyles.L3_reg_16.merge(
+                                  const TextStyle(fontFamily: 'LeeSeoyun'),
+                                ),
                                 textAlign: TextAlign.right,
                               )
                             : const SizedBox.shrink(),

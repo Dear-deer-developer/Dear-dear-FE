@@ -116,10 +116,10 @@ class LetterSent extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const NeverScrollableScrollPhysics(),
-              child: Text(
-                controller.pagedTexts[index],
-                style: FontStyles.L3_reg_16,
-              ),
+              child: Text(controller.pagedTexts[index],
+                  style: FontStyles.L3_reg_16.merge(
+                    const TextStyle(fontFamily: 'LeeSeoyun'),
+                  )),
             ),
           ),
 
@@ -130,8 +130,10 @@ class LetterSent extends StatelessWidget {
               padding: EdgeInsets.only(top: 20.h),
               child: Text(
                 "2025년 12월 20일\nFrom. OOO",
-                style: FontStyles.L3_reg_16,
                 textAlign: TextAlign.right,
+                style: FontStyles.L3_reg_16.merge(
+                  const TextStyle(fontFamily: 'LeeSeoyun'),
+                ),
               ),
             ),
           ),
