@@ -109,6 +109,63 @@ class ApiService extends CustomGetConnect implements GetxService {
     return null;
   }
 
+  Future<Response<T>> guardedGet<T>(String path) async {
+    Response<T> res = await get<T>(path);
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) res = await get<T>(path);
+    }
+    return res;
+  }
+
+  /// 401이면 refresh 후 1회 재시도하는 JSON POST
+  Future<Response<T>> guardedPostJson<T>(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    Response<T> res = await post<T>(
+      path,
+      jsonEncode(data),
+      headers: {'Content-Type': 'application/json', ...?headers},
+    );
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await post<T>(
+          path,
+          jsonEncode(data),
+          headers: {'Content-Type': 'application/json', ...?headers},
+        );
+      }
+    }
+    return res;
+  }
+
+  /// 401이면 refresh 후 1회 재시도하는 JSON PATCH
+  Future<Response<T>> guardedPatchJson<T>(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    Response<T> res = await patch<T>(
+      path,
+      jsonEncode(data),
+      headers: {'Content-Type': 'application/json', ...?headers},
+    );
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await patch<T>(
+          path,
+          jsonEncode(data),
+          headers: {'Content-Type': 'application/json', ...?headers},
+        );
+      }
+    }
+    return res;
+  }
+
   // -----------------------------------------------------------------------------
   // 🧰 JSON Request Helper (공통)
   // -----------------------------------------------------------------------------

@@ -69,7 +69,8 @@ class AuthService extends GetxService {
       // 유저 프로필 시도 (/users/me) — 실패해도 로그인은 성공
       DeardeerUser? u;
       try {
-        final me = await api.get('/users/me');
+        // final me = await api.get('/users/me');
+        final me = await _getWithRefresh('/users/me');
         if (me.statusCode == 200 && me.bodyString?.isNotEmpty == true) {
           final map = jsonDecode(me.bodyString!) as Map<String, dynamic>;
           u = DeardeerUser.fromJson(map);
@@ -105,8 +106,10 @@ class AuthService extends GetxService {
   // 내 정보 재조회: GET /auth/me
   Future<bool> fetchMe() async {
     try {
-      final api = Get.find<ApiService>();
-      final res = await api.get('/auth/me');
+      // final api = Get.find<ApiService>();
+      // final res = await api.get('/auth/me');
+
+      final res = await _getWithRefresh('/users/me');
 
       final bodyStr = res.bodyString;
       if (res.statusCode == 200 && bodyStr != null && bodyStr.isNotEmpty) {
@@ -129,18 +132,73 @@ class AuthService extends GetxService {
     }
   }
 
-  // (옵션) 외부 문자열 유저 세팅 — 필요 없으면 제거 가능
-  void setUserFromJsonString(String jsonStr) {
+  // MARK: refreshToken 갱신
+  Future<bool> refreshAccessToken() async {
     try {
-      final u = DeardeerUser.fromJson(jsonDecode(jsonStr));
-      user.value = u;
-      MemCache.put(MemCacheKey.deardeerUserJson, jsonStr);
-      sharedPreferences.setString(
-          SharedPreferencesKeys.deardeerUserJson, jsonStr);
-      logger.i('setUserFromJsonString 적용 완료');
-    } catch (e) {
-      logger.e('setUserFromJsonString 실패', error: e);
+      // 저장된 refreshToken 읽기
+      final rt = (MemCache.get(MemCacheKey.jwtRefreshToken) as String?) ??
+          sharedPreferences.getString(SharedPreferencesKeys.refreshToken);
+
+      if (rt == null || rt.isEmpty) {
+        logger.w('refreshAccessToken: refreshToken 없음');
+        return false;
+      }
+
+      final api = Get.find<ApiService>();
+      // refresh 스펙: 헤더에 'refresh-token'
+      final res = await api.post(
+        '/auth/native/refresh',
+        {}, // 보통 바디 불필요
+        headers: {
+          'Content-Type': 'application/json',
+          'refresh-token': rt,
+          // (ApiService에서 Authorization 자동부착이 있다면 끄는 옵션이 있을 수 있음.
+          // 없다면 이대로 두면 됨. Authorization 없이도 동작해야 함)
+        },
+      );
+
+      final bodyStr = res.bodyString;
+      if (res.statusCode != 200 || bodyStr == null || bodyStr.isEmpty) {
+        logger.e('refreshAccessToken 실패: ${res.statusCode} ${res.bodyString}');
+        return false;
+      }
+
+      Map<String, dynamic> body;
+      try {
+        body = jsonDecode(bodyStr) as Map<String, dynamic>;
+      } catch (e) {
+        logger.e('refreshAccessToken JSON 파싱 실패', error: e);
+        return false;
+      }
+
+      // 백엔드 키 이름에 맞춰 읽기
+      final newAccess = body['accessToken'] as String?;
+      final newRefresh = body['refreshToken'] as String?;
+
+      if (newAccess == null || newAccess.isEmpty) {
+        logger.e('refreshAccessToken: accessToken 없음');
+        return false;
+      }
+
+      await _persistTokens(newAccess, newRefresh ?? rt);
+      logger.i('🔄 AccessToken 갱신 완료');
+      return true;
+    } catch (e, st) {
+      logger.e('refreshAccessToken 예외', error: e, stackTrace: st);
+      return false;
     }
+  }
+
+  Future<Response> _getWithRefresh(String path) async {
+    final api = Get.find<ApiService>();
+    Response res = await api.get(path);
+    if (res.statusCode == 401) {
+      final ok = await refreshAccessToken();
+      if (ok) {
+        res = await api.get(path); // 1회 재시도
+      }
+    }
+    return res;
   }
 
   // -------------------- 내부 유틸 --------------------
