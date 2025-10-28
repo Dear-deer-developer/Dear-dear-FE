@@ -139,10 +139,10 @@ class _AddEventState extends State<AddEvent> {
         children: [
           TextField(
             controller: _titleController,
-            style: FontStyles.B1_bold_15,
+            style: FontStyles.B3_bold_15,
             decoration: InputDecoration(
               hintText: '제목',
-              hintStyle: FontStyles.B1_bold_15.copyWith(color: AppColors.G_04),
+              hintStyle: FontStyles.B3_bold_15.copyWith(color: AppColors.G_04),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -154,10 +154,10 @@ class _AddEventState extends State<AddEvent> {
           ),
           TextField(
             controller: _memoController,
-            style: FontStyles.B1_bold_15,
+            style: FontStyles.B3_bold_15,
             decoration: InputDecoration(
               hintText: '메모',
-              hintStyle: FontStyles.B1_bold_15.copyWith(color: AppColors.G_04),
+              hintStyle: FontStyles.B3_bold_15.copyWith(color: AppColors.G_04),
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
@@ -184,7 +184,7 @@ class _AddEventState extends State<AddEvent> {
             onTap: () => setState(() => _showCalendar = !_showCalendar),
             child: Text(
               formattedDate,
-              style: FontStyles.B1_bold_15.copyWith(color: AppColors.Black),
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
             ),
           ),
           if (_showCalendar) ...[
@@ -223,7 +223,7 @@ class _AddEventState extends State<AddEvent> {
         children: [
           Text(
             "카테고리",
-            style: FontStyles.B1_bold_15.copyWith(color: AppColors.G_05),
+            style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05),
           ),
           CategoryDropdown(
             selectedCategory: _selectedCategory,

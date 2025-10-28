@@ -73,7 +73,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
-                        child: Text(cat, style: FontStyles.B1_reg_14),
+                        child: Text(cat, style: FontStyles.B4_reg_14),
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: 5.w),
@@ -121,7 +121,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
               ),
             ),
             SizedBox(width: 8.w),
-            Text(widget.selectedCategory, style: FontStyles.B1_bold_15),
+            Text(widget.selectedCategory, style: FontStyles.B3_bold_15),
             Icon(Icons.arrow_drop_down, color: AppColors.G_05),
           ],
         ),

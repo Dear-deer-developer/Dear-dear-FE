@@ -51,12 +51,12 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
         leftChevronIcon: const Icon(Icons.chevron_left),
         rightChevronIcon: const Icon(Icons.chevron_right),
         titleTextFormatter: (date, _) => '${date.year}년 ${date.month}월',
-        titleTextStyle: FontStyles.B1_bold_14,
+        titleTextStyle: FontStyles.B4_bold_14,
       ),
       daysOfWeekHeight: 20,
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
-        weekdayStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
+        weekendStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
+        weekdayStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
         dowTextFormatter: (date, locale) =>
             ['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7],
       ),
