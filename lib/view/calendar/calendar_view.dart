@@ -1,4 +1,3 @@
-import 'package:dear_deer_demo/data/today_ex.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,6 +15,9 @@ class CalendarView extends StatelessWidget {
   final DateTime today;
   final List<CalendarEvent> Function(DateTime) getEventsForDate;
 
+  // ✅ 월데이터 변경 버전 (부모에서 전달)
+  final int dataVersion;
+
   const CalendarView({
     Key? key,
     required this.monthDate,
@@ -23,6 +25,7 @@ class CalendarView extends StatelessWidget {
     this.selectedDate,
     required this.today,
     required this.getEventsForDate,
+    required this.dataVersion,
   }) : super(key: key);
 
   @override
@@ -33,9 +36,10 @@ class CalendarView extends StatelessWidget {
     final lastDay = DateTime(year, month + 1, 0).day;
     final startWeekday = firstDay.weekday % 7;
 
-    List<Widget> boxWidgets = [];
+    final boxWidgets = <Widget>[];
 
     for (int i = 0; i < startWeekday; i++) {
+      // (옵션) 블랭크도 버전에 묶고 싶다면 key 부여 가능
       boxWidgets.add(const CalendarBlankBox());
     }
 
@@ -46,17 +50,23 @@ class CalendarView extends StatelessWidget {
       final isToday = _isSameDate(thisDay, today);
       final isSelected =
           selectedDate != null && _isSameDate(thisDay, selectedDate!);
+
+      // ✅ 매 빌드마다 최신 이벤트를 계산
       final dayEvents = getEventsForDate(thisDay);
 
-      boxWidgets.add(CalendarDayBox(
-        day: day,
-        isPast: isPast,
-        isSelected: isSelected,
-        isToday: isToday,
-        date: thisDay,
-        onTap: onDayTap,
-        events: dayEvents,
-      ));
+      boxWidgets.add(
+        CalendarDayBox(
+          // ✅ 월데이터가 바뀌면 셀 자체를 재생성
+          key: ValueKey('day-$year-$month-$day-$dataVersion'),
+          day: day,
+          isPast: isPast,
+          isSelected: isSelected,
+          isToday: isToday,
+          date: thisDay,
+          onTap: onDayTap,
+          events: dayEvents,
+        ),
+      );
     }
 
     return Padding(
@@ -90,7 +100,6 @@ class CalendarView extends StatelessWidget {
     );
   }
 
-  bool _isSameDate(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
+  bool _isSameDate(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 }

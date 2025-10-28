@@ -57,7 +57,7 @@ class GiftController extends GetxController {
             .toList();
 
         items.assignAll(parsed);
-        logger.i('✅ ${parsed.length}개 아이템 로딩 완료 (${cat.name})');
+        logger.i('${parsed.length}개 아이템 로딩 완료 (${cat.name})');
       } else {
         error.value = '서버 오류: ${res.statusCode}';
         items.clear();

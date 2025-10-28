@@ -97,7 +97,7 @@ Future<void> _init() async {
     logger.d('🚫 캐시 복구 생략: 등록된 사용자 없음');
     return;
   }
-  logger.d('✅ 초기 준비 완료 (복구는 AuthService가 수행)');
+  logger.d('초기 준비 완료 (복구는 AuthService가 수행)');
 
   // if (isRegistered) {
   //   final cachedUser =

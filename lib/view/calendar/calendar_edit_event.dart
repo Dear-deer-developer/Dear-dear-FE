@@ -75,17 +75,13 @@ class _EditEventSheetState extends State<EditEventSheet> {
                       children: [
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: Text(
-                            "취소",
-                            style: FontStyles.S1_reg_13.copyWith(
-                                color: AppColors.G_05),
-                          ),
+                          child: Text("취소",
+                              style: FontStyles.S1_reg_13.copyWith(
+                                  color: AppColors.G_05)),
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (titleController.text.trim().isEmpty) {
-                              return;
-                            }
+                            if (titleController.text.trim().isEmpty) return;
                             Navigator.pop(
                               context,
                               CalendarEvent(
@@ -97,11 +93,9 @@ class _EditEventSheetState extends State<EditEventSheet> {
                               ),
                             );
                           },
-                          child: Text(
-                            "수정",
-                            style: FontStyles.S1_reg_13.copyWith(
-                                color: AppColors.G_05),
-                          ),
+                          child: Text("수정",
+                              style: FontStyles.S1_reg_13.copyWith(
+                                  color: AppColors.G_05)),
                         ),
                       ],
                     ),
@@ -136,15 +130,11 @@ class _EditEventSheetState extends State<EditEventSheet> {
                       ),
                       backgroundColor: AppColors.mainGreen,
                     ),
-                    onPressed: () {
-                      Navigator.pop(context, 'deleted');
-                    },
-                    child: Text(
-                      "삭제하기",
-                      style: FontStyles.Button_bold_17.copyWith(
-                        color: AppColors.White,
-                      ),
-                    ),
+                    onPressed: () => Navigator.pop(context, 'deleted'),
+                    child: Text("삭제하기",
+                        style: FontStyles.Button_bold_17.copyWith(
+                          color: AppColors.White,
+                        )),
                   ),
                 ),
               ),
@@ -250,16 +240,12 @@ class _EditEventSheetState extends State<EditEventSheet> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "카테고리",
-            style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05),
-          ),
+          Text("카테고리",
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05)),
           CategoryDropdown(
             selectedCategory: selectedCategory,
             onCategorySelected: (value) {
-              setState(() {
-                selectedCategory = value;
-              });
+              setState(() => selectedCategory = value);
             },
           ),
         ],

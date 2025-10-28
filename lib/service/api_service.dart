@@ -22,7 +22,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       ..baseUrl = _baseUrl
       ..timeout = const Duration(seconds: 15);
 
-// ✅ 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
+// 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
     httpClient.addRequestModifier<dynamic>((request) async {
       // 1) 토큰
       String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
@@ -64,7 +64,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       headers: {'Content-Type': 'application/json'},
     );
 
-    // ✅ 성공 (JSON body 포함)
+    // 성공 (JSON body 포함)
     if (res.statusCode == 200 && (res.bodyString?.isNotEmpty ?? false)) {
       try {
         final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
@@ -85,7 +85,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       }
     }
 
-    // ✅ Body 없이 성공만 준 경우 (204)
+    // Body 없이 성공만 준 경우 (204)
     if (res.statusCode == 204) return null;
 
     // ❌ 실패

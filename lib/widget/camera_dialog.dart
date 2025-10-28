@@ -8,7 +8,7 @@ enum ProfileImageAction { pickFromAlbum, useDefault }
 class CameraDialog extends StatelessWidget {
   const CameraDialog({super.key});
 
-  // ✅ 정적 show 함수 — 다이얼로그를 호출하는 진입 메서드
+  // 정적 show 함수 — 다이얼로그를 호출하는 진입 메서드
   static Future<ProfileImageAction?> show(BuildContext context) {
     return showDialog<ProfileImageAction>(
       context: context,

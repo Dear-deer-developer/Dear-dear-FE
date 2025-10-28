@@ -8,7 +8,7 @@ class ScheduleController extends GetxController {
 
   // 캘린더 점/반원용 월 데이터
   final monthly = <DateTime, List<Schedule>>{}.obs;
-  // 바텀시트 리스트용 일 데이터
+  // 바텀시트용 일 데이터
   final daily = <Schedule>[].obs;
 
   final isLoadingMonthly = false.obs;
@@ -42,7 +42,7 @@ class ScheduleController extends GetxController {
 
   // ===== CREATE =====
   Future<void> addEvent(Schedule draft) async {
-    // UX: 낙관적 업데이트
+    // 낙관적 업데이트
     daily.add(draft);
     _sortByPriority();
     try {

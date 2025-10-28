@@ -1,6 +1,5 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/data/today_ex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -35,8 +34,8 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
     return TableCalendar(
       locale: 'ko_KR',
       focusedDay: focusedDay,
-      firstDay: DateTime(fakeToday.year, 11, 1),
-      lastDay: DateTime(fakeToday.year, 12, 31),
+      firstDay: DateTime(DateTime.now().year, 11, 1),
+      lastDay: DateTime(DateTime.now().year, 12, 31),
       calendarFormat: CalendarFormat.month,
       selectedDayPredicate: (day) => isSameDay(day, widget.selectedDate),
       onDaySelected: (selected, focused) {

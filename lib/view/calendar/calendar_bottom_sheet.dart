@@ -2,26 +2,16 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_edit_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../controller/calendar/calendar_controller.dart';
-
-final calendarController = Get.find<CalendarController>();
 
 class CalendarBottomSheet extends StatefulWidget {
   final DateTime date;
   final List<CalendarEvent> events;
   final void Function(CalendarEvent) onDeleteEvent;
   final void Function(CalendarEvent) onEditEvent;
-
-  static const Map<String, int> categoryPriority = {
-    '약속': 1,
-    '팝업': 2,
-    '티켓팅&예약': 3,
-    '기타': 4,
-  };
 
   const CalendarBottomSheet({
     Key? key,
@@ -45,9 +35,7 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
   }
 
   void _handleDelete(CalendarEvent event) {
-    setState(() {
-      _events.remove(event);
-    });
+    setState(() => _events.remove(event));
     widget.onDeleteEvent(event);
   }
 
@@ -59,12 +47,9 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
         DateTime(widget.date.year, 12, 25).difference(widget.date);
     final int dDayCount = dDay.inDays;
 
-    List<CalendarEvent> sortedEvents = List.from(_events);
-    sortedEvents.sort((a, b) {
-      int aPriority = CalendarBottomSheet.categoryPriority[a.category] ?? 100;
-      int bPriority = CalendarBottomSheet.categoryPriority[b.category] ?? 100;
-      return aPriority.compareTo(bPriority);
-    });
+    final sortedEvents = List<CalendarEvent>.from(_events)
+      ..sort((a, b) => CalendarCategoryMeta.priorityByLabel(a.category)
+          .compareTo(CalendarCategoryMeta.priorityByLabel(b.category)));
 
     return FractionallySizedBox(
       child: LayoutBuilder(
@@ -72,10 +57,8 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
           final baseHeight = 266.h;
           final perEventHeight = 35.h;
           final eventCount = sortedEvents.length;
-
-          double calculatedHeight = baseHeight + (perEventHeight * eventCount);
-          double finalHeight =
-              calculatedHeight > 620.h ? 620.h : calculatedHeight;
+          final calculated = baseHeight + (perEventHeight * eventCount);
+          final finalHeight = calculated > 620.h ? 620.h : calculated;
 
           return Container(
             height: finalHeight,
@@ -101,26 +84,20 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "$formattedDate $weekDay",
-                      style: FontStyles.B3_bold_15.copyWith(
-                          color: AppColors.Black),
-                    ),
-                    Text(
-                      "D-${dDayCount >= 0 ? dDayCount : 0}",
-                      style: FontStyles.B3_bold_15.copyWith(
-                          color: AppColors.Black),
-                    ),
+                    Text("$formattedDate $weekDay",
+                        style: FontStyles.B3_bold_15.copyWith(
+                            color: AppColors.Black)),
+                    Text("D-${dDayCount >= 0 ? dDayCount : 0}",
+                        style: FontStyles.B3_bold_15.copyWith(
+                            color: AppColors.Black)),
                   ],
                 ),
                 const SizedBox(height: 30),
                 Expanded(
                   child: sortedEvents.isEmpty
-                      ? Text(
-                          "등록된 일정이 없습니다.",
+                      ? Text("등록된 일정이 없습니다.",
                           style: FontStyles.B2_reg_16.copyWith(
-                              color: AppColors.G_03),
-                        )
+                              color: AppColors.G_03))
                       : ListView.builder(
                           itemCount: sortedEvents.length,
                           itemBuilder: (context, index) {
@@ -134,8 +111,7 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                       isScrollControlled: true,
                                       shape: const RoundedRectangleBorder(
                                         borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(20),
-                                        ),
+                                            top: Radius.circular(20)),
                                       ),
                                       builder: (_) => EditEventSheet(
                                         initialDate: widget.date,
@@ -149,9 +125,7 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                       setState(() {
                                         final idx = _events.indexWhere(
                                             (e) => e.id == event.id);
-                                        if (idx != -1) {
-                                          _events[idx] = result;
-                                        }
+                                        if (idx != -1) _events[idx] = result;
                                       });
                                       widget.onEditEvent(result);
                                     }
@@ -176,19 +150,17 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              event.title,
-                                              style:
-                                                  FontStyles.B3_reg_15.copyWith(
-                                                      color: AppColors.Black),
-                                            ),
+                                            Text(event.title,
+                                                style: FontStyles.B3_reg_15
+                                                    .copyWith(
+                                                        color:
+                                                            AppColors.Black)),
                                             SizedBox(height: 4.h),
-                                            Text(
-                                              event.memo,
-                                              style:
-                                                  FontStyles.S2_reg_12.copyWith(
-                                                      color: AppColors.Black),
-                                            ),
+                                            Text(event.memo,
+                                                style: FontStyles.S2_reg_12
+                                                    .copyWith(
+                                                        color:
+                                                            AppColors.Black)),
                                           ],
                                         ),
                                       )
@@ -200,10 +172,9 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                     padding:
                                         EdgeInsets.symmetric(vertical: 12.h),
                                     child: Divider(
-                                      color: AppColors.G_03,
-                                      thickness: 1,
-                                      height: 1,
-                                    ),
+                                        color: AppColors.G_03,
+                                        thickness: 1,
+                                        height: 1),
                                   ),
                               ],
                             );

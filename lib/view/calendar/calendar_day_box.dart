@@ -1,8 +1,10 @@
+// lib/view/calendar/calendar_day_box.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'calendar_event.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
 
 class CalendarDayBox extends StatelessWidget {
   final int day;
@@ -24,25 +26,11 @@ class CalendarDayBox extends StatelessWidget {
     required this.events,
   }) : super(key: key);
 
-  static const Map<String, Color> categoryColors = {
-    '약속': Colors.red,
-    '팝업': Colors.green,
-    '티켓팅&예약': Colors.yellow,
-    '기타': Colors.black,
-  };
-
-  static const Map<String, int> categoryPriority = {
-    '약속': 1,
-    '팝업': 2,
-    '티켓팅&예약': 3,
-    '기타': 4,
-  };
-
   @override
   Widget build(BuildContext context) {
     final sortedEvents = List<CalendarEvent>.from(events)
-      ..sort((a, b) => (categoryPriority[a.category] ?? 100)
-          .compareTo(categoryPriority[b.category] ?? 100));
+      ..sort((a, b) => CalendarCategoryMeta.priorityByLabel(a.category)
+          .compareTo(CalendarCategoryMeta.priorityByLabel(b.category)));
 
     final isSpecialDate = date.month == 12 && date.day == 25;
 
@@ -104,12 +92,11 @@ class CalendarDayBox extends StatelessWidget {
               right: 0,
               bottom: 5.h,
               child: Row(
-                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ...sortedEvents.take(3).toList().asMap().entries.map((entry) {
-                    int idx = entry.key;
-                    CalendarEvent event = entry.value;
+                    final idx = entry.key;
+                    final event = entry.value;
                     return Padding(
                       padding: EdgeInsets.only(
                         left: idx == 0 ? 0 : 2.w,
@@ -119,7 +106,8 @@ class CalendarDayBox extends StatelessWidget {
                         width: 5.w,
                         height: 5.w,
                         decoration: BoxDecoration(
-                          color: categoryColors[event.category] ?? Colors.grey,
+                          color:
+                              CalendarCategoryMeta.colorByLabel(event.category),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -127,7 +115,7 @@ class CalendarDayBox extends StatelessWidget {
                   }),
                   if (sortedEvents.length > 3)
                     Padding(
-                      padding: EdgeInsets.only(left: 3.w, right: 0),
+                      padding: EdgeInsets.only(left: 3.w),
                       child: SizedBox(
                         width: 5.w,
                         height: 5.w,
@@ -135,12 +123,9 @@ class CalendarDayBox extends StatelessWidget {
                           clipBehavior: Clip.none,
                           children: [
                             Container(
-                              width: 5.w,
-                              height: 5.w,
                               decoration: BoxDecoration(
-                                color:
-                                    categoryColors[sortedEvents[3].category] ??
-                                        Colors.grey,
+                                color: CalendarCategoryMeta.colorByLabel(
+                                    sortedEvents[3].category),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -150,7 +135,6 @@ class CalendarDayBox extends StatelessWidget {
                               bottom: 0,
                               child: Container(
                                 width: 3.w,
-                                height: 5.w,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.centerLeft,

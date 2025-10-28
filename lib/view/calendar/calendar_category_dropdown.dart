@@ -1,31 +1,19 @@
+// lib/view/calendar/calendar_category_dropdown.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
 
 class CategoryDropdown extends StatefulWidget {
-  final String selectedCategory;
-  final ValueChanged<String> onCategorySelected;
+  final String selectedCategory; // 라벨(String)
+  final ValueChanged<String> onCategorySelected; // 라벨(String)
 
   const CategoryDropdown({
     Key? key,
     required this.selectedCategory,
     required this.onCategorySelected,
   }) : super(key: key);
-
-  static const List<String> categories = [
-    "약속",
-    "팝업",
-    "티켓팅&예약",
-    "기타",
-  ];
-
-  static final Map<String, Color> categoryColors = {
-    "약속": Colors.red,
-    "팝업": Colors.green,
-    "티켓팅&예약": Colors.yellow,
-    "기타": Colors.black,
-  };
 
   @override
   State<CategoryDropdown> createState() => _CategoryDropdownState();
@@ -37,6 +25,8 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final labels = CalendarCategoryMeta.labels;
+
     return Theme(
       data: Theme.of(context).copyWith(
         popupMenuTheme: PopupMenuThemeData(
@@ -50,30 +40,26 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       ),
       child: PopupMenuButton<String>(
         onSelected: widget.onCategorySelected,
-        constraints: BoxConstraints(
-          minWidth: popupWidth.w,
-          maxWidth: popupWidth.w,
-        ),
+        constraints:
+            BoxConstraints(minWidth: popupWidth.w, maxWidth: popupWidth.w),
         itemBuilder: (context) {
-          final double itemHeight = 40.h;
-          final double dividerHeight = 1.0;
           final items = <PopupMenuEntry<String>>[];
-          for (int i = 0; i < CategoryDropdown.categories.length; i++) {
-            final cat = CategoryDropdown.categories[i];
+          for (int i = 0; i < labels.length; i++) {
+            final label = labels[i];
             items.add(
               PopupMenuItem<String>(
-                value: cat,
-                height: itemHeight,
+                value: label,
+                height: 40.h,
                 padding: EdgeInsets.zero,
                 child: SizedBox(
                   width: 184.w,
-                  height: itemHeight,
+                  height: 40.h,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
-                        child: Text(cat, style: FontStyles.B4_reg_14),
+                        child: Text(label, style: FontStyles.B4_reg_14),
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: 5.w),
@@ -81,7 +67,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                           width: 8.w,
                           height: 8.w,
                           decoration: BoxDecoration(
-                            color: CategoryDropdown.categoryColors[cat],
+                            color: CalendarCategoryMeta.colorByLabel(label),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -91,18 +77,15 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                 ),
               ),
             );
-            if (i < CategoryDropdown.categories.length - 1) {
+            if (i < labels.length - 1) {
               items.add(
                 PopupMenuItem<String>(
                   enabled: false,
-                  height: dividerHeight,
+                  height: 1,
                   padding: EdgeInsets.zero,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Container(
-                      height: dividerHeight,
-                      color: AppColors.G_03,
-                    ),
+                    child: Container(height: 1, color: AppColors.G_03),
                   ),
                 ),
               );
@@ -116,7 +99,8 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
               width: 8.w,
               height: 8.w,
               decoration: BoxDecoration(
-                color: CategoryDropdown.categoryColors[widget.selectedCategory],
+                color:
+                    CalendarCategoryMeta.colorByLabel(widget.selectedCategory),
                 shape: BoxShape.circle,
               ),
             ),

@@ -1,4 +1,3 @@
-import 'package:dear_deer_demo/data/today_ex.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_category_dropdown.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_modal_widget.dart';
 import 'package:flutter/material.dart';
@@ -93,27 +92,23 @@ class _AddEventState extends State<AddEvent> {
           children: [
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: Text(
-                "취소",
-                style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
-              ),
+              child: Text("취소",
+                  style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05)),
             ),
             GestureDetector(
               onTap: () {
                 final title = _titleController.text.trim();
-                if (title.isNotEmpty) {
-                  widget.onAddEvent(
-                    _selectedDate,
-                    _titleController.text.trim(),
-                    _memoController.text.trim(),
-                    _selectedCategory,
-                  );
-                } else {
-                  // 필요 시 빈 제목 처리
-                }
+                if (title.isEmpty) return;
+
+                final date = _selectedDate;
+                final memo = _memoController.text.trim();
+                final category = _selectedCategory;
+
+                Navigator.pop(context);
+                widget.onAddEvent(date, title, memo, category);
               },
               child: Text(
-                "추가",
+                "확인",
                 style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),
               ),
             ),
@@ -221,16 +216,12 @@ class _AddEventState extends State<AddEvent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "카테고리",
-            style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05),
-          ),
+          Text("카테고리",
+              style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05)),
           CategoryDropdown(
             selectedCategory: _selectedCategory,
             onCategorySelected: (value) {
-              setState(() {
-                _selectedCategory = value;
-              });
+              setState(() => _selectedCategory = value);
             },
           ),
         ],
