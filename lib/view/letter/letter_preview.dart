@@ -183,12 +183,42 @@ class LetterPreview extends StatelessWidget {
       );
 
 // MARK: 전송 버튼
+  // Widget _button() {
+  //   final sendController = Get.put(LetterSendController());
+  //   final arguments = Get.arguments ?? {};
+
+  //   final receiverId = arguments['receiverId'] ?? 0;
+  //   final content = arguments['content'] ?? '';
+  //   final imageUrl = arguments['imageUrl'];
+
+  //   return ElevatedButton(
+  //     style: ElevatedButton.styleFrom(
+  //       minimumSize: Size(300.w, 40.h),
+  //       backgroundColor: AppColors.mainGreen,
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //     ),
+  //     onPressed: () async {
+  //       await sendController.sendLetter(
+  //         receiverId: receiverId,
+  //         content: content,
+  //         imageUrl: imageUrl,
+  //       );
+  //     },
+  //     child: Text(
+  //       '전송하기',
+  //       style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
+  //     ),
+  //   );
+  // }
+
   Widget _button() {
     final sendController = Get.put(LetterSendController());
     final arguments = Get.arguments ?? {};
 
-    final receiverId = arguments['receiverId'] ?? 0;
-    final content = arguments['content'] ?? '';
+    final receiverId = 23; // ✅ 테스트용 (receiverId 고정)
+    final content = arguments['content'] ?? '테스트용 편지입니다 💌';
     final imageUrl = arguments['imageUrl'];
 
     return ElevatedButton(

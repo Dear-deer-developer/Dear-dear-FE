@@ -51,7 +51,10 @@ class ProfileMain extends GetView<ProfileController> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Image.asset(ImagePath.backIcon, width: 48.w, height: 48.h),
+          GestureDetector(
+              onTap: Get.back,
+              child:
+                  Image.asset(ImagePath.backIcon, width: 48.w, height: 48.h)),
           SizedBox(width: 110.w),
           Text(
             '설정',
@@ -129,7 +132,7 @@ class ProfileMain extends GetView<ProfileController> {
                 // 공유 버튼
                 Padding(
                   padding: EdgeInsets.only(right: 13.0.w),
-                  child: _shareButton(),
+                  child: _shareButton(context),
                 ),
               ],
             ),
@@ -237,11 +240,9 @@ class ProfileMain extends GetView<ProfileController> {
   }
 
   // MARK: 공유 버튼
-  Widget _shareButton() {
+  Widget _shareButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // TODO: 공유 기능 추가 예정
-      },
+      onTap: () => controller.shareZipCode(context),
       child: Container(
         width: 38.w,
         height: 22.h,

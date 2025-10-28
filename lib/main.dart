@@ -28,8 +28,8 @@ class SharedPreferencesKeys {
 
   static const String deardeerUserJson = "user_json";
 
-  static const String accessToken = "access_token";
-  static const String refreshToken = "refresh_token";
+  static const String accessToken = "accessToken";
+  static const String refreshToken = "refreshToken";
 
   // static const String firebaseToken = "token";
 
