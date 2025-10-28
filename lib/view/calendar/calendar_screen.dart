@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:dear_deer_demo/controller/schedule_controller.dart';
 import 'package:dear_deer_demo/model/schedule.dart';
 
+import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_view.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_bottom_sheet.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_add_event.dart';
-import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
+
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
   final _sc = Get.find<ScheduleController>();
-  final _uuid = const Uuid();
 
   late final int _currentYear;
   late final List<DateTime> _months;
@@ -33,55 +32,58 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _months = [DateTime(_currentYear, 11), DateTime(_currentYear, 12)];
     _selectedDate = _today;
 
-    // 최초 진입: 두 달 월데이터 + 선택일 일데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       for (final m in _months) {
-        try {
-          await _sc.loadMonthly(m.year, m.month);
-        } catch (_) {}
+        await _sc.loadMonthly(m.year, m.month);
       }
-      try {
-        await _sc.loadDaily(_selectedDate!);
-      } catch (_) {}
-      if (mounted) setState(() {}); // 상단 선택바 첫 표기
+      await _sc.loadDaily(_selectedDate!);
+      if (mounted) setState(() {});
     });
   }
 
-  // ---- UI 변환 도우미 ----
+  // 해당 월의 일정 개수 합계를 버전으로 사용 (월 변경 감지용)
+  int _monthVersion(DateTime m) {
+    final y = m.year, mo = m.month;
+    int v = 0;
+    _sc.monthly.forEach((day, list) {
+      if (day.year == y && day.month == mo) v += list.length;
+    });
+    return v;
+  }
 
-  // 월 점/반원: category 정보만 필요 → monthly 사용
-  List<CalendarEvent> _uiFromMonthly(DateTime d) {
+  // 점/반원: monthly 기반(제목/메모 없음)
+  List<CalendarEvent> _eventsFor(DateTime d) {
     final key = DateTime(d.year, d.month, d.day);
-    final list = _sc.monthly[key] ?? const <Schedule>[];
-    return list
-        .map((s) => CalendarEvent(
-              id: _uuid.v4(),
-              title: '', // monthly에는 제목/메모가 없음
-              memo: '',
-              category: CalendarCategoryMeta.labelFromServer(s.category),
-              date: s.date,
-            ))
-        .toList();
+    final schedules = _sc.monthly[key] ?? const <Schedule>[];
+    return [
+      for (final s in schedules)
+        CalendarEvent(
+          id: 'm-${key.toIso8601String()}-${s.id}',
+          title: '',
+          memo: '',
+          category: CalendarCategoryMeta.labelFromServer(s.category),
+          date: s.date,
+        )
+    ];
   }
 
-  // 바텀시트 리스트: 제목/메모 필요 → daily 사용
-  List<CalendarEvent> _uiFromDaily() {
-    return _sc.daily
-        .map((s) => CalendarEvent(
-              id: '${s.id}',
-              title: s.title,
-              memo: s.memo,
-              category: CalendarCategoryMeta.labelFromServer(s.category),
-              date: s.date,
-            ))
-        .toList();
+  // 바텀시트: daily 기반(제목/메모 포함)
+  List<CalendarEvent> _dailyUi() {
+    return [
+      for (final s in _sc.daily)
+        CalendarEvent(
+          id: 'd-${s.id}',
+          title: s.title,
+          memo: s.memo,
+          category: CalendarCategoryMeta.labelFromServer(s.category),
+          date: s.date,
+        )
+    ];
   }
 
-  ScheduleCategory _serverCatFromLabel(String label) =>
+  ScheduleCategory _enumFromUiLabel(String label) =>
       CalendarCategoryMeta.serverFromUi(
           CalendarCategoryMeta.uiFromLabel(label));
-
-  // ---- 액션 ----
 
   void _openAddSheet() {
     showModalBottomSheet(
@@ -93,24 +95,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
       builder: (_) => AddEvent(
         initialDate: _selectedDate ?? _today,
         onAddEvent: (date, title, memo, uiLabel) async {
-          // AddEvent에서 먼저 pop() 호출됨 → 여기서는 생성 & 갱신
-          final onlyDate = DateTime(date.year, date.month, date.day);
           final draft = Schedule(
             id: 0,
             title: title,
             memo: memo,
-            category: _serverCatFromLabel(uiLabel),
-            date: onlyDate,
+            category: _enumFromUiLabel(uiLabel),
+            date: DateTime(date.year, date.month, date.day),
           );
-
-          try {
-            await _sc.addEvent(draft); // 서버 생성 + 해당 월 재로딩
-            await _sc.loadDaily(onlyDate); // 바텀시트용 일 데이터 재로딩
-            if (!mounted) return;
-            await _openDailyBottomSheet(onlyDate);
-          } catch (e) {
-            // TODO: 필요시 스낵바로 실패 안내
-          }
+          await _sc.addEvent(draft); // 생성 + monthly 갱신
+          await _sc.loadDaily(draft.date); // 바텀시트용 최신
+          if (!mounted) return;
+          _openDailyBottomSheet(draft.date);
         },
       ),
     );
@@ -118,12 +113,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _openDailyBottomSheet(DateTime date) async {
     setState(() => _selectedDate = date);
-    try {
-      await _sc.loadDaily(date); // 제목/메모 확보
-    } catch (_) {}
+    await _sc.loadDaily(date);
 
     if (!mounted) return;
-    await showModalBottomSheet(
+    showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -131,38 +124,43 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       builder: (_) => CalendarBottomSheet(
         date: date,
-        events: _uiFromDaily(),
+        events: _dailyUi(),
         onDeleteEvent: (evt) async {
-          final target = _sc.daily.firstWhereOrNull((s) =>
-              s.id.toString() == evt.id ||
-              (s.title == evt.title &&
-                  s.memo == evt.memo &&
-                  s.date == evt.date));
+          final target = _sc.daily.firstWhereOrNull(
+            (s) =>
+                s.title == evt.title &&
+                s.memo == evt.memo &&
+                s.date == evt.date,
+          );
           if (target != null) {
-            try {
-              await _sc.removeEvent(target.id);
-              await _sc.loadDaily(date);
-              if (mounted) setState(() {});
-            } catch (_) {}
+            await _sc.removeEvent(target.id);
+            await _sc.loadDaily(date);
+            if (mounted) setState(() {});
           }
         },
         onEditEvent: (evt) async {
-          final target = _sc.daily.firstWhereOrNull((s) =>
-              s.id.toString() == evt.id ||
-              (s.title == evt.title && s.date == evt.date));
-          if (target != null) {
+          final target = _sc.daily.firstWhereOrNull(
+            (s) =>
+                s.title == evt.title &&
+                s.memo == evt.memo &&
+                s.date == evt.date,
+          );
+          final use = target ??
+              _sc.daily.firstWhereOrNull((s) =>
+                  CalendarCategoryMeta.labelFromServer(s.category) ==
+                      evt.category &&
+                  s.date == evt.date);
+          if (use != null) {
             final changed = Schedule(
-              id: target.id,
+              id: use.id,
               title: evt.title,
               memo: evt.memo,
-              category: _serverCatFromLabel(evt.category),
+              category: _enumFromUiLabel(evt.category),
               date: DateTime(evt.date.year, evt.date.month, evt.date.day),
             );
-            try {
-              await _sc.editEvent(target.id, changed);
-              await _sc.loadDaily(date);
-              if (mounted) setState(() {});
-            } catch (_) {}
+            await _sc.editEvent(use.id, changed);
+            await _sc.loadDaily(date);
+            if (mounted) setState(() {});
           }
         },
       ),
@@ -181,45 +179,34 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: SafeArea(
         child: Obx(() {
-          // 월 데이터 "내용"까지 반영한 digest → 반드시 리빌드
-          final monthlyDigest = _sc.monthly.entries.fold<int>(
-            _sc.monthly.length,
-            (acc, e) {
-              final keyHash = e.key.year ^ e.key.month ^ e.key.day;
-              final len = e.value.length;
-              // 일정 id 섞어서 내용 변화까지 반영
-              final idsXor = e.value.fold<int>(0, (a, s) => a ^ s.id);
-              return acc ^ keyHash ^ len ^ idsXor;
-            },
-          );
+          final _ = _sc.monthly.length;
+          final __ = _sc.daily.length;
 
           return PageView.builder(
             itemCount: _months.length,
             onPageChanged: (i) async {
               final m = _months[i];
-              try {
-                await _sc.loadMonthly(m.year, m.month);
-              } catch (_) {}
-              if (mounted) setState(() {}); // 점/상단바 갱신
+              await _sc.loadMonthly(m.year, m.month);
+              if (mounted) setState(() {});
             },
             itemBuilder: (context, index) {
               final monthDate = _months[index];
+              final version = _monthVersion(monthDate);
+
               return CalendarView(
                 key: ValueKey(
-                    'cal-${monthDate.year}-${monthDate.month}-$monthlyDigest'),
+                    'cv-${monthDate.year}-${monthDate.month}-$version'),
                 monthDate: monthDate,
                 selectedDate: _selectedDate,
                 today: _today,
-                getEventsForDate: _uiFromMonthly,
+                getEventsForDate: _eventsFor,
                 onDayTap: (date) async {
                   _selectedDate = date;
-                  try {
-                    await _sc.loadDaily(date);
-                  } catch (_) {}
+                  await _sc.loadDaily(date);
                   if (!mounted) return;
                   await _openDailyBottomSheet(date);
                 },
-                dataVersion: monthlyDigest,
+                dataVersion: version,
               );
             },
           );

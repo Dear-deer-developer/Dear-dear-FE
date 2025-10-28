@@ -1,4 +1,3 @@
-// lib/view/calendar/calendar_category_dropdown.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';

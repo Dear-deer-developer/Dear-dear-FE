@@ -14,9 +14,7 @@ class CalendarView extends StatelessWidget {
   final DateTime? selectedDate;
   final DateTime today;
   final List<CalendarEvent> Function(DateTime) getEventsForDate;
-
-  // ✅ 월데이터 변경 버전 (부모에서 전달)
-  final int dataVersion;
+  final int dataVersion; // 월 데이터 버전
 
   const CalendarView({
     Key? key,
@@ -39,7 +37,6 @@ class CalendarView extends StatelessWidget {
     final boxWidgets = <Widget>[];
 
     for (int i = 0; i < startWeekday; i++) {
-      // (옵션) 블랭크도 버전에 묶고 싶다면 key 부여 가능
       boxWidgets.add(const CalendarBlankBox());
     }
 
@@ -51,12 +48,10 @@ class CalendarView extends StatelessWidget {
       final isSelected =
           selectedDate != null && _isSameDate(thisDay, selectedDate!);
 
-      // ✅ 매 빌드마다 최신 이벤트를 계산
       final dayEvents = getEventsForDate(thisDay);
 
       boxWidgets.add(
         CalendarDayBox(
-          // ✅ 월데이터가 바뀌면 셀 자체를 재생성
           key: ValueKey('day-$year-$month-$day-$dataVersion'),
           day: day,
           isPast: isPast,
