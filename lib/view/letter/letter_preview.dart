@@ -1,4 +1,5 @@
 import 'package:dear_deer_demo/controller/post/letter_preview_controller.dart';
+import 'package:dear_deer_demo/controller/post/letter_send_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';
@@ -14,7 +15,7 @@ class LetterPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(LetterPreviewController());
 
-    // ✅ WriteLetterScreen에서 전달된 모든 인자 받기
+    // WriteLetterScreen에서 전달된 모든 인자 받기
     final arguments = Get.arguments ?? {};
     final senderName = arguments['senderName'] ?? '';
     final content = arguments['content'] ?? '';
@@ -34,7 +35,7 @@ class LetterPreview extends StatelessWidget {
               controller, senderName, recipientName, selectedPaper),
           _slide(controller),
           const SizedBox(height: 20),
-          _button(controller),
+          _button(),
           _edit(controller),
         ],
       ),
@@ -86,7 +87,7 @@ class LetterPreview extends StatelessWidget {
                         : const SizedBox.shrink(),
                   ),
 
-                  /// ✉️ 편지 내용 (편지지 위)
+                  /// 편지 내용 (편지지 위)
                   SizedBox(
                     width: 312.w,
                     height: 500.h,
@@ -182,20 +183,35 @@ class LetterPreview extends StatelessWidget {
       );
 
 // MARK: 전송 버튼
-  Widget _button(LetterPreviewController controller) => ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: Size(300.w, 40.h),
-          backgroundColor: AppColors.mainGreen,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+  Widget _button() {
+    final sendController = Get.put(LetterSendController());
+    final arguments = Get.arguments ?? {};
+
+    final receiverId = arguments['receiverId'] ?? 0;
+    final content = arguments['content'] ?? '';
+    final imageUrl = arguments['imageUrl'];
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(300.w, 40.h),
+        backgroundColor: AppColors.mainGreen,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
-        onPressed: controller.onEdit,
-        child: Text(
-          '전송하기',
-          style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
-        ),
-      );
+      ),
+      onPressed: () async {
+        await sendController.sendLetter(
+          receiverId: receiverId,
+          content: content,
+          imageUrl: imageUrl,
+        );
+      },
+      child: Text(
+        '전송하기',
+        style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
+      ),
+    );
+  }
 
 // MARK: 수정 버튼
   Widget _edit(LetterPreviewController controller) => TextButton(

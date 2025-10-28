@@ -22,7 +22,7 @@ class LetterPreviewController extends GetxController {
     super.onClose();
   }
 
-  // MARK: 페이지 나누기
+  // MARK: - 페이지 나누기 (미리보기용)
   void _paginateLetterText() {
     String fullText = '안녕 주원아? 사용자가 편지를 받으면 어떨지 한번 본다고 여기 내가 너에게 편지를 쓰고 있어...';
 
@@ -37,14 +37,13 @@ class LetterPreviewController extends GetxController {
     pagedTexts.value = pages;
   }
 
-  // MARK: 실제 전송 처리
-  void onSend() {
-    print("📩 편지를 전송했습니다!");
-    Get.offAll(() => transferCompleted());
-  }
-
-  // MARK: 전송 전 확인 다이얼로그
-  void onEdit() {
+  // MARK: - “전송 전 확인” 다이얼로그 (전송 기능은 다른 컨트롤러가 수행)
+  void showSendConfirmDialog({
+    required int receiverId,
+    required String content,
+    String? imageUrl,
+    required VoidCallback onConfirm,
+  }) {
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
@@ -74,7 +73,8 @@ class LetterPreviewController extends GetxController {
                       child: Text(
                         "뒤로",
                         style: FontStyles.B2_reg_16.copyWith(
-                            color: AppColors.G_06),
+                          color: AppColors.G_06,
+                        ),
                       ),
                     ),
                     Padding(
@@ -82,12 +82,13 @@ class LetterPreviewController extends GetxController {
                       child: GestureDetector(
                         onTap: () {
                           Get.back();
-                          onSend();
+                          onConfirm();
                         },
                         child: Text(
                           "전송",
                           style: FontStyles.B2_reg_16.copyWith(
-                              color: AppColors.Black),
+                            color: AppColors.Black,
+                          ),
                         ),
                       ),
                     ),
@@ -101,7 +102,7 @@ class LetterPreviewController extends GetxController {
     );
   }
 
-  // MARK: 편지 내용 설정
+  // MARK: - 편지 내용 페이지로 나누기
   void setLetterContent(String content) {
     final pages = <String>[];
     const pageLimit = 500;
