@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:dear_deer_demo/app.dart';
+import 'package:dear_deer_demo/binding/main_bindings.dart';
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
@@ -54,7 +55,13 @@ class AuthController extends GetxController {
       }
 
       await sharedPreferences.setBool(SharedPreferencesKeys.isRegistered, true);
-      Get.offAll(() => const App());
+      // ✅ 전환 전에 포커스/스낵바 정리 + 프레임 종료 대기
+      FocusManager.instance.primaryFocus?.unfocus();
+      if (Get.isSnackbarOpen) Get.closeAllSnackbars();
+      await Future<void>.delayed(Duration.zero);
+      await WidgetsBinding.instance.endOfFrame;
+
+      Get.offAll(() => const App(), binding: MainBindings());
 
       logger.i('✅ 로그인 성공: $email');
     } catch (e, st) {
@@ -110,6 +117,11 @@ class AuthController extends GetxController {
       if (res.statusCode == 200 || res.statusCode == 201) {
         logger.i('✅ 회원가입 성공: $email');
         Get.snackbar('회원가입', '완료되었습니다. 로그인해주세요!');
+        // ✅ 전환 안정화
+        FocusManager.instance.primaryFocus?.unfocus();
+        if (Get.isSnackbarOpen) Get.closeAllSnackbars();
+        await Future<void>.delayed(Duration.zero);
+        await WidgetsBinding.instance.endOfFrame;
         Get.offAll(() => const LoginMain());
         return;
       }
@@ -143,6 +155,11 @@ class AuthController extends GetxController {
         Get.snackbar('닉네임 실패', '저장에 실패했습니다. 다시 시도해주세요.');
         return;
       }
+
+      FocusManager.instance.primaryFocus?.unfocus();
+      if (Get.isSnackbarOpen) Get.closeAllSnackbars();
+      await Future<void>.delayed(Duration.zero);
+      await WidgetsBinding.instance.endOfFrame;
 
       Get.offAll(() => const App());
       Get.snackbar('완료', '닉네임이 설정되었습니다.');

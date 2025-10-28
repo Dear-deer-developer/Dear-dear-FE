@@ -128,108 +128,110 @@ class LoginMain extends GetView<AuthController> {
 
   // MARK: 비밀번호 입력 필드
   Widget _passwordField() {
-    final hasError = _loginError.value != null;
+    return Obx(() {
+      final hasError = _loginError.value != null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 312.w,
-          height: 48.h,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(color: AppColors.G_02, width: 1.w),
-          ),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              // TextField
-              TextField(
-                controller: controller.loginPwCtrl,
-                obscureText: !_pwVisible.value,
-                onChanged: (v) {
-                  _pw.value = v;
-                  if (_loginError.value != null) _loginError.value = null;
-                  _recalcSubmit();
-                },
-                style: FontStyles.B3_bold_15,
-                textAlignVertical: TextAlignVertical.center,
-                cursorColor: AppColors.mainGreen,
-                decoration: InputDecoration(
-                  hintText: '비밀번호',
-                  hintStyle:
-                      FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
-                  border: InputBorder.none,
-                  isDense: true,
-                  // 오른쪽 여백 확보 (eye + delete 아이콘 영역)
-                  contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
-                ),
-              ),
-
-              // 눈 아이콘 (보이기/가리기)
-              Positioned(
-                right: 48.w, // ← 삭제 버튼 바로 왼쪽에 붙음
-                top: 0,
-                bottom: 0,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => _pwVisible.value = !_pwVisible.value,
-                  child: SizedBox(
-                    width: 18.w,
-                    height: 18.h,
-                    child: Center(
-                      child: Image.asset(
-                        _pwVisible.value
-                            ? ImagePath.eyeOffIcon
-                            : ImagePath.eyeOnIcon,
-                        width: 18.w,
-                        height: 18.h,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // X 삭제 버튼 (오른쪽 끝)
-              Positioned(
-                right: 0.w,
-                top: 0,
-                bottom: 0,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    controller.loginPwCtrl.clear();
-                    _pw.value = '';
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 312.w,
+            height: 48.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: AppColors.G_02, width: 1.w),
+            ),
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                // TextField
+                TextField(
+                  controller: controller.loginPwCtrl,
+                  obscureText: !_pwVisible.value,
+                  onChanged: (v) {
+                    _pw.value = v;
+                    if (_loginError.value != null) _loginError.value = null;
                     _recalcSubmit();
                   },
-                  child: SizedBox(
-                    width: 48.w,
-                    height: 48.h,
-                    child: Center(
-                      child: Image.asset(
-                        ImagePath.textDeleteIcon,
-                        width: 48.w,
-                        height: 48.h,
+                  style: FontStyles.B3_bold_15,
+                  textAlignVertical: TextAlignVertical.center,
+                  cursorColor: AppColors.mainGreen,
+                  decoration: InputDecoration(
+                    hintText: '비밀번호',
+                    hintStyle:
+                        FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
+                    border: InputBorder.none,
+                    isDense: true,
+                    // 오른쪽 여백 확보 (eye + delete 아이콘 영역)
+                    contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
+                  ),
+                ),
+
+                // 눈 아이콘 (보이기/가리기)
+                Positioned(
+                  right: 48.w, // ← 삭제 버튼 바로 왼쪽에 붙음
+                  top: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => _pwVisible.value = !_pwVisible.value,
+                    child: SizedBox(
+                      width: 18.w,
+                      height: 18.h,
+                      child: Center(
+                        child: Image.asset(
+                          _pwVisible.value
+                              ? ImagePath.eyeOffIcon
+                              : ImagePath.eyeOnIcon,
+                          width: 18.w,
+                          height: 18.h,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
 
-        // 에러 메시지
-        if (hasError) ...[
-          SizedBox(height: 6.h),
-          Text(
-            _loginError.value!,
-            style: FontStyles.S1_reg_13.copyWith(color: AppColors.mainRed),
+                // X 삭제 버튼 (오른쪽 끝)
+                Positioned(
+                  right: 0.w,
+                  top: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      controller.loginPwCtrl.clear();
+                      _pw.value = '';
+                      _recalcSubmit();
+                    },
+                    child: SizedBox(
+                      width: 48.w,
+                      height: 48.h,
+                      child: Center(
+                        child: Image.asset(
+                          ImagePath.textDeleteIcon,
+                          width: 48.w,
+                          height: 48.h,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+
+          // 에러 메시지
+          if (hasError) ...[
+            SizedBox(height: 6.h),
+            Text(
+              _loginError.value!,
+              style: FontStyles.S1_reg_13.copyWith(color: AppColors.mainRed),
+            ),
+          ],
         ],
-      ],
-    );
+      );
+    });
   }
 
   // MARK: 로그인 버튼
