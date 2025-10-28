@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/view/letter/letter_recived.dart';
 import 'package:dear_deer_demo/view/letter/letter_sent.dart';
 import 'package:flutter/material.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
@@ -7,15 +8,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
-class LetterSentList extends StatelessWidget {
-  const LetterSentList({super.key});
+class ReceivedLetterList extends StatelessWidget {
+  const ReceivedLetterList({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appbar(),
       body: Column(
-        children: [_warningMessage(), _letterList(), _errorMessage()],
+        children: [
+          _message(),
+          _letterList(),
+        ],
       ),
     );
   }
@@ -25,12 +29,12 @@ class LetterSentList extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          "보낸 편지함",
+          "내 사서함",
           style: FontStyles.H2_bold_17,
         ),
       );
 
-  Widget _warningMessage() => Align(
+  Widget _message() => Align(
         alignment: const Alignment(0, -0.9),
         child: Padding(
           padding: EdgeInsets.only(top: 12.h),
@@ -53,7 +57,7 @@ class LetterSentList extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "보낸 편지는 수정할 수 없어요.",
+                  "편지는 크리스마스 당일날 개봉 가능해요.",
                   style: FontStyles.B4_reg_14.copyWith(
                     color: AppColors.Black,
                   ),
@@ -69,7 +73,7 @@ class LetterSentList extends StatelessWidget {
   /// 보낸 편지들을 이미지 위에 'Dear. 이름' 텍스트와 함께 표시하고,
   /// 편지를 누르면 LetterSent() 페이지로 이동합니다.
   Widget _letterList() {
-    // 임시 데이터 (나중에 API로 대체 가능)
+    // 📨 임시 데이터 (나중에 API로 대체 가능)
     final List<Map<String, String>> letters = [
       {
         "recipient": "미가입자",
@@ -95,7 +99,7 @@ class LetterSentList extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   // 편지 클릭 시 LetterSent() 페이지로 이동
-                  Get.to(() => LetterSent(), arguments: {
+                  Get.to(() => LetterRecived(), arguments: {
                     "recipientName": recipientName,
                     "content": content,
                   });
@@ -142,47 +146,4 @@ class LetterSentList extends StatelessWidget {
       ),
     );
   }
-
-  // MARK: - 오류 메시지
-  /// 편지 전송 실패 또는 미전달 안내 문구
-  Widget _errorMessage() => Padding(
-        padding: EdgeInsets.only(bottom: 20.h, left: 32.w, right: 24.w),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // 왼쪽: 아이콘 + 텍스트 묶음
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 18,
-                  ),
-                  SizedBox(width: 6.w),
-                  Expanded(
-                    child: Text(
-                      "받는 분이 편지를 접속 받지 못했습니다.\n링크 공유로 편지를 다시 전달해주세요.",
-                      style:
-                          FontStyles.S2_reg_12.copyWith(color: AppColors.Black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // 오른쪽: 공유 버튼
-            IconButton(
-              icon: const Icon(Icons.share_outlined, size: 20),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () {
-                // TODO: 링크 공유 기능 연결
-              },
-            ),
-          ],
-        ),
-      );
 }

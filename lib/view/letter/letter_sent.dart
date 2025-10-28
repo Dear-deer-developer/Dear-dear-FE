@@ -33,12 +33,9 @@ class LetterSent extends StatelessWidget {
         ),
       );
 
-  // ✅ 수정된 Body: Stack 레이아웃 정렬 개선
-  // ✅ 수정된 Body: 편지를 위로 올림
   Widget _Body(LetterPreviewController controller) => Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // ✅ 하단 봉투 이미지
           Align(
             alignment: Alignment.bottomCenter,
             child: Image.asset(
@@ -48,10 +45,8 @@ class LetterSent extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-
-          // ✅ 편지와 인디케이터를 약간 위로 올림
           Positioned(
-            bottom: 140.h, // 🔥 기존보다 위로 올리기 (숫자 키워서 조정)
+            bottom: 140.h,
             left: 0,
             right: 0,
             child: Column(
@@ -66,9 +61,8 @@ class LetterSent extends StatelessWidget {
         ],
       );
 
-  // ✅ 수정: Expanded 제거 (Stack 안에서 불필요)
   Widget _LetterView(LetterPreviewController controller) => SizedBox(
-        height: 460.h, // ✅ 원하는 높이로 고정 (시안 비율 맞춰 조정 가능)
+        height: 460.h,
         child: Obx(() => PageView.builder(
               controller: controller.pageController,
               itemCount: controller.pagedTexts.length,
@@ -82,7 +76,6 @@ class LetterSent extends StatelessWidget {
             )),
       );
 
-  // ✅ 수정된 편지 카드: 그림자, 여백, 비율 보정
   Widget _LetterCard(int index, LetterPreviewController controller) {
     return Container(
       width: 312.w,

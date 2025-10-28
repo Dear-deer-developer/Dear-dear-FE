@@ -1,5 +1,7 @@
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:dear_deer_demo/view/letter/letter_sent_list.dart';
+import 'package:dear_deer_demo/view/letter/received_letter_list.dart';
+import 'package:dear_deer_demo/view/letter/temporary_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -83,7 +85,7 @@ class PostMain extends GetView<PostController> {
               image: ImagePath.letterBoxImage,
               title: "내 사서함 확인",
               subtitle: "내용은 12월 25일부터 확인 가능",
-              onTap: controller.openMyMailbox,
+              onTap: () => Get.to(() => ReceivedLetterList()),
             ),
           ],
         ),
@@ -151,7 +153,8 @@ class PostMain extends GetView<PostController> {
               () => Get.to(() => const LetterSentList()),
             ),
             SizedBox(height: 12.h),
-            _serviceTextButton("임시 보관함", controller.openDrafts),
+            _serviceTextButton(
+                "임시 보관함", () => Get.to(() => TemporaryStorage())),
           ],
         ),
       );

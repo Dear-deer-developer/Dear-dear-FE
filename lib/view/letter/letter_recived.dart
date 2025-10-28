@@ -1,13 +1,14 @@
 import 'package:dear_deer_demo/controller/post/letter_preview_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class ReceivedLetter extends StatelessWidget {
-  const ReceivedLetter({super.key});
+class LetterRecived extends StatelessWidget {
+  const LetterRecived({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,32 +27,33 @@ class ReceivedLetter extends StatelessWidget {
         title: Padding(
           padding: const EdgeInsets.only(left: 24),
           child: Text(
-            '받은 편지함',
+            '내 사서함',
             style: FontStyles.H2_bold_17,
           ),
         ),
       );
 
   Widget _Body(LetterPreviewController controller) => Stack(
+        alignment: Alignment.bottomCenter,
         children: [
-          // 배경 이미지는 Stack의 맨 아래에 위치
           Align(
             alignment: Alignment.bottomCenter,
-            child: Opacity(
-              opacity: 0.2,
-              child: Image.asset(
-                'assets/images/letter_black.png',
-                width: double.infinity,
-                height: 400.h,
-                fit: BoxFit.contain,
-              ),
+            child: Image.asset(
+              ImagePath.imageOpenLetter,
+              width: double.infinity,
+              height: 300.h,
+              fit: BoxFit.contain,
             ),
           ),
-
-          SafeArea(
+          Positioned(
+            bottom: 140.h,
+            left: 0,
+            right: 0,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(child: _LetterView(controller)),
+                _LetterView(controller),
+                const SizedBox(height: 30),
                 _PageIndicator(controller),
               ],
             ),
@@ -59,14 +61,15 @@ class ReceivedLetter extends StatelessWidget {
         ],
       );
 
-  Widget _LetterView(LetterPreviewController controller) => Expanded(
+  Widget _LetterView(LetterPreviewController controller) => SizedBox(
+        height: 460.h,
         child: Obx(() => PageView.builder(
               controller: controller.pageController,
               itemCount: controller.pagedTexts.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 27, horizontal: 30),
+                      EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
                   child: _LetterCard(index, controller),
                 );
               },
@@ -75,10 +78,11 @@ class ReceivedLetter extends StatelessWidget {
 
   Widget _LetterCard(int index, LetterPreviewController controller) {
     return Container(
-      width: 300.w,
+      width: 312.w,
+      padding: EdgeInsets.fromLTRB(20.w, 30.h, 20.w, 20.h),
       decoration: BoxDecoration(
         color: AppColors.G_01,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -88,37 +92,42 @@ class ReceivedLetter extends StatelessWidget {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (index == 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 99, bottom: 15),
-              child: Text("Dear. 닉네임 이용", style: FontStyles.L1_reg_20),
-            )
-          else
-            SizedBox(height: 80.h),
-          Expanded(
+          // Dear 문구
+          Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Text(
-                  controller.pagedTexts[index],
-                  style: FontStyles.L3_reg_16,
-                ),
+              padding: EdgeInsets.only(bottom: 10.h),
+              child: Text(
+                "Dear. 닉네임 이용",
+                style: FontStyles.L1_reg_20,
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 15, top: 15, bottom: 15),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: index == controller.pagedTexts.length - 1
-                  ? Text(
-                      "2025년 12월 20일 \nFrom. OOO",
-                      style: FontStyles.L3_reg_16,
-                      textAlign: TextAlign.right,
-                    )
-                  : const SizedBox.shrink(),
+
+          // 본문
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Text(controller.pagedTexts[index],
+                  style: FontStyles.L3_reg_16.merge(
+                    const TextStyle(fontFamily: 'LeeSeoyun'),
+                  )),
+            ),
+          ),
+
+          // 날짜 & From
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 20.h),
+              child: Text(
+                "2025년 12월 20일\nFrom. OOO",
+                textAlign: TextAlign.right,
+                style: FontStyles.L3_reg_16.merge(
+                  const TextStyle(fontFamily: 'LeeSeoyun'),
+                ),
+              ),
             ),
           ),
         ],
