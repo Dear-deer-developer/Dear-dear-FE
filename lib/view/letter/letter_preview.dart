@@ -218,7 +218,7 @@ class LetterPreview extends StatelessWidget {
     final arguments = Get.arguments ?? {};
 
     final receiverId = 23; // ✅ 테스트용 (receiverId 고정)
-    final content = arguments['content'] ?? '테스트용 편지입니다 💌';
+    final content = arguments['content'] ?? '테스트용 편지입니다.';
     final imageUrl = arguments['imageUrl'];
 
     return ElevatedButton(

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dear_deer_demo/service/post/letter_send_service.dart';
 import 'package:dear_deer_demo/view/letter/letter_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -100,8 +101,14 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             // 임시저장 버튼
             TextButton(
               onPressed: _textController.text.isNotEmpty
-                  ? () {
-                      _showSaveToast(context);
+                  ? () async {
+                      final success =
+                          await LetterService.saveDraft(_textController.text);
+                      if (success) {
+                        _showSaveToast(context);
+                      } else {
+                        print('임시 저장 실패');
+                      }
                     }
                   : null,
               child: Text(

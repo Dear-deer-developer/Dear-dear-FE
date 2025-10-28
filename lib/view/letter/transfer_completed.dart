@@ -74,7 +74,7 @@ class transferCompleted extends StatelessWidget {
             ),
           ),
           onPressed: () => Get.offAll(() => const PostMain()),
-          child: Text('우체국 로비로 이동하기',
+          child: Text('닫기',
               style:
                   FontStyles.Button_bold_17.copyWith(color: AppColors.White)),
         ),

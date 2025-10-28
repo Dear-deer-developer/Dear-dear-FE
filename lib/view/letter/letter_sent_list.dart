@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/controller/post/letter_sent_controller.dart';
 import 'package:dear_deer_demo/view/letter/letter_sent.dart';
 import 'package:flutter/material.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
@@ -69,78 +70,87 @@ class LetterSentList extends StatelessWidget {
   /// 보낸 편지들을 이미지 위에 'Dear. 이름' 텍스트와 함께 표시하고,
   /// 편지를 누르면 LetterSent() 페이지로 이동합니다.
   Widget _letterList() {
-    // 임시 데이터 (나중에 API로 대체 가능)
-    final List<Map<String, String>> letters = [
-      {
-        "recipient": "미가입자",
-        "content": "안녕? 첫 번째 편지야!",
-      },
-      {
-        "recipient": "닉네임 이용자",
-        "content": "이번에도 편지를 보냈어.",
-      },
-    ];
+    final controller = Get.put(LetterSentController());
+    controller.loadSentLetters();
 
-    return Padding(
-      padding: EdgeInsets.only(top: 30.h),
-      child: Center(
-        child: Column(
-          children: List.generate(letters.length, (index) {
-            final letter = letters[index];
-            final recipientName = letter['recipient'] ?? '받는 사람 없음';
-            final content = letter['content'] ?? '';
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Padding(
+          padding: EdgeInsets.only(top: 50),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
 
-            return Padding(
-              padding: EdgeInsets.only(bottom: 32.h),
-              child: GestureDetector(
-                onTap: () {
-                  // 편지 클릭 시 LetterSent() 페이지로 이동
-                  Get.to(() => LetterSent(), arguments: {
-                    "recipientName": recipientName,
-                    "content": content,
-                  });
-                },
-                child: Stack(
-                  children: [
-                    // 편지 배경 이미지
-                    Container(
-                      width: 312.w,
-                      height: 184.h,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+      if (controller.letters.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Center(child: Text('보낸 편지가 없습니다')),
+        );
+      }
+
+      return Padding(
+        padding: EdgeInsets.only(top: 30.h),
+        child: Center(
+          child: Column(
+            children: List.generate(controller.letters.length, (index) {
+              final letter = controller.letters[index];
+              final recipientId = letter.receiverId;
+              final content = letter.content;
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 32.h),
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(() => LetterSent(), arguments: {
+                      "recipientId": recipientId, //
+                      "content": content,
+                      "sentAt":
+                          letter.sentAt?.toLocal().toString().split(' ')[0],
+                    });
+                  },
+                  child: Stack(
+                    children: [
+                      // 편지 배경 이미지
+                      Container(
+                        width: 312.w,
+                        height: 184.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        clipBehavior: Clip.hardEdge,
+                        child: Image.asset(
+                          ImagePath.imageLetterEnvelope,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                      clipBehavior: Clip.hardEdge,
-                      child: Image.asset(
-                        ImagePath.imageLetterEnvelope,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
 
-                    // Dear. 이름 텍스트 (편지 이미지 위)
-                    Positioned(
+                      // Dear. receiverId
+                      Positioned(
                         left: 20.w,
                         bottom: 16.h,
                         child: Text(
-                          "Dear. $recipientName",
+                          "Dear. ${recipientId ?? '??'}",
                           style: FontStyles.L3_reg_16.merge(
                             const TextStyle(fontFamily: 'LeeSeoyun'),
                           ),
-                        )),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // MARK: - 오류 메시지

@@ -3,6 +3,7 @@ import 'package:dear_deer_demo/service/post/letter_send_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// MARK: 편지 전송 컨트롤러
 class LetterSendController extends GetxController {
   var isSending = false.obs;
 
@@ -19,7 +20,6 @@ class LetterSendController extends GetxController {
       imageUrl: imageUrl,
     );
 
-    // 여기 추가
     final prefs = await SharedPreferences.getInstance();
     print("저장된 accessToken: ${prefs.getString('accessToken')}");
 

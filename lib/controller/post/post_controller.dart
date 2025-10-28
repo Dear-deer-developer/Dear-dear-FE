@@ -37,7 +37,7 @@ class PostController extends GetxController {
     Get.to(
       () => const WriteLetterScreen(),
       arguments: {
-        'selectedPaper': selectedPaper, // ✅ 선택한 편지지 정보 전달
+        'selectedPaper': selectedPaper, // 선택한 편지지 정보 전달
       },
     );
   }

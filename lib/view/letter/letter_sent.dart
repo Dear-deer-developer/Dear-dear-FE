@@ -13,10 +13,20 @@ class LetterSent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(LetterPreviewController());
+
+    // LetterSentList에서 전달된 값 받기
+    final arguments = Get.arguments ?? {};
+    final recipientName = arguments['recipientName'] ?? '받는 사람 없음';
+    final content = arguments['content'] ?? '';
+    final sentAt = arguments['sentAt'] ?? '';
+
+    // controller에 내용 반영
+    controller.setLetterContent(content);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _AppBar(),
-      body: _Body(controller),
+      body: _Body(controller, recipientName, sentAt),
     );
   }
 
@@ -33,50 +43,56 @@ class LetterSent extends StatelessWidget {
         ),
       );
 
-  Widget _Body(LetterPreviewController controller) => Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Image.asset(
-              ImagePath.imageOpenLetter,
-              width: double.infinity,
-              height: 300.h,
-              fit: BoxFit.contain,
-            ),
+  Widget _Body(
+      LetterPreviewController controller, String recipientName, String sentAt) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Image.asset(
+            ImagePath.imageOpenLetter,
+            width: double.infinity,
+            height: 300.h,
+            fit: BoxFit.contain,
           ),
-          Positioned(
-            bottom: 140.h,
-            left: 0,
-            right: 0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LetterView(controller),
-                const SizedBox(height: 30),
-                _PageIndicator(controller),
-              ],
-            ),
+        ),
+        Positioned(
+          bottom: 140.h,
+          left: 0,
+          right: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LetterView(controller, recipientName, sentAt),
+              const SizedBox(height: 30),
+              _PageIndicator(controller),
+            ],
           ),
-        ],
-      );
+        ),
+      ],
+    );
+  }
 
-  Widget _LetterView(LetterPreviewController controller) => SizedBox(
-        height: 460.h,
-        child: Obx(() => PageView.builder(
-              controller: controller.pageController,
-              itemCount: controller.pagedTexts.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
-                  child: _LetterCard(index, controller),
-                );
-              },
-            )),
-      );
+  Widget _LetterView(
+      LetterPreviewController controller, String recipientName, String sentAt) {
+    return SizedBox(
+      height: 460.h,
+      child: Obx(() => PageView.builder(
+            controller: controller.pageController,
+            itemCount: controller.pagedTexts.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
+                child: _LetterCard(index, controller, recipientName, sentAt),
+              );
+            },
+          )),
+    );
+  }
 
-  Widget _LetterCard(int index, LetterPreviewController controller) {
+  Widget _LetterCard(int index, LetterPreviewController controller,
+      String recipientName, String sentAt) {
     return Container(
       width: 312.w,
       padding: EdgeInsets.fromLTRB(20.w, 30.h, 20.w, 20.h),
@@ -99,7 +115,7 @@ class LetterSent extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(bottom: 10.h),
               child: Text(
-                "Dear. 닉네임 이용",
+                "Dear. $recipientName",
                 style: FontStyles.L1_reg_20,
               ),
             ),
@@ -109,10 +125,12 @@ class LetterSent extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const NeverScrollableScrollPhysics(),
-              child: Text(controller.pagedTexts[index],
-                  style: FontStyles.L3_reg_16.merge(
-                    const TextStyle(fontFamily: 'LeeSeoyun'),
-                  )),
+              child: Text(
+                controller.pagedTexts[index],
+                style: FontStyles.L3_reg_16.merge(
+                  const TextStyle(fontFamily: 'LeeSeoyun'),
+                ),
+              ),
             ),
           ),
 
@@ -122,7 +140,7 @@ class LetterSent extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(top: 20.h),
               child: Text(
-                "2025년 12월 20일\nFrom. OOO",
+                "$sentAt\nFrom. 나",
                 textAlign: TextAlign.right,
                 style: FontStyles.L3_reg_16.merge(
                   const TextStyle(fontFamily: 'LeeSeoyun'),
