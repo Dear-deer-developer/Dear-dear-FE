@@ -16,6 +16,11 @@ class AuthService extends GetxService {
     return (access != null && access.isNotEmpty) && user.value != null;
   }
 
+// 전역으로 로그인 토큰 값 불러오기
+  String? get accessTokenQuick =>
+      (MemCache.get(MemCacheKey.jwtAccessToken) as String?) ??
+      sharedPreferences.getString(SharedPreferencesKeys.accessToken);
+
   @override
   void onInit() {
     super.onInit();
@@ -64,7 +69,11 @@ class AuthService extends GetxService {
         return const LoginResult(isSuccess: false, message: '토큰 없음');
       }
 
+      // ✅ 로그인 직후 한 번만 AccessToken 로그 출력
+      logger.i('로그인 토큰 : $access');
+
       await _persistTokens(access, refresh);
+      _logAccessOnce();
 
       // 유저 프로필 시도 (/users/me) — 실패해도 로그인은 성공
       DeardeerUser? u;
@@ -242,6 +251,8 @@ class AuthService extends GetxService {
     }
 
     logger.d('✅ 복구 완료 (JWT)');
+    // ✅ 자동 로그인(복구) 시에도 1회만 토큰 로그 출력
+    _logAccessOnce();
   }
 
   Future<void> _persistTokens(String access, String? refresh) async {
@@ -277,6 +288,22 @@ class AuthService extends GetxService {
   }
 }
 
+bool _tokenLoggedOnce = false;
+
+void _logAccessOnce() {
+  if (_tokenLoggedOnce) return;
+
+  final access = (MemCache.get(MemCacheKey.jwtAccessToken) as String?) ??
+      sharedPreferences.getString(SharedPreferencesKeys.accessToken);
+
+  if (access != null && access.isNotEmpty) {
+    // 배포시엔 전체 노출이 위험하니 필요하면 마스킹/가드를 사용하세요.
+    // if (kReleaseMode) return; // ← 배포에서 끄고 싶다면 활성화
+    logger.i('로그인 토큰 : $access');
+    _tokenLoggedOnce = true;
+  }
+}
+
 class LoginResult {
   final DeardeerUser? user;
   final bool isSuccess;
@@ -290,194 +317,3 @@ class LoginResult {
     this.message,
   });
 }
-
-// class AuthService extends GetxService {
-//   AuthHelper? helper; // 플랫폼 헬퍼 (카카오)
-//   String? token; // Firebase ID Token
-
-//   final Rxn<DeardeerUser> user = Rxn<DeardeerUser>();
-
-//   @override
-//   void onInit() {
-//     try {
-//       final cached = sharedPreferences
-//           .getString('user_json'); // SharedPreferencesKeys.deardeerUserJson 권장
-//       if (cached != null && cached.isNotEmpty) {
-//         user.value = DeardeerUser.fromJson(jsonDecode(cached));
-//       }
-//       final savedToken = sharedPreferences
-//           .getString('token'); // SharedPreferencesKeys.firebaseToken 권장
-//       if (savedToken != null && savedToken.isNotEmpty) {
-//         token = savedToken;
-//       }
-//     } catch (_) {
-//       user.value = null;
-//     }
-
-//     // 1) 캐시 복구
-
-//     final firebaseIdToken = MemCache.get(MemCacheKey.firebaseAuthIdToken);
-//     final userJson = MemCache.get(MemCacheKey.deardeerUserJson);
-
-//     if (firebaseIdToken != null) {
-//       token = firebaseIdToken as String?;
-//     }
-//     if (userJson != null) {
-//       try {
-//         user.value = DeardeerUser.fromJson(jsonDecode(userJson as String));
-//       } catch (_) {
-//         user.value = null;
-//       }
-//     }
-
-//     // 2) 공급자 추정 (현재 카카오만 사용)
-//     final current = FirebaseAuth.instance.currentUser;
-//     if (current != null) {
-//       helper = KakaoAuthHelper();
-//       if (kDebugMode) print('카카오');
-//     }
-
-//     // 3) ApiService 주입
-//     if (!Get.isRegistered<ApiService>()) {
-//       Get.put<ApiService>(ApiService());
-//     }
-
-//     super.onInit();
-//   }
-
-//   /// 로그인: helper → kakao SDK 로그인/교환 → Firebase signIn → 토큰 캐시
-//   /// (유저 정보는 닉네임 API 응답으로만 세팅됨)
-//   Future<LoginResult> login(AuthHelper authHelper) async {
-//     try {
-//       // 기존 세션 정리
-//       if (helper != null && await helper!.isLoggedIn()) {
-//         await logout();
-//       }
-
-//       helper = authHelper;
-
-//       // 1) 플랫폼 로그인 (서버 /auth/kakao 교환 & Firebase signIn은 KakaoAuthHelper 내부에서)
-//       final ok = await helper!.login();
-//       if (!ok) {
-//         debugPrint("helper 로그인 실패");
-//         return const LoginResult(isSuccess: false);
-//       }
-
-//       // 2) Firebase ID Token
-//       token = await helper!.getToken();
-//       if (kDebugMode) print('Firebase ID Token: $token');
-
-//       // 3) 토큰 메모리 캐시
-//       final idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
-//       if (idToken != null && idToken.isNotEmpty) {
-//         MemCache.put(MemCacheKey.firebaseAuthIdToken, idToken);
-//         await sharedPreferences.setString('token', idToken);
-//       }
-
-//       // 4) 캐시된 user_json 복구 (있으면)
-//       final cached = sharedPreferences.getString('user_json');
-//       if (cached != null && cached.isNotEmpty) {
-//         try {
-//           user.value = DeardeerUser.fromJson(jsonDecode(cached));
-//         } catch (_) {/* ignore */}
-//       }
-
-//       // 🔐 여기서 '신규가입 여부' 판단을 모델에 의존하지 않고, 캐시 JSON으로만 안전 추정
-//       final isNewUser = _inferIsNewUserFromCache(cached);
-
-//       return LoginResult(
-//           isSuccess: true, user: user.value, isNewUser: isNewUser);
-//     } catch (e, st) {
-//       debugPrint("로그인 실패: $e");
-//       debugPrintStack(stackTrace: st);
-//       return const LoginResult(isSuccess: false);
-//     }
-//   }
-
-//   /// 로그아웃: 플랫폼 로그아웃 → Firebase signOut → 로컬 정리
-//   Future<bool> logout() async {
-//     try {
-//       if (helper != null) {
-//         final platformOk = await helper!.logout(); // 카카오 세션 종료
-//         if (!platformOk) return false;
-//       }
-//       await FirebaseAuth.instance.signOut();
-
-//       token = null;
-//       user.value = null;
-
-//       debugPrint("SharedPreferences의 데이터를 모두 삭제하는 중");
-//       await sharedPreferences.clear();
-//       MemCache.clear();
-
-//       return true;
-//     } catch (e, st) {
-//       debugPrint("로그아웃 중 예외발생: $e");
-//       debugPrintStack(stackTrace: st);
-//       return false;
-//     }
-//   }
-
-//   Future<bool> isLoggedIn() async {
-//     try {
-//       if (helper == null) return false;
-//       return await helper!.isLoggedIn();
-//     } catch (e) {
-//       debugPrint("로그인 상태 확인 중 예외발생: $e");
-//       return false;
-//     }
-//   }
-
-//   /// 회원 탈퇴 (백엔드 엔드포인트가 아직 없다면 false 처리)
-//   Future<bool> withdrawal() async {
-//     try {
-//       // TODO: 백엔드 탈퇴 엔드포인트 추가 시 ApiService에 구현 후 호출
-//       debugPrint("withdrawal: backend endpoint not implemented yet.");
-//       return false;
-//     } catch (e) {
-//       debugPrint("회원탈퇴 중 예외발생: $e");
-//       return false;
-//     }
-//   }
-
-//   /// 외부에서 user_json을 전달받아 반영하고 싶을 때 사용(옵션)
-//   void setUserFromJsonString(String jsonStr) {
-//     try {
-//       final u = DeardeerUser.fromJson(jsonDecode(jsonStr));
-//       user.value = u;
-//       MemCache.put(MemCacheKey.deardeerUserJson, jsonStr);
-//       sharedPreferences.setString('user_json', jsonStr);
-//     } catch (_) {/* ignore */}
-//   }
-
-//   // ---------------------------------------------------------------------------
-//   // 내부 유틸: 모델에 의존하지 않고 신규가입 여부 추정
-//   // ---------------------------------------------------------------------------
-//   bool _inferIsNewUserFromCache(String? cachedJson) {
-//     if (cachedJson == null || cachedJson.isEmpty) {
-//       return true; // 캐시가 없으면 신규로 판단
-//     }
-//     try {
-//       final map = jsonDecode(cachedJson);
-//       if (map is Map<String, dynamic>) {
-//         final nn = map['nickname'];
-//         if (nn is String && nn.trim().isNotEmpty) {
-//           return false; // 닉네임 있으면 기존 사용자
-//         }
-//       }
-//     } catch (_) {/* ignore */}
-//     return true;
-//   }
-// }
-
-// class LoginResult {
-//   final DeardeerUser? user;
-//   final bool isSuccess;
-//   final bool isNewUser;
-
-//   const LoginResult({
-//     required this.isSuccess,
-//     this.isNewUser = false,
-//     this.user,
-//   });
-// }
