@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MainCategoryTab extends StatelessWidget {
-  final int currentIndex; // ✅ 기존 controller 대신 값만 받음
-  final ValueChanged<int> onTap; // ✅ 탭 변경 콜백
+  final int currentIndex;
+  final ValueChanged<int> onTap;
 
   const MainCategoryTab({
     super.key,
@@ -16,34 +16,60 @@ class MainCategoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const labels = ['콘텐츠 추천', '행사 알림', '즐겨찾기'];
+    final indicatorWidth = 90.w;
+    final indicatorHeight = 2.h;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(labels.length, (i) {
         final selected = i == currentIndex;
+
         return Expanded(
           child: GestureDetector(
             onTap: () => onTap(i),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 10.h),
+              // ✅ 모든 탭의 기준선 동일 (1px G_01)
               decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(
-                    color: selected ? AppColors.mainGreen : AppColors.G_02,
-                    width: selected ? 2.h : 1.h,
-                  ),
+                  bottom: BorderSide(color: AppColors.G_01, width: 1.h),
                 ),
               ),
-              child: Center(
-                child: Text(
-                  labels[i],
-                  style:
-                      (selected ? FontStyles.B1_bold_20 : FontStyles.B2_reg_16)
-                          .copyWith(
-                    color: selected ? AppColors.mainGreen : AppColors.G_05,
-                  ),
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final left = (constraints.maxWidth - indicatorWidth) / 2;
+
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // 텍스트
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 14.h, bottom: 8.h),
+                          child: Text(
+                            labels[i],
+                            style: FontStyles.H3_bold_16.copyWith(
+                              color:
+                                  selected ? AppColors.Black : AppColors.G_04,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // ✅ 인디케이터: 기준선과 완전히 겹치게 offset = -1
+                      if (selected)
+                        Positioned(
+                          bottom: -1.h, // ← 보더 라인 위로 겹치기
+                          left: left,
+                          child: Container(
+                            width: indicatorWidth,
+                            height: indicatorHeight,
+                            color: AppColors.Black,
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
