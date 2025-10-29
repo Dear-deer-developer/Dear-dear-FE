@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/schedule.dart';
-import '../main.dart' show SharedPreferencesKeys;
+import '../../model/schedule.dart';
+import '../../main.dart' show SharedPreferencesKeys;
 import 'package:dear_deer_demo/util/mem_cache.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 
@@ -47,11 +47,11 @@ Future<Map<String, String>> _authHeaders([Map<String, String>? extra]) async {
 String _yyyyMmDd(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+// ---- 공통: 401 → refresh → 재시도 ----
 class ScheduleService extends GetxService {
   final GetConnect _api;
   ScheduleService(this._api);
 
-  // 401 → 토큰 리프레시 후 재시도
   Future<Response<T>> _getWithRetry<T>(String url,
       {Map<String, dynamic>? query}) async {
     var headers = await _authHeaders();
@@ -112,20 +112,11 @@ class ScheduleService extends GetxService {
   dynamic _asJson(Response res) {
     if (res.body != null) return res.body;
     final s = res.bodyString;
-    if (s == null || s.isEmpty) return null;
-    try {
-      return jsonDecode(s);
-    } catch (_) {
-      return s;
-    }
+    return (s == null || s.isEmpty) ? null : jsonDecode(s);
   }
 
   List _unwrapList(dynamic body) {
     if (body is List) return body;
-    if (body is String && body.isNotEmpty) {
-      final decoded = jsonDecode(body);
-      return _unwrapList(decoded);
-    }
     if (body is Map) {
       for (final k in const [
         'data',
@@ -144,98 +135,120 @@ class ScheduleService extends GetxService {
       }
       throw 'Unexpected map shape: keys=${body.keys}';
     }
+    if (body is String && body.isNotEmpty) return _unwrapList(jsonDecode(body));
     throw 'Unexpected body type: ${body.runtimeType}';
   }
 
-  // ── API ──
+  // === 핵심: UTC → 로컬자정 정규화 ===
+  DateTime _toLocalDateOnly(String iso) {
+    final dtLocal = DateTime.parse(iso).toLocal(); // UTC → Local
+    return DateTime(dtLocal.year, dtLocal.month, dtLocal.day); // 자정 고정
+  }
 
-  // 월 응답의 date를 "로컬 자정"으로 정규화
+  // ---- API ----
   Future<List<Schedule>> fetchMonthly(int year, int month) async {
     final url = _u('/schedules/monthly');
-    final query = {'year': '$year', 'month': '$month'};
-
-    final res = await _getWithRetry(url, query: query);
+    final res =
+        await _getWithRetry(url, query: {'year': '$year', 'month': '$month'});
     if (res.statusCode != 200) {
+      final code = res.statusCode;
       final body = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'API $url → ${res.statusCode} $body';
+      throw 'API $url → $code $body';
     }
 
     final list = _unwrapList(_asJson(res));
     return list.map<Schedule>((e) {
       final m = (e as Map);
-
-      // 서버가 Z(UTC)로 주는 값을 toLocal() 후 "로컬 자정"으로 고정
-      final raw = (m['date'] as String?) ?? '';
-      DateTime parsed = DateTime.parse(raw).toLocal();
-      final onlyDate = DateTime(parsed.year, parsed.month, parsed.day);
-
+      // 서버는 월 API에서 title/memo가 없을 수도 있으니 기본값 처리
+      final localDateOnly = _toLocalDateOnly(m['date'] as String);
       return Schedule(
         id: (m['id'] as num).toInt(),
-        title: (m['title'] ?? '') as String? ?? '',
-        memo: (m['memo'] ?? '') as String? ?? '',
+        title: (m['title'] ?? '') as String,
+        memo: (m['memo'] ?? '') as String,
         category: catFromApi(m['category'] as String? ?? 'ETC'),
-        date: onlyDate,
+        date: localDateOnly, // ✅ 로컬 자정으로 저장
       );
     }).toList();
   }
 
   Future<List<Schedule>> fetchDaily(DateTime day) async {
     final url = _u('/schedules/daily');
-    final query = {'date': _yyyyMmDd(day)};
-
-    final res = await _getWithRetry(url, query: query);
+    final res = await _getWithRetry(url, query: {'date': _yyyyMmDd(day)});
     if (res.statusCode != 200) {
+      final code = res.statusCode;
       final body = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'API $url → ${res.statusCode} $body';
+      throw 'API $url → $code $body';
     }
 
     final list = _unwrapList(_asJson(res));
-    return list
-        .map<Schedule>(
-          (e) => Schedule.fromJson((e as Map).cast<String, dynamic>()),
-        )
-        .toList();
+    return list.map<Schedule>((e) {
+      final m = (e as Map).cast<String, dynamic>();
+      // 일 API는 전체 필드가 오므로 date도 정규화
+      final normalized = {
+        ...m,
+        'date': _toLocalDateOnly(m['date'] as String).toIso8601String(),
+      };
+      return Schedule.fromJson(normalized);
+    }).toList();
   }
 
   Future<Schedule> create(Schedule draft, {bool asDateOnly = true}) async {
     final url = _u('/schedules');
-    final body = draft.toBody(asDateOnly: asDateOnly);
-
-    final res = await _postWithRetry(url, body);
+    final res = await _postWithRetry(url, draft.toBody(asDateOnly: asDateOnly));
     if (res.statusCode != 201 && res.statusCode != 200) {
-      final s = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'API $url → ${res.statusCode} $s';
+      final code = res.statusCode;
+      final body = res.bodyString ?? res.body?.toString() ?? '';
+      throw 'API $url → $code $body';
     }
 
-    final json = _asJson(res);
-    final map = (json is Map) ? json : (jsonDecode(res.bodyString!) as Map);
+    final raw = _asJson(res);
+    final map = (raw is Map) ? raw : jsonDecode(res.bodyString!) as Map;
     final obj = (map['data'] is Map) ? map['data'] : map;
-    return Schedule.fromJson((obj as Map).cast<String, dynamic>());
+
+    final created = Schedule.fromJson((obj as Map).cast<String, dynamic>());
+    final d = created.date;
+    return Schedule(
+      id: created.id,
+      title: created.title,
+      memo: created.memo,
+      category: created.category,
+      date: DateTime(d.year, d.month, d.day),
+    );
   }
 
   Future<Schedule> update(int id, Schedule changed,
       {bool asDateOnly = true}) async {
     final url = _u('/schedules/$id');
-    final body = changed.toBody(asDateOnly: asDateOnly);
-
-    final res = await _putWithRetry(url, body);
+    final res =
+        await _putWithRetry(url, changed.toBody(asDateOnly: asDateOnly));
     if (res.statusCode != 200) {
-      final s = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'API $url → ${res.statusCode} $s';
+      final code = res.statusCode;
+      final body = res.bodyString ?? res.body?.toString() ?? '';
+      throw 'API $url → $code $body';
     }
 
-    final json = _asJson(res);
-    final map = (json is Map) ? json : (jsonDecode(res.bodyString!) as Map);
+    final raw = _asJson(res);
+    final map = (raw is Map) ? raw : jsonDecode(res.bodyString!) as Map;
     final obj = (map['data'] is Map) ? map['data'] : map;
-    return Schedule.fromJson((obj as Map).cast<String, dynamic>());
+
+    final updated = Schedule.fromJson((obj as Map).cast<String, dynamic>());
+    final d = updated.date;
+    return Schedule(
+      id: updated.id,
+      title: updated.title,
+      memo: updated.memo,
+      category: updated.category,
+      date: DateTime(d.year, d.month, d.day),
+    );
   }
 
   Future<void> delete(int id) async {
     final url = _u('/schedules/$id');
     final res = await _deleteWithRetry(url);
     if (res.statusCode != 204 && res.statusCode != 200) {
-      final s = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'API $url → ${res.statusCode} $s';
+      final code = res.statusCode;
+      final body = res.bodyString ?? res.body?.toString() ?? '';
+      throw 'API $url → $code $body';
     }
   }
 }

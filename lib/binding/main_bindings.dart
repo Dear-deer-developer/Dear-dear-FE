@@ -17,7 +17,7 @@ import 'package:dear_deer_demo/service/auth_service.dart';
 
 // 일정 연동 (등록만 추가)
 import 'package:dear_deer_demo/util/custom_get_connect.dart';
-import 'package:dear_deer_demo/service/schedule_service.dart';
+import 'package:dear_deer_demo/service/calendar/schedule_service.dart';
 import 'package:dear_deer_demo/controller/schedule_controller.dart';
 
 class MainBindings extends Bindings {
