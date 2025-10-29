@@ -1,4 +1,3 @@
-// lib/service/calendar/calendar_service.dart
 import 'package:get/get.dart';
 
 import 'package:dear_deer_demo/model/schedule.dart';
@@ -8,7 +7,6 @@ class CalendarService extends GetxService {
   final CalendarApi _api;
   CalendarService(this._api);
 
-  // 월별 요약(점/반원에 사용). 서버가 title/memo를 안 줄 수 있으므로 기본값 처리.
   Future<List<Schedule>> fetchMonthly(int year, int month) async {
     final res = await _api.get('/schedules/monthly', query: {
       'year': '$year',
@@ -34,10 +32,10 @@ class CalendarService extends GetxService {
     }).toList();
   }
 
-  // 일별 상세(바텀시트에 사용)
   Future<List<Schedule>> fetchDaily(DateTime day) async {
-    final res =
-        await _api.get('/schedules/daily', query: {'date': _api.yyyyMmDd(day)});
+    final res = await _api.get('/schedules/daily', query: {
+      'date': _api.yyyyMmDd(day),
+    });
     if (res.statusCode != 200) {
       final code = res.statusCode;
       final body = res.bodyString ?? res.body?.toString() ?? '';
@@ -79,21 +77,22 @@ class CalendarService extends GetxService {
     );
   }
 
+  /// 수정은 PATCH(ISO-UTC 날짜) 사용
   Future<Schedule> update(int id, Schedule changed,
       {bool asDateOnly = true}) async {
-    final res = await _api.put(
-        '/schedules/$id', changed.toBody(asDateOnly: asDateOnly));
+    final body = changed.toBody(asDateOnly: false);
+    final res = await _api.patch<Map<String, dynamic>>('/schedules/$id', body);
     if (res.statusCode != 200) {
       final code = res.statusCode;
-      final body = res.bodyString ?? res.body?.toString() ?? '';
-      throw 'PUT /schedules/$id → $code $body';
+      final text = res.bodyString ?? res.body?.toString() ?? '';
+      throw 'PATCH /schedules/$id → $code $text';
     }
 
     final raw = _api.asJson(res);
     final map = (raw is Map) ? raw : {};
     final obj = (map['data'] is Map) ? map['data'] : map;
 
-    final updated = Schedule.fromJson((obj as Map).cast<String, dynamic>());
+    final updated = Schedule.fromJson(Map<String, dynamic>.from(obj as Map));
     final d = updated.date;
     return Schedule(
       id: updated.id,

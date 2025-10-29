@@ -1,82 +1,122 @@
-// lib/controller/schedule_controller.dart
 import 'package:get/get.dart';
 import 'package:collection/collection.dart';
-import '../model/schedule.dart';
-import '../service/calendar/schedule_service.dart'; // 경로는 네가 쓴 폴더 기준
+
+import 'package:dear_deer_demo/model/schedule.dart';
+import 'package:dear_deer_demo/service/schedule_service.dart';
 
 class ScheduleController extends GetxController {
-  ScheduleController(this.api);
-  final ScheduleService api;
+  ScheduleController(this._svc);
+  final ScheduleService _svc;
 
-  /// 날짜별 스케줄 (로컬 자정 키)
   final RxMap<DateTime, List<Schedule>> monthly =
       <DateTime, List<Schedule>>{}.obs;
-
-  /// 선택일의 상세 목록(바텀시트용)
   final RxList<Schedule> daily = <Schedule>[].obs;
-
-  /// 월별 데이터 변경 버전 (yyyy*100 + mm → version)
   final RxMap<int, int> monthlyVersion = <int, int>{}.obs;
 
-  int _keyOfMonth(int y, int m) => y * 100 + m;
-
-  /// 해당 월 키들을 싹 지운다.
-  void _clearMonthBucket(int year, int month) {
-    final toRemove = <DateTime>[];
-    for (final d in monthly.keys) {
-      if (d.year == year && d.month == month) toRemove.add(d);
-    }
-    for (final k in toRemove) {
-      monthly.remove(k);
-    }
+  int _yyyymm(DateTime d) => d.year * 100 + d.month;
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+  void _bump(DateTime d) {
+    final k = _yyyymm(d);
+    monthlyVersion[k] = (monthlyVersion[k] ?? 0) + 1;
   }
 
   Future<void> loadMonthly(int year, int month) async {
-    final items = await api.fetchMonthly(year, month);
-    // 1) 기존 월 데이터 삭제
-    _clearMonthBucket(year, month);
+    final list = await _svc.fetchMonthly(year, month);
 
-    // 2) 일자별로 다시 채우기 (date는 이미 서비스에서 로컬자정)
-    for (final s in items) {
-      final dayKey = DateTime(s.date.year, s.date.month, s.date.day);
-      final list = monthly[dayKey] ?? <Schedule>[];
-      list.add(s);
-      monthly[dayKey] = list;
+    final map = <DateTime, List<Schedule>>{};
+    for (final s in list) {
+      final key = _dateOnly(s.date);
+      (map[key] ??= []).add(s);
     }
 
-    // 3) 강제 트리거
-    monthly.refresh();
-    final k = _keyOfMonth(year, month);
-    monthlyVersion[k] = (monthlyVersion[k] ?? 0) + 1;
-    monthlyVersion.refresh();
+    final toRemove = monthly.keys
+        .where((k) => k.year == year && k.month == month)
+        .toList(growable: false);
+    for (final k in toRemove) {
+      monthly.remove(k);
+    }
+    monthly.addAll(map);
+
+    _bump(DateTime(year, month, 1));
   }
 
   Future<void> loadDaily(DateTime day) async {
-    final items = await api.fetchDaily(day);
-    daily
-      ..clear()
-      ..addAll(items);
-    daily.refresh();
+    final list = await _svc.fetchDaily(_dateOnly(day));
+    daily.assignAll(list.map((e) => e.copyWith(date: _dateOnly(e.date))));
   }
 
   Future<void> addEvent(Schedule draft) async {
-    final created = await api.create(draft, asDateOnly: true);
-    // 생성된 날짜의 월만 리프레시
-    await loadMonthly(created.date.year, created.date.month);
+    final created = await _svc.create(draft, asDateOnly: true);
+    final k = _dateOnly(created.date);
+    final cur = monthly[k] ?? <Schedule>[];
+    monthly[k] = [...cur, created];
+    _bump(created.date);
   }
 
-  Future<void> editEvent(int id, Schedule changed) async {
-    final updated = await api.update(id, changed, asDateOnly: true);
-    await loadMonthly(updated.date.year, updated.date.month);
+  Future<Schedule> editEvent(int id, Schedule changed) async {
+    Schedule? before = daily.firstWhereOrNull((e) => e.id == id) ??
+        monthly.values.expand((e) => e).firstWhereOrNull((e) => e.id == id);
+
+    final updated = await _svc.update(id, changed, asDateOnly: true);
+
+    final beforeKey = _dateOnly(before?.date ?? updated.date);
+    final afterKey = _dateOnly(updated.date);
+
+    final oldList = [...(monthly[beforeKey] ?? const <Schedule>[])];
+    oldList.removeWhere((e) => e.id == id);
+    if (oldList.isEmpty) {
+      monthly.remove(beforeKey);
+    } else {
+      monthly[beforeKey] = oldList;
+    }
+    _bump(beforeKey);
+
+    final newList = [...(monthly[afterKey] ?? const <Schedule>[])];
+    final idx = newList.indexWhere((e) => e.id == id);
+    if (idx >= 0) {
+      newList[idx] = updated;
+    } else {
+      newList.add(updated);
+    }
+    monthly[afterKey] = newList;
+    _bump(afterKey);
+
+    final i = daily.indexWhere((e) => e.id == id);
+    if (i >= 0) {
+      final sameDay = _dateOnly(daily[i].date) == _dateOnly(updated.date);
+      if (sameDay) {
+        daily[i] = updated;
+        daily.refresh();
+      } else {
+        final copy = [...daily]..removeAt(i);
+        daily.assignAll(copy);
+      }
+    }
+    return updated;
   }
 
   Future<void> removeEvent(int id) async {
-    // 삭제 전에 대상 찾기(월 리프레시 범위 산정)
-    final entry =
-        monthly.entries.firstWhereOrNull((e) => e.value.any((s) => s.id == id));
-    await api.delete(id);
-    if (entry != null) {
-      await loadMonthly(entry.key.year, entry.key.month);
+    final target = daily.firstWhereOrNull((e) => e.id == id) ??
+        monthly.values.expand((e) => e).firstWhereOrNull((e) => e.id == id);
+
+    await _svc.delete(id);
+
+    if (target != null) {
+      final key = _dateOnly(target.date);
+      final list = [...(monthly[key] ?? const <Schedule>[])];
+      list.removeWhere((e) => e.id == id);
+      if (list.isEmpty) {
+        monthly.remove(key);
+      } else {
+        monthly[key] = list;
+      }
+      _bump(target.date);
+
+      final di = daily.indexWhere((e) => e.id == id);
+      if (di >= 0) {
+        final copy = [...daily]..removeAt(di);
+        daily.assignAll(copy);
+      }
     }
   }
 }

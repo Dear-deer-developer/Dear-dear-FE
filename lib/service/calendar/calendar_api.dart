@@ -1,6 +1,6 @@
-// lib/service/calendar/calendar_api.dart
 import 'dart:convert';
 import 'package:get/get.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +12,6 @@ class CalendarApi extends GetxService {
   final GetConnect _api;
   CalendarApi(this._api);
 
-  // ---- ENV / URL ----
   String get _apiBase => (dotenv.env['API_BASE_URL'] ?? '').trim();
   String get _apiPrefix => (dotenv.env['API_PREFIX'] ?? '').trim();
 
@@ -25,7 +24,6 @@ class CalendarApi extends GetxService {
     return [base, if (prefix.isNotEmpty) prefix, p].join('/');
   }
 
-  // ---- AUTH HEADERS ----
   Future<String?> _currentAccessToken() async {
     final mem = MemCache.get(MemCacheKey.jwtAccessToken);
     if (mem is String && mem.isNotEmpty) return mem;
@@ -48,7 +46,6 @@ class CalendarApi extends GetxService {
     return headers;
   }
 
-  // ---- RETRY GET/POST/PUT/DELETE (401→refresh) ----
   Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) async {
     final u = url(path);
     var headers = await _authHeaders();
@@ -109,7 +106,20 @@ class CalendarApi extends GetxService {
     return res;
   }
 
-  // ---- JSON HELPERS ----
+  Future<Response<T>> patch<T>(String path, Object body) async {
+    final u = url(path);
+    var headers = await _authHeaders();
+    var res = await _api.patch<T>(u, body, headers: headers);
+    if (res.statusCode == 401 && Get.isRegistered<AuthService>()) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        headers = await _authHeaders();
+        res = await _api.patch<T>(u, body, headers: headers);
+      }
+    }
+    return res;
+  }
+
   dynamic asJson(Response res) {
     if (res.body != null) return res.body;
     final s = res.bodyString;

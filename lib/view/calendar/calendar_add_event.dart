@@ -6,15 +6,26 @@ import 'package:intl/intl.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 
+/// 추가 시트가 상위로 돌려줄 값
+class AddEventResult {
+  final DateTime date;
+  final String title;
+  final String memo;
+  final String uiCategory; // UI 라벨(예: "기타", "일정" 등)
+  const AddEventResult({
+    required this.date,
+    required this.title,
+    required this.memo,
+    required this.uiCategory,
+  });
+}
+
 class AddEvent extends StatefulWidget {
   final DateTime initialDate;
-  final void Function(DateTime date, String title, String memo, String category)
-      onAddEvent;
 
   const AddEvent({
     Key? key,
     required this.initialDate,
-    required this.onAddEvent,
   }) : super(key: key);
 
   @override
@@ -100,12 +111,15 @@ class _AddEventState extends State<AddEvent> {
                 final title = _titleController.text.trim();
                 if (title.isEmpty) return;
 
-                final date = _selectedDate;
-                final memo = _memoController.text.trim();
-                final category = _selectedCategory;
+                final result = AddEventResult(
+                  date: _selectedDate,
+                  title: title,
+                  memo: _memoController.text.trim(),
+                  uiCategory: _selectedCategory,
+                );
 
-                Navigator.pop(context);
-                widget.onAddEvent(date, title, memo, category);
+                // 시트를 닫으면서 결과 객체 반환 → 상위에서 await 후 처리
+                Navigator.pop(context, result);
               },
               child: Text(
                 "확인",
