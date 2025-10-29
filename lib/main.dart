@@ -55,15 +55,6 @@ Future<void> main() async {
   // 디버깅 체크 로그
   logger.d('Debug check');
 
-  // 이서연체 로드
-  Future<void> loadLeeSeoyunFont() async {
-    final loader = FontLoader('LeeSeoyun')
-      ..addFont(rootBundle.load('assets/fonts/LeeSeoyun.ttf'));
-    await loader.load();
-  }
-
-  await loadLeeSeoyunFont();
-
   // .env 파일 로드
   await dotenv.load();
   logger.d('환경 변수 로드 완료');
@@ -97,7 +88,7 @@ Future<void> _init() async {
     logger.d('🚫 캐시 복구 생략: 등록된 사용자 없음');
     return;
   }
-  logger.d('초기 준비 완료 (복구는 AuthService가 수행)');
+  logger.d('✅ 초기 준비 완료 (복구는 AuthService가 수행)');
 
   // if (isRegistered) {
   //   final cachedUser =
