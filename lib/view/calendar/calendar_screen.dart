@@ -119,6 +119,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     await _sc.loadDaily(_selectedDate!);
 
     if (!mounted) return;
+
+    final openDate = _selectedDate!;
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -153,7 +156,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           await _sc.loadDaily(newDate);
 
           if (!mounted) return;
-          final moved = _dateOnly(evt.date) != newDate;
+          final moved = _dateOnly(openDate) != newDate;
+
           if (moved) {
             Navigator.of(context).pop();
             await _openDailyBottomSheet(newDate);
