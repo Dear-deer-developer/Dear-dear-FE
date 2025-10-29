@@ -212,14 +212,15 @@ class LetterPreview extends StatelessWidget {
   //     ),
   //   );
   // }
-
   Widget _button() {
     final sendController = Get.put(LetterSendController());
     final arguments = Get.arguments ?? {};
 
-    final receiverId = 23; // ✅ 테스트용 (receiverId 고정)
-    final content = arguments['content'] ?? '테스트용 편지입니다.';
-    final imageUrl = arguments['imageUrl'];
+    final receiverId = 23;
+    // arguments['receiverId'] ?? 0; // WriteLetterScreen에서 전달받은 ID
+    final content = arguments['content'] ?? '';
+    final paperId = arguments['paperId'] ?? 1;
+    final imageUrl = arguments['imageUrl']; //
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -233,6 +234,7 @@ class LetterPreview extends StatelessWidget {
         await sendController.sendLetter(
           receiverId: receiverId,
           content: content,
+          paperId: paperId,
           imageUrl: imageUrl,
         );
       },

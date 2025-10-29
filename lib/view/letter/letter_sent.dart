@@ -19,6 +19,7 @@ class LetterSent extends StatelessWidget {
     final recipientName = arguments['recipientName'] ?? '받는 사람 없음';
     final content = arguments['content'] ?? '';
     final sentAt = arguments['sentAt'] ?? '';
+    final paperId = arguments['paperId'] ?? 1;
 
     // controller에 내용 반영
     controller.setLetterContent(content);

@@ -53,6 +53,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
     );
   }
 
+  // MARK: - 상단 탭
   Widget _topTabs() {
     return Padding(
       padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 8),
@@ -132,9 +133,10 @@ class _SelectRecipientState extends State<SelectRecipient> {
                 child: TextField(
                   onChanged: (value) {
                     controller.searchQuery.value = value;
+                    controller.searchUserByZipCode(value);
                   },
                   decoration: const InputDecoration(
-                    hintText: '사서함 번호 검색',
+                    hintText: '사서함 번호 입력',
                     border: InputBorder.none,
                     isDense: true,
                   ),
@@ -148,7 +150,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
-  // MARK: - 컨텐츠 영역 (친구 목록 / 링크 안내)
+  // MARK: - 컨텐츠 영역 (친구 목록 / 안내문)
   Widget _content() {
     return Obx(() {
       final tabIndex = controller.selectedTabIdx.value;
@@ -160,58 +162,12 @@ class _SelectRecipientState extends State<SelectRecipient> {
 
       final friendsList = controller.filteredFriends;
 
-      // 검색어가 비어 있을 경우 안내 메시지
       if (controller.searchQuery.value.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 16,
-                ),
-                Text(
-                  '검색 결과',
-                  style: FontStyles.B4_bold_14.copyWith(color: Colors.black),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  "사서함 번호를 입력해 보세요!",
-                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06),
-                ),
-              ],
-            ),
-          ),
-        );
+        return _message("사서함 번호를 입력해 보세요!");
       }
 
-      // 검색 결과 없음
       if (friendsList.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 16,
-                ),
-                Text(
-                  '검색 결과',
-                  style: FontStyles.B4_bold_14.copyWith(color: Colors.black),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  "앗, 해당 사서함 번호를 가진 사용자가 없네요. \n다시 확인해 주세요!",
-                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06),
-                ),
-              ],
-            ),
-          ),
-        );
+        return _message("앗, 해당 사서함 번호를 가진 사용자가 없네요.\n다시 확인해 주세요!");
       }
 
       return ListView.builder(
@@ -226,47 +182,40 @@ class _SelectRecipientState extends State<SelectRecipient> {
             color: Colors.white,
             margin: const EdgeInsets.only(bottom: 8),
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              side: BorderSide.none,
-            ),
+            shape: const RoundedRectangleBorder(side: BorderSide.none),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
                 children: [
-                  // 좌측: 프로필 사진
                   const CircleAvatar(
                     radius: 24,
                     backgroundColor: Color(0xFFE0E0E0),
                     child: Icon(Icons.person, color: Colors.white, size: 32),
                   ),
-
                   const SizedBox(width: 12),
-                  // 중간: 이름 / 사서함 번호 / 닉네임
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(friend['name'] ?? '',
                             style: FontStyles.B4_bold_14),
-                        Text('사서함 번호 : ${friend['number']}',
+                        Text('우편번호 : ${friend['number']}',
                             style: FontStyles.S2_reg_12),
                       ],
                     ),
                   ),
-                  // 우측: 선택 토글
-                  Radio<int>(
-                    value: index,
-                    groupValue: controller.selectedIdx.value,
-                    activeColor: Colors.red,
-                    onChanged: (int? value) {
-                      if (controller.selectedIdx.value == value) {
-                        controller.selectFriend(null);
-                      } else {
-                        controller.selectFriend(value);
-                      }
-                      print('현재 선택 인덱스: ${controller.selectedIdx.value}');
-                    },
-                  ),
+                  Obx(() => Radio<int>(
+                        value: index,
+                        groupValue: controller.selectedIdx.value,
+                        activeColor: Colors.red,
+                        onChanged: (int? value) {
+                          if (controller.selectedIdx.value == value) {
+                            controller.selectFriend(null);
+                          } else {
+                            controller.selectFriend(value);
+                          }
+                        },
+                      )),
                 ],
               ),
             ),
@@ -275,6 +224,25 @@ class _SelectRecipientState extends State<SelectRecipient> {
       );
     });
   }
+
+  // MARK: - 안내문 표시 위젯
+  Widget _message(String text) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text('검색 결과',
+                  style: FontStyles.B4_bold_14.copyWith(color: Colors.black)),
+              const SizedBox(height: 30),
+              Text(text,
+                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06)),
+            ],
+          ),
+        ),
+      );
 
   // MARK: - 링크 안내 UI
   Widget _link() => Column(
@@ -287,38 +255,30 @@ class _SelectRecipientState extends State<SelectRecipient> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 12, bottom: 12, left: 14, right: 14),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "수신 정보가 없는 친구에게 보내고 싶을 경우",
-                    style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "1. 링크로 보내기를 선택 후",
-                    style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06),
-                  ),
-                  Text(
-                    "2. 편지 작성하고",
-                    style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06),
-                  ),
-                  Text(
-                    "3. 직접 링크를 전달해주세요~!",
-                    style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06),
-                  ),
+                  Text("수신 정보가 없는 친구에게 보내고 싶을 경우",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  const SizedBox(height: 6),
+                  Text("1. 링크로 보내기를 선택 후",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  Text("2. 편지 작성하고",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  Text("3. 직접 링크를 전달해 주세요~!",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 12),
-          Text(
-            "내용을 모두 확인하신 후,\n우측 상단의 확인을 눌러 주세요!",
-            style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06),
-            textAlign: TextAlign.left,
-          ),
+          const SizedBox(height: 12),
+          Text("내용을 모두 확인하신 후,\n우측 상단의 확인을 눌러 주세요!",
+              style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
         ],
       );
 }

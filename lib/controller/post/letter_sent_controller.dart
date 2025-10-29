@@ -10,7 +10,11 @@ class LetterSentController extends GetxController {
   Future<void> loadSentLetters() async {
     isLoading.value = true;
     final data = await LetterSentService.fetchSentLetters();
-    if (data != null) letters.value = data;
+
+    if (data != null) {
+      letters.value = data.map((e) => SentLetter.fromJson(e)).toList();
+    }
+
     isLoading.value = false;
   }
 }

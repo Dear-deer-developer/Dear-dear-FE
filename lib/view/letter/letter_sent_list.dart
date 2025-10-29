@@ -7,9 +7,23 @@ import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
 
 class LetterSentList extends StatelessWidget {
   const LetterSentList({super.key});
+  String _formatSentAt(dynamic sentAt) {
+    if (sentAt == null) return '';
+    try {
+      // 서버가 String으로 주는 경우를 우선 처리
+      final dt =
+          sentAt is DateTime ? sentAt : DateTime.parse(sentAt.toString());
+      // 기기 로컬(KST라면 KST)로 변환 후 보기 좋게 포맷
+      return DateFormat('yyyy-MM-dd').format(dt.toLocal());
+    } catch (_) {
+      // 혹시 이상한 값이 와도 화면이 안 죽게 원본을 문자열로 표시
+      return sentAt.toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,15 +111,19 @@ class LetterSentList extends StatelessWidget {
               final recipientId = letter.receiverId;
               final content = letter.content;
 
+              // paperId가 서버에서 내려오면 letter.paperId로 받기
+              // 없다면 임시로 1 지정
+              final paperId = letter.paperId ?? 1;
+
               return Padding(
                 padding: EdgeInsets.only(bottom: 32.h),
                 child: GestureDetector(
                   onTap: () {
                     Get.to(() => LetterSent(), arguments: {
-                      "recipientId": recipientId, //
+                      "recipientId": recipientId,
                       "content": content,
-                      "sentAt":
-                          letter.sentAt?.toLocal().toString().split(' ')[0],
+                      "sentAt": _formatSentAt(letter.sentAt),
+                      "paperId": paperId,
                     });
                   },
                   child: Stack(

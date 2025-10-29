@@ -1,3 +1,4 @@
+import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/view/letter/post.dart';
@@ -73,10 +74,17 @@ class transferCompleted extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: () => Get.offAll(() => const PostMain()),
-          child: Text('닫기',
-              style:
-                  FontStyles.Button_bold_17.copyWith(color: AppColors.White)),
+          onPressed: () {
+            Get.put(PostController()); //
+            Get.offUntil(
+              GetPageRoute(page: () => const PostMain()),
+              (route) => route.isFirst,
+            );
+          },
+          child: Text(
+            '닫기',
+            style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
+          ),
         ),
       );
 }

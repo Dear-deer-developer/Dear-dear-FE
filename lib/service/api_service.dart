@@ -55,6 +55,15 @@ class ApiService extends CustomGetConnect implements GetxService {
     });
   }
 
+  Future<String?> getToken() async {
+    // 1️⃣ MemCache에서 먼저 시도
+    String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
+    // 2️⃣ 없으면 sharedPreferences에서 시도
+    accessToken ??=
+        sharedPreferences.getString(SharedPreferencesKeys.accessToken);
+    return accessToken;
+  }
+
   // User
   /// 사용자 닉네임 생성/수정
   Future<DeardeerUser?> setNickname(String nickname) async {

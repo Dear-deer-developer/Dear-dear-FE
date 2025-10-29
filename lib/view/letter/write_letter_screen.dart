@@ -82,7 +82,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   }
 
   // MARK: - 상단 앱바
-
   AppBar _appBar() => AppBar(
           backgroundColor: AppColors.bgColor,
           elevation: 0,
@@ -102,8 +101,17 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             TextButton(
               onPressed: _textController.text.isNotEmpty
                   ? () async {
-                      final success =
-                          await LetterService.saveDraft(_textController.text);
+                      final arguments = Get.arguments ?? {};
+                      final selectedPaper = arguments['selectedPaper'];
+                      final paperId = selectedPaper?['index'] != null
+                          ? selectedPaper['index'] + 1
+                          : 1;
+
+                      final success = await LetterService.saveDraft(
+                        _textController.text,
+                        paperId: paperId,
+                      );
+
                       if (success) {
                         _showSaveToast(context);
                       } else {
@@ -220,7 +228,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         ),
         SizedBox(height: 4.h),
 
-        // ✅ 동적 높이 컨테이너
+        // 동적 높이 컨테이너
         LayoutBuilder(
           builder: (context, constraints) {
             final textLength = _textController.text.length;
@@ -372,7 +380,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print("📸 눌림 확인");
+        print("눌림 확인");
         _pickImage();
       },
       child: Container(
@@ -434,14 +442,25 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   }
 
   // MARK: - 전송 버튼
+
   Widget _submitButton(dynamic selectedPaper) {
     return Column(
       children: [
         SizedBox(height: 20.h),
         SelectLetterButton(
           isEnabled: _textController.text.isNotEmpty &&
-              _senderController.text.isNotEmpty,
+              _senderController.text.isNotEmpty &&
+              _recipientBoxNumber != null, // ✅ 받는 사람 선택 필수로 설정
           onPressed: () {
+            // ✅ paperId 계산
+            final paperId = selectedPaper?['index'] != null
+                ? selectedPaper['index'] + 1
+                : 1;
+
+            // ✅ receiverId는 number에서 int로 변환 (사서함번호 == userId)
+            final receiverId = int.tryParse(_recipientBoxNumber ?? '') ?? 0;
+
+            // ✅ 다음 화면으로 전달
             Get.to(
               () => const LetterPreview(),
               arguments: {
@@ -449,7 +468,8 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                 'content': _textController.text,
                 'selectedPaper': selectedPaper,
                 'recipientName': _recipientName,
-                'recipientNumber': _recipientBoxNumber,
+                'receiverId': receiverId, // ✅ 추가
+                'paperId': paperId, // ✅ 추가
                 'selectedImage': _selectedImage,
               },
             );
