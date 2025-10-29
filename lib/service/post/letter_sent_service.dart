@@ -1,49 +1,71 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
-import 'package:dear_deer_demo/service/api_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LetterSentService {
-  static final Dio _dio = Dio();
-  static const String baseUrl = 'http://dearxmas.com:3000';
-
-  /// ✅ 보낸 편지 목록 조회
+  /// ✅ 내가 보낸 편지 조회
   static Future<List<dynamic>?> fetchSentLetters() async {
     try {
-      final token = await ApiService().getToken();
-      final response = await _dio.get(
+      final baseUrl = dotenv.env['BASE_URL'] ?? 'http://dearxmas.com:3000';
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token == null) {
+        print('액세스 토큰이 없습니다.');
+        return null;
+      }
+
+      final dio = Dio();
+      print('[Request] GET $baseUrl/letters/sent');
+      final response = await dio.get(
         '$baseUrl/letters/sent',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
+
       if (response.statusCode == 200) {
         print('보낸 편지 목록 불러오기 성공');
+        print(response.data);
         return response.data;
       } else {
-        print('보낸 편지 목록 조회 실패: ${response.statusCode}');
+        print('보낸 편지 불러오기 실패: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('보낸 편지 조회 에러: $e');
+      print('LetterService - fetchSentLetters 에러: $e');
       return null;
     }
   }
 
-  /// ✅ 단일 편지 조회
-  static Future<Map<String, dynamic>?> fetchLetterById(int letterId) async {
+  // MARK: - 단일 편지 조회
+  static Future<Map<String, dynamic>?> fetchLetterDetail(int letterId) async {
     try {
-      final token = await ApiService().getToken();
-      final response = await _dio.get(
+      final baseUrl = dotenv.env['BASE_URL'] ?? 'http://dearxmas.com:3000';
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+
+      if (token == null) {
+        print('액세스 토큰이 없습니다.');
+        return null;
+      }
+
+      final dio = Dio();
+      print('[Request] GET $baseUrl/letters/$letterId');
+
+      final response = await dio.get(
         '$baseUrl/letters/$letterId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      if (response.statusCode == 200) {
-        print('편지 조회 성공');
+
+      if (response.statusCode == 200 && response.data != null) {
+        print('편지 상세 조회 성공');
+        print(response.data);
         return response.data;
       } else {
-        print('편지 조회 실패: ${response.statusCode}');
+        print('편지 상세 조회 실패: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('편지 조회 중 오류 발생: $e');
+      print('LetterService - fetchLetterDetail 에러: $e');
       return null;
     }
   }

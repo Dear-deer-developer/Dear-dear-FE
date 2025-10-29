@@ -14,12 +14,12 @@ class LetterSent extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(LetterPreviewController());
 
-    // LetterSentList에서 전달된 값 받기
+    // 서버에서 받은 상세 데이터
     final arguments = Get.arguments ?? {};
-    final recipientName = arguments['recipientName'] ?? '받는 사람 없음';
     final content = arguments['content'] ?? '';
     final sentAt = arguments['sentAt'] ?? '';
-    final paperId = arguments['paperId'] ?? 1;
+    final receiver = arguments['receiver'] ?? {};
+    final recipientName = receiver['nickname'] ?? '받는 사람 없음';
 
     // controller에 내용 반영
     controller.setLetterContent(content);

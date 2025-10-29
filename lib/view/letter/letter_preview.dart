@@ -216,8 +216,8 @@ class LetterPreview extends StatelessWidget {
     final sendController = Get.put(LetterSendController());
     final arguments = Get.arguments ?? {};
 
-    final receiverId = 23;
-    // arguments['receiverId'] ?? 0; // WriteLetterScreen에서 전달받은 ID
+    final receiverId =
+        arguments['receiverId'] ?? 0; // WriteLetterScreen에서 전달받은 ID
     final content = arguments['content'] ?? '';
     final paperId = arguments['paperId'] ?? 1;
     final imageUrl = arguments['imageUrl']; //

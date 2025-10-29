@@ -13,36 +13,13 @@ class SelectRecipient extends StatefulWidget {
 }
 
 class _SelectRecipientState extends State<SelectRecipient> {
-  // MARK: - 컨트롤러
   final controller = Get.put(SelectRecipientController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // MARK: - AppBar
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        actions: [
-          TextButton(
-            onPressed: () {
-              final friend = controller.getSelectedFriend();
-              if (friend != null) {
-                Get.back(result: friend);
-              } else {
-                Get.back();
-              }
-            },
-            child: Text(
-              '확인',
-              style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
-            ),
-          ),
-        ],
-      ),
-      // MARK: - Body
+      appBar: _appBar(),
       body: Column(
         children: [
           _topTabs(),
@@ -52,6 +29,40 @@ class _SelectRecipientState extends State<SelectRecipient> {
       ),
     );
   }
+
+  // MARK: - AppBar
+  AppBar _appBar() => AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        actions: [
+          TextButton(
+            onPressed: () {
+              final selectedIdx = controller.selectedIdx.value;
+              if (selectedIdx != null &&
+                  selectedIdx >= 0 &&
+                  selectedIdx < controller.filteredFriends.length) {
+                final friend = controller.filteredFriends[selectedIdx];
+
+                final selectedFriend = {
+                  'id': friend['id'],
+                  'name': friend['nickname'] ?? friend['name'] ?? '이름 없음',
+                  'number': friend['boxNumber']?.toString() ?? '-',
+                };
+
+                print('📦 선택된 친구 반환: $selectedFriend');
+                Get.back(result: selectedFriend);
+              } else {
+                Get.snackbar('알림', '받는 사람을 선택해주세요.');
+              }
+            },
+            child: Text(
+              '확인',
+              style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
+            ),
+          ),
+        ],
+      );
 
   // MARK: - 상단 탭
   Widget _topTabs() {
@@ -68,19 +79,14 @@ class _SelectRecipientState extends State<SelectRecipient> {
                 ],
               ),
               const SizedBox(height: 8),
-              const Divider(
-                color: AppColors.G_01,
-                thickness: 1,
-              ),
+              const Divider(color: AppColors.G_01, thickness: 1),
             ],
           )),
     );
   }
 
-  // MARK: - 탭 아이템
   Widget _tabItem(String title, int index) {
     final isSelected = controller.selectedTabIdx.value == index;
-
     return GestureDetector(
       onTap: () => controller.selectedTabIdx.value = index,
       child: Padding(
@@ -110,8 +116,6 @@ class _SelectRecipientState extends State<SelectRecipient> {
   Widget _searchBar() {
     return Obx(() {
       final tabIndex = controller.selectedTabIdx.value;
-
-      // 링크로 보내기 탭이면 검색 바 숨김
       if (tabIndex == 1) return const SizedBox.shrink();
 
       return Padding(
@@ -126,7 +130,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
           child: Row(
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Icon(Icons.search, color: Colors.grey),
               ),
               Expanded(
@@ -150,21 +154,17 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
-  // MARK: - 컨텐츠 영역 (친구 목록 / 안내문)
+  // MARK: - 친구 목록
   Widget _content() {
     return Obx(() {
       final tabIndex = controller.selectedTabIdx.value;
 
-      // 링크로 보내기 탭
-      if (tabIndex == 1) {
-        return _link();
-      }
-
-      final friendsList = controller.filteredFriends;
-
+      if (tabIndex == 1) return _link();
       if (controller.searchQuery.value.isEmpty) {
         return _message("사서함 번호를 입력해 보세요!");
       }
+
+      final friendsList = controller.filteredFriends;
 
       if (friendsList.isEmpty) {
         return _message("앗, 해당 사서함 번호를 가진 사용자가 없네요.\n다시 확인해 주세요!");
@@ -175,48 +175,49 @@ class _SelectRecipientState extends State<SelectRecipient> {
         itemCount: friendsList.length,
         itemBuilder: (context, index) {
           final friend = friendsList[index];
-          final selected = controller.selectedIdx.value;
-          final isSelected = selected != null && selected == index;
+          final isSelected = controller.selectedIdx.value == index;
 
-          return Card(
-            color: Colors.white,
-            margin: const EdgeInsets.only(bottom: 8),
-            elevation: 0,
-            shape: const RoundedRectangleBorder(side: BorderSide.none),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Color(0xFFE0E0E0),
-                    child: Icon(Icons.person, color: Colors.white, size: 32),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(friend['name'] ?? '',
-                            style: FontStyles.B4_bold_14),
-                        Text('우편번호 : ${friend['number']}',
-                            style: FontStyles.S2_reg_12),
-                      ],
-                    ),
-                  ),
-                  Obx(() => Radio<int>(
-                        value: index,
-                        groupValue: controller.selectedIdx.value,
-                        activeColor: Colors.red,
-                        onChanged: (int? value) {
-                          if (controller.selectedIdx.value == value) {
-                            controller.selectFriend(null);
-                          } else {
-                            controller.selectFriend(value);
-                          }
-                        },
-                      )),
-                ],
+          return GestureDetector(
+            onTap: () => controller.selectFriend(index),
+            child: Card(
+              color: isSelected
+                  ? AppColors.mainRed.withOpacity(0.1)
+                  : Colors.white,
+              margin: const EdgeInsets.only(bottom: 8),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: isSelected ? AppColors.mainRed : AppColors.G_02,
+                  width: 1,
+                ),
+              ),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(0xFFE0E0E0),
+                  child: Icon(Icons.person, color: Colors.white, size: 32),
+                ),
+                title: Text(
+                  friend['nickname'] ?? friend['name'] ?? '',
+                  style: FontStyles.B4_bold_14,
+                ),
+                subtitle: Text(
+                  '사서함번호 : ${friend['boxNumber'] ?? '-'}',
+                  style: FontStyles.S2_reg_12,
+                ),
+                trailing: Radio<int>(
+                  value: index,
+                  groupValue: controller.selectedIdx.value,
+                  activeColor: AppColors.mainRed,
+                  onChanged: (int? value) {
+                    if (controller.selectedIdx.value == value) {
+                      controller.selectFriend(null);
+                    } else {
+                      controller.selectFriend(value);
+                    }
+                  },
+                ),
               ),
             ),
           );
@@ -225,7 +226,6 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
-  // MARK: - 안내문 표시 위젯
   Widget _message(String text) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SizedBox(
@@ -244,7 +244,6 @@ class _SelectRecipientState extends State<SelectRecipient> {
         ),
       );
 
-  // MARK: - 링크 안내 UI
   Widget _link() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

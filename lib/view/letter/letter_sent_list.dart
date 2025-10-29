@@ -29,8 +29,10 @@ class LetterSentList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appbar(),
-      body: Column(
-        children: [_warningMessage(), _letterList(), _errorMessage()],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [_warningMessage(), _letterList(), _errorMessage()],
+        ),
       ),
     );
   }
@@ -118,13 +120,18 @@ class LetterSentList extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.only(bottom: 32.h),
                 child: GestureDetector(
-                  onTap: () {
-                    Get.to(() => LetterSent(), arguments: {
-                      "recipientId": recipientId,
-                      "content": content,
-                      "sentAt": _formatSentAt(letter.sentAt),
-                      "paperId": paperId,
-                    });
+                  onTap: () async {
+                    final detail = await controller.loadLetterDetail(letter.id);
+
+                    if (detail != null) {
+                      Get.to(() => const LetterSent(), arguments: detail);
+                    } else {
+                      Get.snackbar(
+                        '편지 조회 실패',
+                        '편지 내용을 불러올 수 없습니다.',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
                   },
                   child: Stack(
                     children: [
@@ -149,12 +156,12 @@ class LetterSentList extends StatelessWidget {
                         ),
                       ),
 
-                      // Dear. receiverId
+                      // Dear. 수신자 닉네임 표시
                       Positioned(
                         left: 20.w,
                         bottom: 16.h,
                         child: Text(
-                          "Dear. ${recipientId ?? '??'}",
+                          "Dear. ${letter.receiverNickname ?? '??'}",
                           style: FontStyles.L3_reg_16.merge(
                             const TextStyle(fontFamily: 'LeeSeoyun'),
                           ),

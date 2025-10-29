@@ -22,7 +22,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       ..baseUrl = _baseUrl
       ..timeout = const Duration(seconds: 15);
 
-// ✅ 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
+// 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
     httpClient.addRequestModifier<dynamic>((request) async {
       // 1) 토큰
       String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
@@ -56,9 +56,9 @@ class ApiService extends CustomGetConnect implements GetxService {
   }
 
   Future<String?> getToken() async {
-    // 1️⃣ MemCache에서 먼저 시도
+    // 1MemCache에서 먼저 시도
     String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
-    // 2️⃣ 없으면 sharedPreferences에서 시도
+    // 없으면 sharedPreferences에서 시도
     accessToken ??=
         sharedPreferences.getString(SharedPreferencesKeys.accessToken);
     return accessToken;
@@ -73,7 +73,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       headers: {'Content-Type': 'application/json'},
     );
 
-    // ✅ 성공 (JSON body 포함)
+    // 성공 (JSON body 포함)
     if (res.statusCode == 200 && (res.bodyString?.isNotEmpty ?? false)) {
       try {
         final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
@@ -94,10 +94,10 @@ class ApiService extends CustomGetConnect implements GetxService {
       }
     }
 
-    // ✅ Body 없이 성공만 준 경우 (204)
+    // Body 없이 성공만 준 경우 (204)
     if (res.statusCode == 204) return null;
 
-    // ❌ 실패
+    // 실패
     debugPrint('setNickname 실패: ${res.statusCode} / ${res.bodyString}');
     return null;
   }
@@ -181,10 +181,6 @@ class ApiService extends CustomGetConnect implements GetxService {
     return res;
   }
 
-  // -----------------------------------------------------------------------------
-  // 🧰 JSON Request Helper (공통)
-  // -----------------------------------------------------------------------------
-
   Future<Response> postJson(String path, Map<String, dynamic> data,
       {Map<String, String>? headers}) {
     return post(
@@ -213,5 +209,24 @@ class ApiService extends CustomGetConnect implements GetxService {
     } catch (_) {
       return null;
     }
+  }
+
+  // MARK: - 일반 GET (JSON 응답용)
+  Future<dynamic> getJson(String path, {Map<String, String>? headers}) async {
+    final res = await guardedGet(path);
+
+    if (res.statusCode == 200) {
+      try {
+        // bodyString이 비어 있지 않다면 JSON 디코드
+        if (res.bodyString?.isNotEmpty ?? false) {
+          return jsonDecode(res.bodyString!);
+        }
+      } catch (e) {
+        debugPrint('getJson 파싱 실패: $e');
+      }
+    }
+
+    debugPrint('getJson 실패: ${res.statusCode} / ${res.bodyString}');
+    return null;
   }
 }
