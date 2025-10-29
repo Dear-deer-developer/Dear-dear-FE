@@ -1,18 +1,17 @@
-import 'package:dear_deer_demo/view/calendar/calendar_category_dropdown.dart';
-import 'package:dear_deer_demo/view/calendar/calendar_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_category_dropdown.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_modal_widget.dart';
 
-/// 추가 시트가 상위로 돌려줄 값
 class AddEventResult {
   final DateTime date;
   final String title;
   final String memo;
-  final String uiCategory; // UI 라벨(예: "기타", "일정" 등)
-  const AddEventResult({
+  final String uiCategory;
+  AddEventResult({
     required this.date,
     required this.title,
     required this.memo,
@@ -22,19 +21,15 @@ class AddEventResult {
 
 class AddEvent extends StatefulWidget {
   final DateTime initialDate;
-
-  const AddEvent({
-    Key? key,
-    required this.initialDate,
-  }) : super(key: key);
+  const AddEvent({Key? key, required this.initialDate}) : super(key: key);
 
   @override
   State<AddEvent> createState() => _AddEventState();
 }
 
 class _AddEventState extends State<AddEvent> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _memoController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _memoController = TextEditingController();
 
   late DateTime _selectedDate;
   String _selectedCategory = "기타";
@@ -51,6 +46,22 @@ class _AddEventState extends State<AddEvent> {
     _titleController.dispose();
     _memoController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    final title = _titleController.text.trim();
+    if (title.isEmpty) return;
+    final memo = _memoController.text.trim();
+
+    Navigator.pop(
+      context,
+      AddEventResult(
+        date: _selectedDate,
+        title: title,
+        memo: memo,
+        uiCategory: _selectedCategory,
+      ),
+    );
   }
 
   @override
@@ -107,20 +118,7 @@ class _AddEventState extends State<AddEvent> {
                   style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05)),
             ),
             GestureDetector(
-              onTap: () {
-                final title = _titleController.text.trim();
-                if (title.isEmpty) return;
-
-                final result = AddEventResult(
-                  date: _selectedDate,
-                  title: title,
-                  memo: _memoController.text.trim(),
-                  uiCategory: _selectedCategory,
-                );
-
-                // 시트를 닫으면서 결과 객체 반환 → 상위에서 await 후 처리
-                Navigator.pop(context, result);
-              },
+              onTap: _submit,
               child: Text(
                 "확인",
                 style: FontStyles.S1_reg_13.copyWith(color: AppColors.G_05),

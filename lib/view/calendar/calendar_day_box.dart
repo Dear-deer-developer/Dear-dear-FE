@@ -13,6 +13,7 @@ class CalendarDayBox extends StatelessWidget {
   final DateTime date;
   final void Function(DateTime) onTap;
   final List<CalendarEvent> events;
+  final TextStyle? dayNumberStyle;
 
   const CalendarDayBox({
     Key? key,
@@ -23,6 +24,7 @@ class CalendarDayBox extends StatelessWidget {
     required this.date,
     required this.onTap,
     required this.events,
+    this.dayNumberStyle,
   }) : super(key: key);
 
   @override
@@ -32,6 +34,11 @@ class CalendarDayBox extends StatelessWidget {
           .compareTo(CalendarCategoryMeta.priorityByLabel(b.category)));
 
     final isSpecialDate = date.month == 12 && date.day == 25;
+    final numberColor = isSpecialDate
+        ? AppColors.mainRed
+        : isPast
+            ? AppColors.G_07.withOpacity(0.6)
+            : AppColors.G_07;
 
     return GestureDetector(
       onTap: () => onTap(date),
@@ -45,115 +52,103 @@ class CalendarDayBox extends StatelessWidget {
         child: Stack(
           children: [
             if (isSelected)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  clipBehavior: Clip.hardEdge,
-                  height: 7.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.mainRed,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(6.r)),
-                  ),
-                ),
-              )
+              _topBar(AppColors.mainRed)
             else if (isToday)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 7.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.G_04,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(6.r)),
-                  ),
-                ),
-              ),
+              _topBar(AppColors.G_04),
             Align(
               alignment: const Alignment(0, -0.4),
               child: Text(
                 '$day',
-                style: FontStyles.C1_bold_14.copyWith(
-                  color: isSpecialDate
-                      ? AppColors.mainRed
-                      : isPast
-                          ? AppColors.G_07.withOpacity(0.6)
-                          : AppColors.G_07,
-                ),
+                style: (dayNumberStyle ?? FontStyles.C1_bold_14)
+                    .copyWith(color: numberColor),
               ),
             ),
             Positioned(
               left: 0,
               right: 0,
               bottom: 5.h,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...sortedEvents.take(3).toList().asMap().entries.map((entry) {
-                    final idx = entry.key;
-                    final event = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: idx == 0 ? 0 : 2.w,
-                        right: idx == 2 ? 0 : 1.5.w,
-                      ),
-                      child: Container(
-                        width: 5.w,
-                        height: 5.w,
-                        decoration: BoxDecoration(
-                          color:
-                              CalendarCategoryMeta.colorByLabel(event.category),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    );
-                  }),
-                  if (sortedEvents.length > 3)
-                    Padding(
-                      padding: EdgeInsets.only(left: 3.w),
-                      child: SizedBox(
-                        width: 5.w,
-                        height: 5.w,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: CalendarCategoryMeta.colorByLabel(
-                                    sortedEvents[3].category),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              bottom: 0,
-                              child: Container(
-                                width: 3.w,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Colors.white.withOpacity(0.0),
-                                      Colors.white.withOpacity(0.85),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.horizontal(
-                                    right: Radius.circular(2.5.w),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
+              child: _eventDots(sortedEvents),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _topBar(Color color) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Container(
+          height: 7.h,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(6.r)),
+          ),
+        ),
+      );
+
+  Widget _eventDots(List<CalendarEvent> events) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ...events.take(3).toList().asMap().entries.map((entry) {
+          final idx = entry.key;
+          final event = entry.value;
+          return Padding(
+            padding: EdgeInsets.only(
+              left: idx == 0 ? 0 : 2.w,
+              right: idx == 2 ? 0 : 1.5.w,
+            ),
+            child: Container(
+              width: 5.w,
+              height: 5.w,
+              decoration: BoxDecoration(
+                color: CalendarCategoryMeta.colorByLabel(event.category),
+                shape: BoxShape.circle,
+              ),
+            ),
+          );
+        }),
+        if (events.length > 3) _overflowDot(events[3].category),
+      ],
+    );
+  }
+
+  Widget _overflowDot(String category) {
+    return Padding(
+      padding: EdgeInsets.only(left: 3.w),
+      child: SizedBox(
+        width: 5.w,
+        height: 5.w,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: CalendarCategoryMeta.colorByLabel(category),
+                shape: BoxShape.circle,
+              ),
+            ),
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 3.w,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.white.withOpacity(0.0),
+                      Colors.white.withOpacity(0.85),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.horizontal(
+                    right: Radius.circular(2.5.w),
+                  ),
+                ),
               ),
             ),
           ],

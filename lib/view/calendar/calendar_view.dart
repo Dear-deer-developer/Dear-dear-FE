@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
-import 'package:dear_deer_demo/data/font_styles.dart';
-import 'calendar_day_box.dart';
-import 'calendar_blank_box.dart';
-import 'calendar_weekday_header.dart';
-import 'calendar_event.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_day_box.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_blank_box.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_weekday_header.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 
 class CalendarView extends StatelessWidget {
   final DateTime monthDate;
@@ -14,7 +13,11 @@ class CalendarView extends StatelessWidget {
   final DateTime? selectedDate;
   final DateTime today;
   final List<CalendarEvent> Function(DateTime) getEventsForDate;
-  final int dataVersion; // 월 데이터 버전
+  final int dataVersion;
+
+  final TextStyle titleStyle;
+  final TextStyle weekdayStyle;
+  final TextStyle dayNumberStyle;
 
   const CalendarView({
     Key? key,
@@ -24,6 +27,9 @@ class CalendarView extends StatelessWidget {
     required this.today,
     required this.getEventsForDate,
     required this.dataVersion,
+    required this.titleStyle,
+    required this.weekdayStyle,
+    required this.dayNumberStyle,
   }) : super(key: key);
 
   @override
@@ -35,7 +41,6 @@ class CalendarView extends StatelessWidget {
     final startWeekday = firstDay.weekday % 7;
 
     final boxWidgets = <Widget>[];
-
     for (int i = 0; i < startWeekday; i++) {
       boxWidgets.add(const CalendarBlankBox());
     }
@@ -47,7 +52,6 @@ class CalendarView extends StatelessWidget {
       final isToday = _isSameDate(thisDay, today);
       final isSelected =
           selectedDate != null && _isSameDate(thisDay, selectedDate!);
-
       final dayEvents = getEventsForDate(thisDay);
 
       boxWidgets.add(
@@ -60,6 +64,7 @@ class CalendarView extends StatelessWidget {
           date: thisDay,
           onTap: onDayTap,
           events: dayEvents,
+          dayNumberStyle: dayNumberStyle,
         ),
       );
     }
@@ -68,13 +73,11 @@ class CalendarView extends StatelessWidget {
       padding: EdgeInsets.only(left: 33.w, right: 58.5.w),
       child: Column(
         children: [
-          SizedBox(height: 115.h),
-          Text(
-            DateFormat('yyyy.MM').format(monthDate),
-            style: FontStyles.C2_reg_24.copyWith(color: AppColors.White),
-          ),
-          SizedBox(height: 20.h),
-          const CalendarWeekdayHeader(),
+          SizedBox(height: 150.h),
+          Text(DateFormat('yyyy.MM').format(monthDate), style: titleStyle),
+          SizedBox(height: 30.h),
+          CalendarWeekdayHeader(textStyle: weekdayStyle),
+          SizedBox(height: 6.h),
           SizedBox(
             width: (34.w * 7) + (5.w * 6),
             child: GridView.builder(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/controller/schedule_controller.dart';
 import 'package:dear_deer_demo/model/schedule.dart';
-
 import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_view.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_bottom_sheet.dart';
@@ -19,7 +19,6 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   final _sc = Get.find<ScheduleController>();
-
   late final int _currentYear;
   late final List<DateTime> _months;
   final DateTime _today = DateTime.now();
@@ -48,7 +47,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return _sc.monthlyVersion[yyyymm] ?? 0;
   }
 
-  // 월 그리드 점/반원 표시용
   List<CalendarEvent> _eventsFor(DateTime d) {
     final key = _dateOnly(d);
     final schedules = _sc.monthly[key] ?? const <Schedule>[];
@@ -64,7 +62,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     ];
   }
 
-  // 바텀시트 리스트용
   List<CalendarEvent> _dailyUi() {
     return [
       for (final s in _sc.daily)
@@ -83,19 +80,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
         CalendarCategoryMeta.uiFromLabel(label),
       );
 
-  // "d-123" 또는 "m-...-123"에서 정수 id만 추출
   int? _scheduleIdFromEvent(CalendarEvent e) {
     if (e.id.startsWith('d-')) return int.tryParse(e.id.substring(2));
     final parts = e.id.split('-');
     return parts.isNotEmpty ? int.tryParse(parts.last) : null;
   }
 
-  // 추가 시트 → 결과(await) → 닫힌 뒤 생성/로딩/바텀시트 오픈
   void _openAddSheet() async {
     final AddEventResult? result = await showModalBottomSheet<AddEventResult>(
       context: context,
       isScrollControlled: true,
-      useRootNavigator: true, // 두 시트 모두 동일 네비게이터 사용
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -127,7 +122,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      useRootNavigator: true, // 추가 시트와 동일하게 맞춤
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -160,8 +155,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           if (!mounted) return;
           final moved = _dateOnly(evt.date) != newDate;
           if (moved) {
-            Navigator.of(context).pop(); // 기존 시트 닫기
-            await _openDailyBottomSheet(newDate); // 새 날짜로 다시 열기
+            Navigator.of(context).pop();
+            await _openDailyBottomSheet(newDate);
           } else {
             setState(() {});
           }
@@ -172,14 +167,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final titleTextStyle =
+        FontStyles.C2_reg_24.copyWith(color: AppColors.White);
+    final weekdayTextStyle =
+        FontStyles.S2_reg_12.copyWith(color: AppColors.White);
+    final dayNumberTextStyle = FontStyles.B3_bold_15;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        shape: const CircleBorder(),
-        onPressed: _openAddSheet,
-        child: const Icon(Icons.add, size: 40, color: Color(0xFFA14E4A)),
+      floatingActionButton: Builder(
+        builder: (context) {
+          final safeBottom = MediaQuery.of(context).padding.bottom;
+          return Padding(
+            padding: EdgeInsets.only(right: 8, bottom: safeBottom + 70),
+            child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              shape: const CircleBorder(),
+              onPressed: _openAddSheet,
+              child: const Icon(Icons.add, size: 40, color: Color(0xFFA14E4A)),
+            ),
+          );
+        },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       body: SafeArea(
         child: Obx(() {
           final _ = _sc.monthly.length;
@@ -209,6 +219,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   await _openDailyBottomSheet(_selectedDate!);
                 },
                 dataVersion: version,
+                titleStyle: titleTextStyle,
+                weekdayStyle: weekdayTextStyle,
+                dayNumberStyle: dayNumberTextStyle,
               );
             },
           );
