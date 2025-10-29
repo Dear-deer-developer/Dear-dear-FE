@@ -15,10 +15,12 @@ import 'package:dear_deer_demo/controller/post/post_controller.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 
-// 일정 연동 (등록만 추가)
+// 일정 연동
 import 'package:dear_deer_demo/util/custom_get_connect.dart';
-import 'package:dear_deer_demo/service/calendar/schedule_service.dart';
+import 'package:dear_deer_demo/service/schedule_service.dart'; // 어댑터
 import 'package:dear_deer_demo/controller/schedule_controller.dart';
+import 'package:dear_deer_demo/service/calendar/calendar_api.dart';
+import 'package:dear_deer_demo/service/calendar/calendar_service.dart';
 
 class MainBindings extends Bindings {
   @override
@@ -29,10 +31,15 @@ class MainBindings extends Bindings {
     Get.put<BgMusicController>(BgMusicController(), permanent: true);
     Get.put<AppStartController>(AppStartController(), permanent: true);
 
-    // ── 일정 API 의존성 체인 등록 (파일 내용은 안 건드림)
-    Get.put<CustomGetConnect>(CustomGetConnect(), permanent: true);
-    Get.put<ScheduleService>(ScheduleService(Get.find<CustomGetConnect>()),
+    // ── 일정 API 의존성 체인
+    Get.put<CustomGetConnect>(CustomGetConnect(),
+        permanent: true); // GetConnect 구현
+    Get.put<CalendarApi>(CalendarApi(Get.find<CustomGetConnect>()),
         permanent: true);
+    Get.put<CalendarService>(CalendarService(Get.find<CalendarApi>()),
+        permanent: true);
+    Get.put<ScheduleService>(ScheduleService(Get.find<CalendarService>()),
+        permanent: true); // 어댑터
     Get.put<ScheduleController>(ScheduleController(Get.find<ScheduleService>()),
         permanent: true);
 
