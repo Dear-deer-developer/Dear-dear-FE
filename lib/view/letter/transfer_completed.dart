@@ -77,7 +77,7 @@ class transferCompleted extends StatelessWidget {
           onPressed: () {
             Get.put(PostController()); //
             Get.offUntil(
-              GetPageRoute(page: () => const PostMain()),
+              GetPageRoute(page: () => PostMain()),
               (route) => route.isFirst,
             );
           },

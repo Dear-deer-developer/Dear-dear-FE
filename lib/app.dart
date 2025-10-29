@@ -44,7 +44,7 @@ class App extends GetView<BottomNavController> {
       index: controller.index,
       children: [
         const Home(),
-        const PostMain(),
+        PostMain(),
         CalendarMain(),
         // Contents(),
       ],
