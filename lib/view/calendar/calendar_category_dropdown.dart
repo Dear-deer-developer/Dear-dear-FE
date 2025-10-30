@@ -78,17 +78,18 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                   width: popupWidth,
                   height: 40.h,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
                         child: Text(label, style: FontStyles.B4_reg_14),
                       ),
+                      const Spacer(),
                       Padding(
-                        padding: EdgeInsets.only(right: 5.w),
+                        padding: EdgeInsets.only(right: 25.w),
                         child: Container(
-                          width: 8.w,
-                          height: 8.w,
+                          width: 7.7.w,
+                          height: 7.7.w,
                           decoration: BoxDecoration(
                             color: CalendarCategoryMeta.colorByLabel(label),
                             shape: BoxShape.circle,
@@ -120,7 +121,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
 
         // 필드에 보여줄 오른쪽(선택된 값 + 점 + 이중 화살표)
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          // mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 8.w,
