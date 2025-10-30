@@ -1,34 +1,77 @@
 import 'package:get/get.dart';
+import 'package:dear_deer_demo/service/post/temporary_storage_service.dart';
 
 class TemporaryStorageController extends GetxController {
-  var isDeleteMode = false.obs; // 삭제 모드 여부
-  var selectedItems = <int>{}.obs; // 선택된 항목 인덱스 집합 (Set)
-  var items = List.generate(3, (index) => index).obs; // 더미 아이템 리스트
+  final _service = Get.put(TemporaryStorageService());
 
-  // 삭제 모드 토글 (on/off)
+  final items = <Map<String, dynamic>>[].obs;
+  final selectedItems = <int>{}.obs;
+  final isDeleteMode = false.obs;
+  final isLoading = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchDraftLetters();
+  }
+
+  /// 임시 보관함 조회
+  Future<void> fetchDraftLetters() async {
+    try {
+      isLoading.value = true;
+      final list = await _service.fetchDraftLetters();
+      final normalized = list
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .where((e) => e['id'] != null)
+          .toList();
+      items.assignAll(normalized);
+    } catch (e) {
+      print('fetchDraftLetters 실패: $e');
+      items.clear();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void toggleDeleteMode() {
-    isDeleteMode.value = !isDeleteMode.value;
-    if (!isDeleteMode.value) {
-      selectedItems.clear(); // 삭제 모드 해제 시 선택 초기화
-    }
+    isDeleteMode.toggle();
+    if (!isDeleteMode.value) selectedItems.clear();
   }
 
-  // 특정 아이템 선택/해제 토글
-  void toggleItemSelection(int index) {
-    if (selectedItems.contains(index)) {
-      selectedItems.remove(index);
+  void toggleItemSelection(int? id) {
+    if (id == null) return;
+    if (selectedItems.contains(id)) {
+      selectedItems.remove(id);
     } else {
-      selectedItems.add(index);
+      selectedItems.add(id);
     }
   }
 
-  // 선택된 아이템 삭제 후 상태 초기화
-  void confirmDelete() {
-    items.removeWhere((itemIndex) => selectedItems.contains(itemIndex));
-    selectedItems.clear();
-    isDeleteMode.value = false;
+  /// 삭제 처리
+  Future<void> confirmDelete() async {
+    if (selectedItems.isEmpty) return;
+
+    try {
+      final ids = selectedItems.toList();
+      final res = await _service.deleteDraftLetters(ids);
+      print('🧾 삭제 결과: $res');
+
+      // UI 즉시 반영
+      items.removeWhere((e) => ids.contains(e['id']));
+      items.refresh();
+
+      // 서버 싱크 재확인 (조금 더 기다리기)
+      await Future.delayed(const Duration(seconds: 2));
+      await fetchDraftLetters();
+
+      Get.snackbar('완료', '${res?['deletedCount'] ?? ids.length}개의 편지를 삭제했습니다.');
+    } catch (e) {
+      Get.snackbar('오류', '삭제 중 문제가 발생했습니다.');
+    } finally {
+      selectedItems.clear();
+      isDeleteMode.value = false;
+    }
   }
 
-  // 현재 아이템 개수 반환 (items 리스트 기준)
   int get itemCount => items.length;
 }

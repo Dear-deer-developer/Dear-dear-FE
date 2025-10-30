@@ -24,14 +24,16 @@ class UserService {
       final response = await dio.get(
         '$baseUrl/users/zipcode',
         queryParameters: {'zipCode': zipCode},
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+        }),
       );
 
       print('[Response] ${response.statusCode} | ${response.data}');
 
       if (response.statusCode == 200 && response.data != null) {
         print('사서함 검색 성공: ${response.data}');
-        return response.data;
+        return Map<String, dynamic>.from(response.data);
       }
 
       print('사서함 검색 실패: ${response.statusCode}');

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/widget/custom_button.dart';
-
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'select_recipient.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -19,6 +19,7 @@ class WriteLetterScreen extends StatefulWidget {
 }
 
 class _WriteLetterScreenState extends State<WriteLetterScreen> {
+  final authService = Get.find<AuthService>();
   // MARK: - State
   String? _recipientName;
   String? _recipientBoxNumber;
@@ -37,6 +38,20 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _senderController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final nickname = authService.user.value?.nickname ?? '';
+    _senderController.text = nickname;
+
+    final args = Get.arguments ?? {};
+    if (args['isEditing'] == true) {
+      // 기존 편지 수정 모드
+      _textController.text = args['content'] ?? '';
+      _recipientId = args['receiverId'];
+    }
+  }
 
   @override
   void dispose() {
@@ -80,23 +95,23 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         title: Text("편지 쓰기", style: FontStyles.H2_bold_17),
         actions: [
           TextButton(
-            onPressed: _textController.text.isNotEmpty
-                ? () async {
-                    final arguments = Get.arguments ?? {};
-                    final selectedPaper = arguments['selectedPaper'];
-                    final paperId = selectedPaper?['index'] != null
-                        ? selectedPaper['index'] + 1
-                        : 1;
+            onPressed: () async {
+              final arguments = Get.arguments ?? {};
+              final selectedPaper = arguments['selectedPaper'];
+              final paperId = selectedPaper?['index'] != null
+                  ? selectedPaper['index'] + 1
+                  : 1;
 
-                    final success = await LetterService.saveDraft(
-                      _textController.text,
-                      paperId: paperId,
-                    );
-                    if (success) _showSaveToast(context);
-                  }
-                : null,
-            child: const Text("임시저장",
-                style: TextStyle(color: Colors.black, fontSize: 13)),
+              final success = await LetterService.saveDraft(
+                _textController.text,
+                paperId: paperId,
+              );
+              if (success) _showSaveToast(context);
+            },
+            child: const Text(
+              "임시저장",
+              style: TextStyle(color: Colors.black, fontSize: 13),
+            ),
           ),
           TextButton(
             onPressed: () => Get.back(),
@@ -125,9 +140,9 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                 setState(() {
                   _recipientName = selectedFriend['name'];
                   _recipientBoxNumber = selectedFriend['number'];
-                  _recipientId = selectedFriend['id'];
+                  _recipientId = int.tryParse(selectedFriend['id'].toString());
                 });
-                print('🎯 선택된 친구 id=${_recipientId}, name=$_recipientName');
+                print('선택된 친구 id=${_recipientId}, name=$_recipientName');
               }
             },
             child: Container(

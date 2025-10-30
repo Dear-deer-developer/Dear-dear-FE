@@ -83,83 +83,71 @@ class TemporaryStorage extends StatelessWidget {
   Widget _list() => Padding(
         padding: const EdgeInsets.only(top: 24),
         child: Obx(() {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(controller.itemCount, (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 📦 텍스트 묶음
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Dear. 닉네임", style: FontStyles.B4_bold_14),
-                              Text(
-                                "작성하던 편지 내용 한줄. 작성하던 편지 내용 한줄. 작성하던",
-                                style: FontStyles.S3_reg_10,
-                              ),
-                              Text(
-                                "마지막 저장 : 2025. 11. 28. 23: 45",
-                                style: FontStyles.S3_reg_10,
-                              ),
-                            ],
-                          ),
-                        ),
+          if (controller.items.isEmpty) {
+            return const Center(child: Text("임시 저장된 편지가 없습니다."));
+          }
 
-                        if (controller.isDeleteMode.value)
-                          GestureDetector(
-                            onTap: () => controller
-                                .toggleItemSelection(controller.items[index]),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0, top: 4),
-                              child: Container(
-                                width: 24.w,
-                                height: 24.h,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: controller.selectedItems
-                                            .contains(controller.items[index])
-                                        ? AppColors.mainRed
-                                        : AppColors.G_03,
-                                    width: 2,
-                                  ),
-                                  color: Colors.transparent, // 바깥 원은 투명하게 유지
+          return Column(
+            children: controller.items.map((item) {
+              final id = item['id'] as int?;
+              final isSelected = controller.selectedItems.contains(id);
+              final content = item['content'] ?? '';
+              final status = item['status'] ?? '';
+
+              return Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("To. 사서함번호 -", style: FontStyles.B4_bold_14),
+                            Text(content, style: FontStyles.S3_reg_10),
+                            Text("상태: $status", style: FontStyles.S3_reg_10),
+                          ],
+                        ),
+                      ),
+                      if (controller.isDeleteMode.value)
+                        GestureDetector(
+                          onTap: () => controller.toggleItemSelection(id),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0, top: 4),
+                            child: Container(
+                              width: 24.w,
+                              height: 24.h,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.mainRed
+                                      : AppColors.G_03,
+                                  width: 2,
                                 ),
-                                child: controller.selectedItems
-                                        .contains(controller.items[index])
-                                    ? Center(
-                                        child: Container(
-                                          width: 16.w, // 바깥 원보다 작게
-                                          height: 16.h,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppColors
-                                                .mainRed, // 내부 작은 원만 주황색
-                                          ),
-                                        ),
-                                      )
-                                    : null,
                               ),
+                              child: isSelected
+                                  ? Center(
+                                      child: Container(
+                                        width: 12.w,
+                                        height: 12.h,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.mainRed,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Divider(
-                      color: AppColors.G_02,
-                      thickness: 1,
-                      height: 1,
-                    ),
-                  ],
-                ),
+                        ),
+                    ],
+                  ),
+                  const Divider(color: AppColors.G_02, thickness: 1),
+                  const SizedBox(height: 12),
+                ],
               );
-            }),
+            }).toList(),
           );
         }),
       );

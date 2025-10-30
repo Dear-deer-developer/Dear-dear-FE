@@ -1,7 +1,5 @@
-// MARK: - JWT Toekn 자체 로그인 ver.
-//import 'dart:convert';
+// MARK: - JWT Token 자체 로그인 ver.
 import 'dart:convert';
-
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/model/deardeer_user.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
@@ -12,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 class ApiService extends CustomGetConnect implements GetxService {
-  final String _baseUrl = "https://dearxmas.com";
+  final String _baseUrl = "https://dearxmas";
 
   @override
   void onInit() {
@@ -22,7 +20,7 @@ class ApiService extends CustomGetConnect implements GetxService {
       ..baseUrl = _baseUrl
       ..timeout = const Duration(seconds: 15);
 
-// 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
+    // 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
     httpClient.addRequestModifier<dynamic>((request) async {
       // 1) 토큰
       String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
@@ -55,16 +53,18 @@ class ApiService extends CustomGetConnect implements GetxService {
     });
   }
 
+  /// 현재 저장된 JWT 토큰 반환
   Future<String?> getToken() async {
-    // 1MemCache에서 먼저 시도
+    // 1) MemCache에서 먼저 시도
     String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
-    // 없으면 sharedPreferences에서 시도
+    // 2) 없으면 sharedPreferences에서 시도
     accessToken ??=
         sharedPreferences.getString(SharedPreferencesKeys.accessToken);
     return accessToken;
   }
 
-  // User
+  // MARK: - User API
+
   /// 사용자 닉네임 생성/수정
   Future<DeardeerUser?> setNickname(String nickname) async {
     final res = await patch(
@@ -124,6 +124,9 @@ class ApiService extends CustomGetConnect implements GetxService {
     return null;
   }
 
+  // MARK: - 공통 요청 메서드
+
+  /// 401이면 refresh 후 1회 재시도하는 GET
   Future<Response<T>> guardedGet<T>(String path) async {
     Response<T> res = await get<T>(path);
     if (res.statusCode == 401) {
@@ -181,12 +184,12 @@ class ApiService extends CustomGetConnect implements GetxService {
     return res;
   }
 
-  Future<Response> postJson(String path, Map<String, dynamic> data,
-      {Map<String, String>? headers}) {
+  // 수정된 버전 — named parameter `data:` 지원
+  Future<Response> postJson(String path, {Map<String, dynamic>? data}) {
     return post(
       path,
       jsonEncode(data),
-      headers: {'Content-Type': 'application/json', ...?headers},
+      headers: {'Content-Type': 'application/json'},
     );
   }
 
@@ -199,16 +202,12 @@ class ApiService extends CustomGetConnect implements GetxService {
     );
   }
 
-  /// 캐시된 유저 정보 복구
-  DeardeerUser? getCachedUser() {
-    final raw = sharedPreferences.getString('user_json');
-    if (raw == null) return null;
-    try {
-      final map = jsonDecode(raw) as Map<String, dynamic>;
-      return DeardeerUser.fromJson(map);
-    } catch (_) {
-      return null;
-    }
+  Future<Response> deleteJson(String path, {Map<String, dynamic>? data}) {
+    return delete(
+      path,
+      contentType: jsonEncode(data),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 
   // MARK: - 일반 GET (JSON 응답용)
@@ -217,7 +216,6 @@ class ApiService extends CustomGetConnect implements GetxService {
 
     if (res.statusCode == 200) {
       try {
-        // bodyString이 비어 있지 않다면 JSON 디코드
         if (res.bodyString?.isNotEmpty ?? false) {
           return jsonDecode(res.bodyString!);
         }
@@ -228,5 +226,17 @@ class ApiService extends CustomGetConnect implements GetxService {
 
     debugPrint('getJson 실패: ${res.statusCode} / ${res.bodyString}');
     return null;
+  }
+
+  /// 캐시된 유저 정보 복구
+  DeardeerUser? getCachedUser() {
+    final raw = sharedPreferences.getString('user_json');
+    if (raw == null) return null;
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return DeardeerUser.fromJson(map);
+    } catch (_) {
+      return null;
+    }
   }
 }

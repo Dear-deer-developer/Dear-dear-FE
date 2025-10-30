@@ -42,11 +42,13 @@ class AuthService extends GetxService {
     try {
       final api = Get.find<ApiService>();
 
-      final res = await api.postJson('/auth/native/login', {
-        'email': email,
-        'password': password,
-      });
-
+      final res = await api.postJson(
+        '/auth/native/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
       final bodyStr = res.bodyString;
       if (res.statusCode != 200 || bodyStr == null || bodyStr.isEmpty) {
         logger.e('loginWithEmail 실패: ${res.statusCode} ${res.bodyString}');

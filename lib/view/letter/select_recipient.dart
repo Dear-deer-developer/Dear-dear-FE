@@ -50,7 +50,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
                   'number': friend['boxNumber']?.toString() ?? '-',
                 };
 
-                print('📦 선택된 친구 반환: $selectedFriend');
+                print('선택된 친구 반환: $selectedFriend');
                 Get.back(result: selectedFriend);
               } else {
                 Get.snackbar('알림', '받는 사람을 선택해주세요.');
@@ -203,20 +203,14 @@ class _SelectRecipientState extends State<SelectRecipient> {
                   style: FontStyles.B4_bold_14,
                 ),
                 subtitle: Text(
-                  '사서함번호 : ${friend['boxNumber'] ?? '-'}',
+                  '사서함번호 : ${friend['zipCode'] ?? friend['zipcode'] ?? '-'}',
                   style: FontStyles.S2_reg_12,
                 ),
                 trailing: Radio<int>(
                   value: index,
                   groupValue: controller.selectedIdx.value,
                   activeColor: AppColors.mainRed,
-                  onChanged: (int? value) {
-                    if (controller.selectedIdx.value == value) {
-                      controller.selectFriend(null);
-                    } else {
-                      controller.selectFriend(value);
-                    }
-                  },
+                  onChanged: (_) => controller.selectFriend(index),
                 ),
               ),
             ),
