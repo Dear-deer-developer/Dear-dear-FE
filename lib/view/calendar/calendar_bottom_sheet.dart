@@ -85,15 +85,29 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                 ),
                 Row(
                   children: [
-                    Text("$formattedDate $weekDay",
-                        style: FontStyles.B3_bold_15.copyWith(
-                            color: AppColors.Black)),
+                    Text(
+                      "$formattedDate $weekDay",
+                      style: FontStyles.B3_bold_15.copyWith(
+                          color: AppColors.Black),
+                    ),
                     const Spacer(),
-                    Padding(
-                      padding: EdgeInsets.only(right: 1.w),
-                      child: Text("추가",
-                          style: FontStyles.S1_reg_13.copyWith(
-                              color: AppColors.Black)),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () async {
+                          await widget.onAddPressed();
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 6.h),
+                          child: Text(
+                            "추가",
+                            style: FontStyles.S1_reg_13.copyWith(
+                                color: AppColors.Black),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
