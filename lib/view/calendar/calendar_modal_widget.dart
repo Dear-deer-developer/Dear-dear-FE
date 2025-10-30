@@ -59,9 +59,9 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
         dowTextFormatter: (date, locale) =>
             ['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7],
       ),
-      rowHeight: 35.h,
+      rowHeight: 30.h,
       calendarStyle: CalendarStyle(
-        cellMargin: EdgeInsets.only(top: 5.h, bottom: 5.h),
+        cellMargin: EdgeInsets.only(top: 3.h, bottom: 3.h),
         outsideDaysVisible: false,
         defaultTextStyle: _commonTextStyle,
         weekendTextStyle: _commonTextStyle,
