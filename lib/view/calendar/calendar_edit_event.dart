@@ -201,11 +201,21 @@ class _EditEventSheetState extends State<EditEventSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          GestureDetector(
+          InkWell(
             onTap: () => setState(() => showCalendar = !showCalendar),
-            child: Text(
-              formattedDate,
-              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedDate,
+                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
+                ),
+                AnimatedRotation(
+                  turns: showCalendar ? 0.5 : 0.0, // ▼ -> ▲
+                  duration: const Duration(milliseconds: 150),
+                  child: const Icon(Icons.expand_more, color: AppColors.G_05),
+                ),
+              ],
             ),
           ),
           if (showCalendar) ...[

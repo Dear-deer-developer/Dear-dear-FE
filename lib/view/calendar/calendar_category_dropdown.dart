@@ -4,9 +4,31 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
 
+/// 작은 이중 화살표 (ᐱᐯ 느낌)
+class TinyChevron extends StatelessWidget {
+  const TinyChevron({super.key, this.color});
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? Theme.of(context).iconTheme.color;
+    return const SizedBox(
+      width: 16,
+      height: 16,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(top: 0, child: Icon(Icons.keyboard_arrow_up_rounded)),
+          Positioned(bottom: 0, child: Icon(Icons.keyboard_arrow_down_rounded)),
+        ],
+      ),
+    );
+  }
+}
+
 class CategoryDropdown extends StatefulWidget {
   final String selectedCategory; // 라벨(String)
-  final ValueChanged<String> onCategorySelected; // 라벨(String)
+  final ValueChanged<String> onCategorySelected;
 
   const CategoryDropdown({
     Key? key,
@@ -20,7 +42,6 @@ class CategoryDropdown extends StatefulWidget {
 
 class _CategoryDropdownState extends State<CategoryDropdown> {
   final double popupWidth = 184.w;
-  final double popupHeight = 170.h;
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +60,22 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       ),
       child: PopupMenuButton<String>(
         onSelected: widget.onCategorySelected,
-        constraints:
-            BoxConstraints(minWidth: popupWidth.w, maxWidth: popupWidth.w),
+        constraints: BoxConstraints(
+          minWidth: popupWidth,
+          maxWidth: popupWidth,
+        ),
         itemBuilder: (context) {
           final items = <PopupMenuEntry<String>>[];
           for (int i = 0; i < labels.length; i++) {
             final label = labels[i];
+
             items.add(
               PopupMenuItem<String>(
                 value: label,
                 height: 40.h,
                 padding: EdgeInsets.zero,
                 child: SizedBox(
-                  width: 184.w,
+                  width: popupWidth,
                   height: 40.h,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,6 +100,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                 ),
               ),
             );
+
             if (i < labels.length - 1) {
               items.add(
                 PopupMenuItem<String>(
@@ -92,7 +117,10 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
           }
           return items;
         },
+
+        // 필드에 보여줄 오른쪽(선택된 값 + 점 + 이중 화살표)
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 8.w,
@@ -105,7 +133,8 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
             ),
             SizedBox(width: 8.w),
             Text(widget.selectedCategory, style: FontStyles.B3_bold_15),
-            Icon(Icons.arrow_drop_down, color: AppColors.G_05),
+            SizedBox(width: 4.w),
+            Icon(Icons.unfold_more_rounded, size: 20, color: AppColors.Black),
           ],
         ),
       ),

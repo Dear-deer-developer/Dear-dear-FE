@@ -187,13 +187,26 @@ class _AddEventState extends State<AddEvent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          GestureDetector(
+          // 헤더(날짜 + 화살표)
+          InkWell(
             onTap: () => setState(() => _showCalendar = !_showCalendar),
-            child: Text(
-              formattedDate,
-              style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedDate,
+                  style: FontStyles.B3_bold_15.copyWith(color: AppColors.Black),
+                ),
+                // 펼침 아이콘 (열릴 때 회전)
+                AnimatedRotation(
+                  turns: _showCalendar ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 150),
+                  child: const Icon(Icons.expand_more, color: AppColors.G_05),
+                ),
+              ],
             ),
           ),
+
           if (_showCalendar) ...[
             Padding(
               padding: EdgeInsets.only(top: 14.h),
@@ -228,8 +241,10 @@ class _AddEventState extends State<AddEvent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("카테고리",
-              style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05)),
+          Text(
+            "카테고리",
+            style: FontStyles.B3_bold_15.copyWith(color: AppColors.G_05),
+          ),
           CategoryDropdown(
             selectedCategory: _selectedCategory,
             onCategorySelected: (value) {
