@@ -66,8 +66,13 @@ class CalendarDayBox extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 5.h,
-              child: _eventDots(sortedEvents),
+              bottom: 5.5.h,
+              child: Padding(
+                padding: sortedEvents.length <= 3
+                    ? EdgeInsets.zero // 이벤트가 3개 이하일 때는 패딩 없음
+                    : EdgeInsets.only(left: 3.w, right: 1.w), // 3개 초과일 때만 좌측 여백
+                child: _eventDots(sortedEvents),
+              ),
             ),
           ],
         ),
@@ -89,6 +94,9 @@ class CalendarDayBox extends StatelessWidget {
       );
 
   Widget _eventDots(List<CalendarEvent> events) {
+    // 이벤트 개수에 따라 간격 결정
+    final double spacing = events.length <= 3 ? 4.w : 3.w;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -96,10 +104,7 @@ class CalendarDayBox extends StatelessWidget {
           final idx = entry.key;
           final event = entry.value;
           return Padding(
-            padding: EdgeInsets.only(
-              left: idx == 0 ? 0 : 2.w,
-              right: idx == 2 ? 0 : 1.5.w,
-            ),
+            padding: EdgeInsets.only(left: idx == 0 ? 0 : spacing),
             child: Container(
               width: 5.w,
               height: 5.w,
@@ -135,14 +140,14 @@ class CalendarDayBox extends StatelessWidget {
               top: 0,
               bottom: 0,
               child: Container(
-                width: 3.w,
+                width: 5.5.w,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
                       Colors.white.withOpacity(0.0),
-                      Colors.white.withOpacity(0.85),
+                      Colors.white.withOpacity(1.0),
                     ],
                   ),
                   borderRadius: BorderRadius.horizontal(
