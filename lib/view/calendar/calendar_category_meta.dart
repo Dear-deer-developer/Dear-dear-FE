@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:dear_deer_demo/model/schedule.dart' show ScheduleCategory;
 
 /// UI에서 쓰는 카테고리(한글 라벨은 여기서 관리)
-enum UiCategory { appointment, popup, ticketing, etc }
+enum UiCategory { appointment, popup, reservation, etc }
 
 const Map<UiCategory, String> _labels = {
   UiCategory.appointment: '약속',
   UiCategory.popup: '팝업',
-  UiCategory.ticketing: '티켓팅&예약',
+  UiCategory.reservation: '티켓팅&예약',
   UiCategory.etc: '기타',
 };
 
 const Map<UiCategory, Color> _colors = {
   UiCategory.appointment: Colors.red,
   UiCategory.popup: Colors.green,
-  UiCategory.ticketing: Colors.yellow,
+  UiCategory.reservation: Colors.yellow,
   UiCategory.etc: Colors.black,
 };
 
@@ -22,7 +22,7 @@ const Map<UiCategory, Color> _colors = {
 const Map<UiCategory, int> _priority = {
   UiCategory.appointment: 0,
   UiCategory.popup: 1,
-  UiCategory.ticketing: 2,
+  UiCategory.reservation: 2,
   UiCategory.etc: 3,
 };
 
@@ -46,8 +46,8 @@ class CalendarCategoryMeta {
         return UiCategory.appointment;
       case ScheduleCategory.popup:
         return UiCategory.popup;
-      case ScheduleCategory.ticketing:
-        return UiCategory.ticketing;
+      case ScheduleCategory.reservation:
+        return UiCategory.reservation;
       case ScheduleCategory.etc:
         return UiCategory.etc;
     }
@@ -59,8 +59,8 @@ class CalendarCategoryMeta {
         return ScheduleCategory.appointment;
       case UiCategory.popup:
         return ScheduleCategory.popup;
-      case UiCategory.ticketing:
-        return ScheduleCategory.ticketing;
+      case UiCategory.reservation:
+        return ScheduleCategory.reservation;
       case UiCategory.etc:
         return ScheduleCategory.etc;
     }

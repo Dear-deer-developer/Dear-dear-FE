@@ -1,4 +1,4 @@
-enum ScheduleCategory { appointment, popup, ticketing, etc }
+enum ScheduleCategory { appointment, popup, reservation, etc }
 
 String enumToApi(ScheduleCategory c) {
   switch (c) {
@@ -6,8 +6,8 @@ String enumToApi(ScheduleCategory c) {
       return 'APPOINTMENT';
     case ScheduleCategory.popup:
       return 'POPUP';
-    case ScheduleCategory.ticketing:
-      return 'TICKETING';
+    case ScheduleCategory.reservation:
+      return 'RESERVATION';
     case ScheduleCategory.etc:
       return 'ETC';
   }
@@ -19,8 +19,8 @@ ScheduleCategory catFromApi(String s) {
       return ScheduleCategory.appointment;
     case 'POPUP':
       return ScheduleCategory.popup;
-    case 'TICKETING':
-      return ScheduleCategory.ticketing;
+    case 'RESERVATION':
+      return ScheduleCategory.reservation;
     default:
       return ScheduleCategory.etc;
   }
