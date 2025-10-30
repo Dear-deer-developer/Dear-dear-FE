@@ -86,7 +86,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return parts.isNotEmpty ? int.tryParse(parts.last) : null;
   }
 
-  void _openAddSheet() async {
+  Future<void> _openAddSheet() async {
     final AddEventResult? result = await showModalBottomSheet<AddEventResult>(
       context: context,
       isScrollControlled: true,
@@ -164,6 +164,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           } else {
             setState(() {});
           }
+        },
+        onAddPressed: () async {
+          Navigator.of(context).pop(); // 현재 바텀시트 닫기
+          await _openAddSheet(); // 기존 추가 로직 재사용 (저장 후 다시 바텀시트 열림)
         },
       ),
     );

@@ -12,6 +12,7 @@ class CalendarBottomSheet extends StatefulWidget {
   final List<CalendarEvent> events;
   final void Function(CalendarEvent) onDeleteEvent;
   final void Function(CalendarEvent) onEditEvent;
+  final Future<void> Function() onAddPressed;
 
   const CalendarBottomSheet({
     Key? key,
@@ -19,6 +20,7 @@ class CalendarBottomSheet extends StatefulWidget {
     required this.events,
     required this.onDeleteEvent,
     required this.onEditEvent,
+    required this.onAddPressed,
   }) : super(key: key);
 
   @override
@@ -74,7 +76,7 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                   child: Container(
                     width: 40,
                     height: 5,
-                    margin: const EdgeInsets.only(bottom: 15),
+                    margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(2),
@@ -82,14 +84,17 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                   ),
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("$formattedDate $weekDay",
                         style: FontStyles.B3_bold_15.copyWith(
                             color: AppColors.Black)),
-                    Text("D-${dDayCount >= 0 ? dDayCount : 0}",
-                        style: FontStyles.B3_bold_15.copyWith(
-                            color: AppColors.Black)),
+                    const Spacer(),
+                    Padding(
+                      padding: EdgeInsets.only(right: 1.w),
+                      child: Text("추가",
+                          style: FontStyles.S1_reg_13.copyWith(
+                              color: AppColors.Black)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 30),
@@ -132,13 +137,13 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                   },
                                   child: Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Container(
                                         width: 5.w,
-                                        height: 40.h,
+                                        height: 48.h,
                                         margin: EdgeInsets.only(
-                                            right: 10.w, top: 2.h),
+                                            right: 12.w, top: 2.h),
                                         decoration: BoxDecoration(
                                           color: event.categoryColor,
                                           borderRadius:
@@ -146,22 +151,27 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                                         ),
                                       ),
                                       Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(event.title,
-                                                style: FontStyles.B3_reg_15
-                                                    .copyWith(
-                                                        color:
-                                                            AppColors.Black)),
-                                            SizedBox(height: 4.h),
-                                            Text(event.memo,
-                                                style: FontStyles.S2_reg_12
-                                                    .copyWith(
-                                                        color:
-                                                            AppColors.Black)),
-                                          ],
+                                        child: SizedBox(
+                                          height: 48.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(event.title,
+                                                  style: FontStyles.B3_reg_15
+                                                      .copyWith(
+                                                          color:
+                                                              AppColors.Black)),
+                                              SizedBox(height: 4.h),
+                                              Text(event.memo,
+                                                  style: FontStyles.S2_reg_12
+                                                      .copyWith(
+                                                          color:
+                                                              AppColors.Black)),
+                                            ],
+                                          ),
                                         ),
                                       )
                                     ],
