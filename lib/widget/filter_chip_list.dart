@@ -18,41 +18,30 @@ class FilterChipList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 36.h,
+      height: 32.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: filters.length,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        physics: const BouncingScrollPhysics(), // ✅ iOS스럽게
+        padding: EdgeInsets.symmetric(horizontal: 24.w), // ✅ 좌우 24
         itemBuilder: (context, i) {
           final isSelected = selected == i;
           return GestureDetector(
             onTap: () => onTap(i),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.mainGreen : Colors.white,
-                borderRadius: BorderRadius.circular(18.r),
+                color: isSelected ? AppColors.Red01 : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
-                  color: isSelected ? AppColors.mainGreen : AppColors.G_02,
-                  width: 1.w,
+                  color: isSelected ? AppColors.mainRed : AppColors.G_02,
+                  width: 1.5.w,
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
               ),
               child: Text(
                 filters[i],
-                style:
-                    (isSelected ? FontStyles.S1_reg_13 : FontStyles.S1_reg_13)
-                        .copyWith(
-                  color: isSelected ? Colors.white : AppColors.G_05,
-                ),
+                style: FontStyles.B3_reg_15.copyWith(color: Colors.black),
               ),
             ),
           );
