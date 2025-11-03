@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dear_deer_demo/model/schedule.dart' show ScheduleCategory;
+import 'package:dear_deer_demo/model/calendar/schedule.dart'
+    show ScheduleCategory;
 
 /// UI에서 쓰는 카테고리(한글 라벨은 여기서 관리)
 enum UiCategory { appointment, popup, reservation, etc }

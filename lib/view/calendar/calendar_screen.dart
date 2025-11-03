@@ -1,14 +1,20 @@
-import 'package:flutter/material.dart';
+import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:get/get.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/controller/schedule_controller.dart';
-import 'package:dear_deer_demo/model/schedule.dart';
+import 'package:dear_deer_demo/controller/calendar/schedule_controller.dart';
+import 'package:dear_deer_demo/model/calendar/schedule.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_view.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_bottom_sheet.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_add_event.dart';
 import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
+import 'package:dear_deer_demo/controller/calendar/calendar_rewards_controller.dart';
+import 'package:dear_deer_demo/service/calendar/calendar_rewards_service.dart';
+import 'package:dear_deer_demo/service/api_service.dart';
+import 'package:dear_deer_demo/view/calendar/reward_arrived_dialog.dart';
+import 'package:dear_deer_demo/data/reward_assets.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -24,6 +30,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final DateTime _today = DateTime.now();
   DateTime? _selectedDate;
 
+  // BottomNav 탭 변경 구독 해제용
+  Worker? _navWorker;
+
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
@@ -33,12 +42,62 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _months = [DateTime(_currentYear, 11), DateTime(_currentYear, 12)];
     _selectedDate = _today;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      for (final m in _months) {
-        await _sc.loadMonthly(m.year, m.month);
-      }
-      await _sc.loadDaily(_selectedDate!);
-      if (mounted) setState(() {});
+    // 캘린더 탭이 선택되는 순간에만 로직 실행
+    final bnc = Get.find<BottomNavController>();
+    _navWorker = ever<int>(bnc.rxIndex, (i) {
+      if (Page.values[i] == Page.calendar) _onEnteredCalendar();
+    });
+
+    // 이미 캘린더 탭이면 최초 1회 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (bnc.currentPage == Page.calendar) _onEnteredCalendar();
+    });
+  }
+
+  @override
+  void dispose() {
+    _navWorker?.dispose();
+    super.dispose();
+  }
+
+  /// 캘린더 탭에 들어왔을 때: 데이터 로드 + 보상 팝업
+  Future<void> _onEnteredCalendar() async {
+    if (!mounted) return;
+
+    for (final m in _months) {
+      await _sc.loadMonthly(m.year, m.month);
+    }
+    await _sc.loadDaily(_selectedDate!);
+    if (mounted) setState(() {});
+
+    final api = Get.find<ApiService>();
+    final rewardsCtrl = Get.isRegistered<CalendarRewardsController>()
+        ? Get.find<CalendarRewardsController>()
+        : Get.put(
+            CalendarRewardsController(CalendarRewardsService(api)),
+            permanent: true,
+          );
+
+    await rewardsCtrl.tryEnterAndShow((reward) async {
+      if (!mounted) return;
+      if (Get.find<BottomNavController>().currentPage != Page.calendar) return;
+
+      final fallback = 'assets/images/rewards/santa_letter.png';
+      final asset = rewardAssetFor(reward.giftName) ?? fallback;
+
+      return showDialog(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: false, // 현재 탭 네비게이터에 붙여서 홈에서 뜨는 문제 방지
+        builder: (_) => RewardArrivedDialog(
+          reward: reward,
+          assetFor: (name) => rewardAssetFor(name) ?? asset,
+          onGoPressed: () {
+            Navigator.of(context).pop();
+            Get.find<BottomNavController>().goTo(Page.post);
+          },
+        ),
+      );
     });
   }
 
@@ -54,11 +113,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
       for (final s in schedules)
         CalendarEvent(
           id: 'm-${key.toIso8601String()}-${s.id}',
-          title: '',
-          memo: '',
-          category: CalendarCategoryMeta.labelFromServer(s.category),
+          title: s.title,
+          memo: s.memo,
+          category: CalendarCategoryMeta.labelFromServer(s.category) ?? '기타',
           date: s.date,
-        )
+        ),
     ];
   }
 
@@ -69,9 +128,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           id: 'd-${s.id}',
           title: s.title,
           memo: s.memo,
-          category: CalendarCategoryMeta.labelFromServer(s.category),
+          category: CalendarCategoryMeta.labelFromServer(s.category) ?? '기타',
           date: s.date,
-        )
+        ),
     ];
   }
 
@@ -96,7 +155,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       builder: (_) => AddEvent(initialDate: _selectedDate ?? _today),
     );
-
     if (result == null || !mounted) return;
 
     final draft = Schedule(
@@ -117,11 +175,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _openDailyBottomSheet(DateTime date) async {
     setState(() => _selectedDate = _dateOnly(date));
     await _sc.loadDaily(_selectedDate!);
-
     if (!mounted) return;
 
     final openDate = _selectedDate!;
-
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -157,7 +213,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           if (!mounted) return;
           final moved = _dateOnly(openDate) != newDate;
-
           if (moved) {
             Navigator.of(context).pop();
             await _openDailyBottomSheet(newDate);
@@ -166,8 +221,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           }
         },
         onAddPressed: () async {
-          Navigator.of(context).pop(); // 현재 바텀시트 닫기
-          await _openAddSheet(); // 기존 추가 로직 재사용 (저장 후 다시 바텀시트 열림)
+          Navigator.of(context).pop();
+          await _openAddSheet();
         },
       ),
     );

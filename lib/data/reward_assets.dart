@@ -53,7 +53,10 @@ final Map<String, String> rewardAssetMap = {
   'ball_4': 'assets/images/rewards/ball_4.png',
   'penguin': 'assets/images/rewards/penguin.png',
   'ginger_cookie': 'assets/images/rewards/ginger_cookie.png',
-  'santa_letter': 'assets/images/rewards/santa_letter.png', // 12월 25일 보상
+
+  // 12/25
+  'santa_letter': 'assets/images/rewards/santa_letter.png',
 };
 
-String? rewardAssetFor(String giftName) => rewardAssetMap[giftName];
+String? rewardAssetFor(String? giftName) =>
+    giftName == null ? null : rewardAssetMap[giftName];

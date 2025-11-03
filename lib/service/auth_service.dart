@@ -69,7 +69,7 @@ class AuthService extends GetxService {
         return const LoginResult(isSuccess: false, message: '토큰 없음');
       }
 
-      // 로그인 직후 한 번만 AccessToken 로그 출력
+      // ✅ 로그인 직후 한 번만 AccessToken 로그 출력
       logger.i('로그인 토큰 : $access');
 
       await _persistTokens(access, refresh);
@@ -212,7 +212,7 @@ class AuthService extends GetxService {
 
   // -------------------- 내부 유틸 --------------------
 
-  // 단일화된 복구 진입점 (main.dart에서는 더 이상 복구하지 않음)
+  // ✅ 단일화된 복구 진입점 (main.dart에서는 더 이상 복구하지 않음)
   void _restoreFromStorage() {
     final isRegistered =
         sharedPreferences.getBool(SharedPreferencesKeys.isRegistered) ?? false;
@@ -250,8 +250,8 @@ class AuthService extends GetxService {
       MemCache.put(MemCacheKey.jwtRefreshToken, refreshToken);
     }
 
-    logger.d('복구 완료 (JWT)');
-    // 자동 로그인(복구) 시에도 1회만 토큰 로그 출력
+    logger.d('✅ 복구 완료 (JWT)');
+    // ✅ 자동 로그인(복구) 시에도 1회만 토큰 로그 출력
     _logAccessOnce();
   }
 

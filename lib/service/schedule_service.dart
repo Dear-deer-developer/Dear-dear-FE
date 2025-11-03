@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:dear_deer_demo/model/schedule.dart' as sch;
+import 'package:dear_deer_demo/model/calendar/schedule.dart' as sch;
 import 'calendar/calendar_service.dart';
 
 class ScheduleService extends GetxService {

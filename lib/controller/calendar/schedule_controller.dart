@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-// ⛔️ 삭제: import 'package:collection/collection.dart';
-import 'package:dear_deer_demo/model/schedule.dart' as sch;
+import 'package:dear_deer_demo/model/calendar/schedule.dart' as sch;
 import 'package:dear_deer_demo/service/schedule_service.dart';
 
 class ScheduleController extends GetxController {

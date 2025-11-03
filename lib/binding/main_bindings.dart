@@ -18,7 +18,7 @@ import 'package:dear_deer_demo/service/auth_service.dart';
 // 일정 연동
 import 'package:dear_deer_demo/util/custom_get_connect.dart';
 import 'package:dear_deer_demo/service/schedule_service.dart'; // 어댑터
-import 'package:dear_deer_demo/controller/schedule_controller.dart';
+import 'package:dear_deer_demo/controller/calendar/schedule_controller.dart';
 import 'package:dear_deer_demo/service/calendar/calendar_api.dart';
 import 'package:dear_deer_demo/service/calendar/calendar_service.dart';
 

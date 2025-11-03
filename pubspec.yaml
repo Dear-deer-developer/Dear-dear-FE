@@ -43,10 +43,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - assets/audio/
-  - assets/images/
-  - .env
-  - assets/fonts/LeeSeoyun.ttf
+    - assets/audio/
+    - assets/images/
+    - assets/images/rewards/
+    - .env
 
   fonts:
     - family: LeeSeoyun

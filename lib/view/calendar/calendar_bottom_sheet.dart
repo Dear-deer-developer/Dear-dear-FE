@@ -111,7 +111,7 @@ class _CalendarBottomSheetState extends State<CalendarBottomSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 29.h),
                 Expanded(
                   child: sortedEvents.isEmpty
                       ? Text("등록된 일정이 없습니다.",
