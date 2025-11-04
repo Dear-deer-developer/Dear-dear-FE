@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
-import 'package:dear_deer_demo/data/font_styles.dart';
 
 class CalendarWeekdayHeader extends StatelessWidget {
-  const CalendarWeekdayHeader({super.key});
+  final TextStyle? textStyle;
+  const CalendarWeekdayHeader({Key? key, this.textStyle}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    return SizedBox(
-      width: (34.w * 7) + (5.w * 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(7, (i) {
-          return Container(
+    const labels = ['일', '월', '화', '수', '목', '금', '토'];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final w in labels)
+          SizedBox(
             width: 34.w,
-            height: 48.h,
-            margin: EdgeInsets.only(right: i != 6 ? 5.w : 0),
-            alignment: Alignment.center,
-            child: Text(
-              days[i],
-              style: FontStyles.S2_reg_12.copyWith(color: AppColors.White),
+            child: Center(
+              child: Text(
+                w,
+                style: (textStyle ?? Theme.of(context).textTheme.labelMedium)
+                    ?.copyWith(color: AppColors.White),
+              ),
             ),
-          );
-        }),
-      ),
+          ),
+      ],
     );
   }
 }

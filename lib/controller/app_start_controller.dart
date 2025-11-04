@@ -7,7 +7,7 @@ class AppStartController extends GetxController {
   final AuthService _auth = Get.find<AuthService>();
   bool _registered = false;
 
-  Worker? _userWatcher; // ✅ ever 구독 해제용
+  Worker? _userWatcher; // ever 구독 해제용
 
   @override
   void onInit() {
@@ -46,7 +46,7 @@ class AppStartController extends GetxController {
 
   @override
   void onClose() {
-    _userWatcher?.dispose(); // ✅ ever 구독 해제
+    _userWatcher?.dispose(); // ever 구독 해제
     super.onClose();
   }
 }

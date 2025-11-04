@@ -63,7 +63,7 @@ class AuthController extends GetxController {
 
       Get.offAll(() => const App(), binding: MainBindings());
 
-      logger.i('✅ 로그인 성공: $email');
+      logger.i('로그인 성공: $email');
     } catch (e, st) {
       logger.e('login 예외', error: e, stackTrace: st);
       Get.snackbar('오류', '일시적 오류가 발생했습니다.');
@@ -115,7 +115,7 @@ class AuthController extends GetxController {
       logger.i('서버 응답 본문: ${res.bodyString}');
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-        logger.i('✅ 회원가입 성공: $email');
+        logger.i('회원가입 성공: $email');
         Get.snackbar('회원가입', '완료되었습니다. 로그인해주세요!');
         // ✅ 전환 안정화
         FocusManager.instance.primaryFocus?.unfocus();

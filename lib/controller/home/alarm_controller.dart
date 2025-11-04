@@ -65,7 +65,7 @@ class AlarmController extends GetxController {
   // 서버에 내가 만든 알람 존재 여부 (POST 성공 시 true, DELETE 시 false)
   bool _hasServerAlarm = false;
 
-  // ✅ 서버 상태 확인 중(뷰에서 로딩 보여줄 때 사용)
+  // 서버 상태 확인 중(뷰에서 로딩 보여줄 때 사용)
   final RxBool isChecking = false.obs;
 
   // ---------------- 매핑: 제목 -> 서버 musicId ----------------
@@ -103,14 +103,14 @@ class AlarmController extends GetxController {
     } catch (_) {/* 네트워크 실패 시 로컬 매핑 사용 */}
   }
 
-  // ✅ 탭 진입 시 서버 알람 동기화
+  // 탭 진입 시 서버 알람 동기화
   @override
   void onReady() {
     super.onReady();
     _syncFromServer(); // 진입 시 1회 확인
   }
 
-  // ✅ 서버의 내 알람을 조회하여 화면 상태를 초기화
+  // 서버의 내 알람을 조회하여 화면 상태를 초기화
   Future<void> _syncFromServer() async {
     isChecking.value = true;
     try {
@@ -183,7 +183,7 @@ class AlarmController extends GetxController {
 
   // ---------------- 파생 값 ----------------
   String get soundLabel => selectedTrack.value?.title ?? '없음';
-  // ✅ 버튼 활성: 날짜 + 음악 선택이 모두 있어야 함(스웨거에서 musicId 필수이므로)
+  // 버튼 활성: 날짜 + 음악 선택이 모두 있어야 함(스웨거에서 musicId 필수이므로)
   bool get canConfirm => selectedDay.value != null && selectedMusicId != null;
 
   String get ampmLabel => isAm.value ? '오전' : '오후';
@@ -257,8 +257,8 @@ class AlarmController extends GetxController {
     try {
       await _api.post('/alarms', payload);
       _hasServerAlarm = true;
-      isConfirmed.value = true; // ✅ UI를 요약 화면으로 전환
-      return true; // ✅ 성공
+      isConfirmed.value = true; // UI를 요약 화면으로 전환
+      return true; // 성공
     } catch (e) {
       // 실패 시 여기서는 false만 반환하고, 뷰(onTap)에서 logger로 표시
       // Get.snackbar('알람 예약 실패', '네트워크 문제로 예약을 저장하지 못했어요.');

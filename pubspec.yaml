@@ -30,7 +30,8 @@ dependencies:
   timezone: ^0.10.1
   # firebase_messaging: ^16.0.2
   dio: ^5.9.0
-  share_plus: ^12.0.0
+  share_plus: ^12.0.1
+  uuid: ^4.5.1
   
 
 dev_dependencies:
@@ -42,36 +43,40 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - assets/audio/
-  - assets/images/
-  - .env
-  - assets/fonts/LeeSeoyun.ttf
+    - assets/audio/
+    - assets/images/
+    - assets/images/rewards/
+    - .env
 
-fonts:
-  - family: LeeSeoyun
-    fonts:
-      - asset: assets/fonts/LeeSeoyun.ttf
+  fonts:
+    - family: LeeSeoyun
+      fonts:
+        - asset: assets/fonts/LeeSeoyun.ttf
 
-  - family: KakaoSmallSansBold
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Bold.ttf
+    - family: KakaoSmallSansBold
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Bold.ttf
 
-  - family: KakaoSmallSansRegular
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Regular.ttf
+    - family: KakaoSmallSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Regular.ttf
 
-  - family: KakaoSmallSansLight
-    fonts:
-      - asset: assets/fonts/KakaoSmallSans-Light.ttf
+    - family: KakaoSmallSansLight
+      fonts:
+        - asset: assets/fonts/KakaoSmallSans-Light.ttf
 
-  - family: KakaoBigSansBold
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-Bold.ttf
+    - family: KakaoBigSansBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Bold.ttf
 
-  - family: KakaoBigSansExtraBold
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
+    - family: KakaoBigSansExtraBold
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-ExtraBold.ttf
 
-  - family: KakaoBigSansRegular
-    fonts:
-      - asset: assets/fonts/KakaoBigSans-Regular.ttf
+    - family: KakaoBigSansRegular
+      fonts:
+        - asset: assets/fonts/KakaoBigSans-Regular.ttf
+
+    - family: KCCGanpan
+      fonts:
+        - asset: assets/fonts/KCC-Ganpan.ttf
