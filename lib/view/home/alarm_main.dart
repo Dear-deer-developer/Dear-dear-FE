@@ -24,8 +24,8 @@ class AlarmMain extends GetView<AlarmController> {
             // ▼ 선택 화면 ↔ 확인(요약) 화면 토글 (기존 레이아웃을 섹션으로 분리) // ✅
             Expanded(
               child: Obx(() => controller.isConfirmed.value
-                  ? _confirmedSection() // ✅ 확인 화면(요약)
-                  : _selectSection()), // ✅ 기존 선택 화면
+                  ? _confirmedSection() // 확인 화면(요약)
+                  : _selectSection()), // 기존 선택 화면
             ),
           ],
         ),

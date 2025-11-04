@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/controller/admin/admin_contents_controller.dart'; // ✅ controller import 추가
+import 'package:dear_deer_demo/controller/admin/admin_contents_controller.dart'; // controller import 추가
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';

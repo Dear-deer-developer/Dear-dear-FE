@@ -27,7 +27,7 @@ class LogoutDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: SizedBox(
         width: 312.w,
-        height: 224.h, // ✅ 고정 사이즈
+        height: 224.h, // 고정 사이즈
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
           child: Column(
@@ -56,7 +56,7 @@ class LogoutDialog extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: () => Get.back(result: false),
                         child: Center(
-                          // ✅ 중앙 정렬로 변경
+                          // 중앙 정렬로 변경
                           child: Text(
                             '뒤로',
                             style: FontStyles.B2_reg_16.copyWith(
@@ -72,7 +72,7 @@ class LogoutDialog extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: () => Get.back(result: true),
                         child: Center(
-                          // ✅ 중앙 정렬로 변경
+                          // 중앙 정렬로 변경
                           child: Text(
                             '로그아웃',
                             style: FontStyles.B2_reg_16,

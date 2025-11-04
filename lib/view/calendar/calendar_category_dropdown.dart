@@ -2,49 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_category_meta.dart';
+
+/// 작은 이중 화살표 (ᐱᐯ 느낌)
+class TinyChevron extends StatelessWidget {
+  const TinyChevron({super.key, this.color});
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? Theme.of(context).iconTheme.color;
+    return const SizedBox(
+      width: 16,
+      height: 16,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(top: 0, child: Icon(Icons.keyboard_arrow_up_rounded)),
+          Positioned(bottom: 0, child: Icon(Icons.keyboard_arrow_down_rounded)),
+        ],
+      ),
+    );
+  }
+}
 
 class CategoryDropdown extends StatefulWidget {
-  final String selectedCategory;
+  final String selectedCategory; // 라벨(String)
   final ValueChanged<String> onCategorySelected;
 
   const CategoryDropdown({
-    super.key,
+    Key? key,
     required this.selectedCategory,
     required this.onCategorySelected,
-  });
-
-  static const List<String> categories = [
-    "약속",
-    "팝업",
-    "티켓팅&예약",
-    "기타",
-  ];
-
-  static final Map<String, Color> categoryColors = {
-    "약속": Colors.red,
-    "팝업": Colors.green,
-    "티켓팅&예약": Colors.yellow,
-    "기타": Colors.black,
-  };
+  }) : super(key: key);
 
   @override
   State<CategoryDropdown> createState() => _CategoryDropdownState();
 }
 
 class _CategoryDropdownState extends State<CategoryDropdown> {
-  // 원하는 드롭다운 사이즈(px) 지정
   final double popupWidth = 184.w;
-  final double popupHeight = 170.h;
 
   @override
   Widget build(BuildContext context) {
+    final labels = CalendarCategoryMeta.labels;
+
     return Theme(
       data: Theme.of(context).copyWith(
         popupMenuTheme: PopupMenuThemeData(
           color: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AppColors.G_03, width: 1),
+            side: BorderSide(color: AppColors.G_03, width: 1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
@@ -52,38 +61,37 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       child: PopupMenuButton<String>(
         onSelected: widget.onCategorySelected,
         constraints: BoxConstraints(
-          minWidth: popupWidth.w,
-          maxWidth: popupWidth.w,
-          // maxHeight는 생략(항목 수로 조절)해도 충분히 원하는 오버레이 영역 확보됨
+          minWidth: popupWidth,
+          maxWidth: popupWidth,
         ),
         itemBuilder: (context) {
-          final double itemHeight = 40.h;
-          const double dividerHeight = 1.0;
           final items = <PopupMenuEntry<String>>[];
-          for (int i = 0; i < CategoryDropdown.categories.length; i++) {
-            final cat = CategoryDropdown.categories[i];
+          for (int i = 0; i < labels.length; i++) {
+            final label = labels[i];
+
             items.add(
               PopupMenuItem<String>(
-                value: cat,
-                height: itemHeight,
+                value: label,
+                height: 40.h,
                 padding: EdgeInsets.zero,
                 child: SizedBox(
-                  width: 184.w,
-                  height: itemHeight,
+                  width: popupWidth,
+                  height: 40.h,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 22.w),
-                        child: Text(cat, style: FontStyles.L3_reg_16),
+                        child: Text(label, style: FontStyles.B4_reg_14),
                       ),
+                      const Spacer(),
                       Padding(
-                        padding: EdgeInsets.only(right: 5.w),
+                        padding: EdgeInsets.only(right: 25.w),
                         child: Container(
-                          width: 8.w,
-                          height: 8.w,
+                          width: 7.7.w,
+                          height: 7.7.w,
                           decoration: BoxDecoration(
-                            color: CategoryDropdown.categoryColors[cat],
+                            color: CalendarCategoryMeta.colorByLabel(label),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -93,18 +101,16 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                 ),
               ),
             );
-            if (i < CategoryDropdown.categories.length - 1) {
+
+            if (i < labels.length - 1) {
               items.add(
                 PopupMenuItem<String>(
                   enabled: false,
-                  height: dividerHeight,
+                  height: 1,
                   padding: EdgeInsets.zero,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Container(
-                      height: dividerHeight,
-                      color: AppColors.G_03,
-                    ),
+                    child: Container(height: 1, color: AppColors.G_03),
                   ),
                 ),
               );
@@ -112,19 +118,24 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
           }
           return items;
         },
+
+        // 필드에 보여줄 오른쪽(선택된 값 + 점 + 이중 화살표)
         child: Row(
+          // mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 8.w,
               height: 8.w,
               decoration: BoxDecoration(
-                color: CategoryDropdown.categoryColors[widget.selectedCategory],
+                color:
+                    CalendarCategoryMeta.colorByLabel(widget.selectedCategory),
                 shape: BoxShape.circle,
               ),
             ),
             SizedBox(width: 8.w),
             Text(widget.selectedCategory, style: FontStyles.B3_bold_15),
-            const Icon(Icons.arrow_drop_down, color: AppColors.G_05),
+            SizedBox(width: 4.w),
+            Icon(Icons.unfold_more_rounded, size: 20, color: AppColors.Black),
           ],
         ),
       ),
