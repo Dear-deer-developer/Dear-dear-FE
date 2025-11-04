@@ -1,6 +1,6 @@
 // lib/binding/main_bindings.dart
 import 'package:dear_deer_demo/controller/login/agreement_controller.dart';
-import 'package:dear_deer_demo/controller/login/signup_email_controller.dart';
+import 'package:dear_deer_demo/controller/login/sign_up_email_controller.dart';
 import 'package:get/get.dart';
 
 // 기존

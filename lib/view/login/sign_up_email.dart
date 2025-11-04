@@ -1,4 +1,4 @@
-import 'package:dear_deer_demo/controller/login/signup_email_controller.dart';
+import 'package:dear_deer_demo/controller/login/sign_up_email_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
@@ -11,16 +11,16 @@ class SignUpEmail extends GetView<SignupEmailController> {
 
   @override
   Widget build(BuildContext context) {
-    // 라우팅에서 바인딩하면 생략 가능
+    // 바인딩에서 주입하고 있으면 생략 가능
     if (!Get.isRegistered<SignupEmailController>()) {
-      Get.put(SignupEmailController());
+      Get.put(SignupEmailController(), permanent: true);
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
+          padding: EdgeInsets.fromLTRB(8.w, 8.h, 20.w, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -29,8 +29,11 @@ class SignUpEmail extends GetView<SignupEmailController> {
                 children: [
                   GestureDetector(
                     onTap: Get.back,
-                    child: Image.asset(ImagePath.backIcon,
-                        width: 48.w, height: 48.h),
+                    child: Image.asset(
+                      ImagePath.backIcon,
+                      width: 48.w,
+                      height: 48.h,
+                    ),
                   ),
                   Expanded(
                     child: Center(
@@ -50,18 +53,58 @@ class SignUpEmail extends GetView<SignupEmailController> {
               Text('이메일을 입력해 주세요', style: FontStyles.B3_bold_15),
               SizedBox(height: 20.h),
 
-              // 입력 + 중복확인 버튼
+              // ================== (1) 이메일 + 중복 확인 ==================
               Row(
                 children: [
                   Expanded(child: _emailField()),
                   SizedBox(width: 8.w),
                   Obx(() {
-                    final enabled = controller.isValidEmail.value &&
-                        !controller.isChecking.value;
+                    final checking =
+                        controller.emailState.value == EmailCheckState.checking;
+                    final enabled = controller.isValidEmail.value && !checking;
                     return _pillButton(
-                      label: controller.isChecking.value ? '확인중...' : '중복 확인',
+                      label: checking ? '확인중...' : '중복 확인',
                       enabled: enabled,
-                      onTap: enabled ? controller.onCheckPressed : null,
+                      onTap: enabled ? controller.onCheckDuplicate : null,
+                    );
+                  }),
+                ],
+              ),
+
+              // 사용 불가 문구
+              Obx(() {
+                final showErr = controller.emailState.value ==
+                        EmailCheckState.unavailable &&
+                    controller.emailError.isNotEmpty;
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: showErr
+                      ? Padding(
+                          key: const ValueKey('err'),
+                          padding: EdgeInsets.only(top: 8.h, left: 4.w),
+                          child: Text(
+                            controller.emailError.value,
+                            style: FontStyles.S1_reg_13.copyWith(
+                                color: AppColors.mainRed),
+                          ),
+                        )
+                      : SizedBox(height: 8.h, key: const ValueKey('noerr')),
+                );
+              }),
+
+              SizedBox(height: 16.h),
+
+              // ================== (2) 인증번호 + 발송 ==================
+              Row(
+                children: [
+                  Expanded(child: _codeField()),
+                  SizedBox(width: 8.w),
+                  Obx(() {
+                    final enabled = controller.canSend; // 이메일 사용 가능일 때만 true
+                    return _pillButton(
+                      label: controller.sending.value ? '발송중...' : '발송',
+                      enabled: enabled && !controller.sending.value,
+                      onTap: enabled ? controller.onSendCode : null,
                     );
                   }),
                 ],
@@ -69,13 +112,15 @@ class SignUpEmail extends GetView<SignupEmailController> {
 
               const Spacer(),
 
-              // 다음 버튼
+              // ================== (3) 하단 확인 버튼 ==================
               Obx(() {
-                final active = controller.canNext;
+                final code = controller.code.value; // ✅ 직접 읽기
+                final sent = controller.codeSent.value; // ✅ 직접 읽기
+                final verifying = controller.verifying.value; // ✅ 직접 읽기
+                final active = code.trim().length >= 6 && sent && !verifying;
+
                 return GestureDetector(
-                  onTap:
-                      active ? () => Get.toNamed('/signup/email-verify') : null,
-                  behavior: HitTestBehavior.opaque,
+                  onTap: active ? controller.onConfirmCode : null,
                   child: Container(
                     height: 52.h,
                     alignment: Alignment.center,
@@ -85,7 +130,7 @@ class SignUpEmail extends GetView<SignupEmailController> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Text(
-                      '다음',
+                      verifying ? '확인 중...' : '확인',
                       style: FontStyles.Button_bold_17.copyWith(
                         color: active ? Colors.white : AppColors.G_02,
                       ),
@@ -100,38 +145,75 @@ class SignUpEmail extends GetView<SignupEmailController> {
     );
   }
 
+  // --- 이메일 입력 필드 (상태에 따른 테두리 색) ---
   Widget _emailField() {
+    return Obx(() {
+      Color borderColor = AppColors.G_02;
+      if (controller.emailState.value == EmailCheckState.available) {
+        borderColor = AppColors.mainGreen; // 사용 가능
+      } else if (controller.emailState.value == EmailCheckState.unavailable) {
+        borderColor = AppColors.mainRed; // 사용 불가
+      }
+      return Container(
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(color: borderColor, width: 1.w),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            )
+          ],
+        ),
+        child: TextField(
+          controller: controller.emailCtrl,
+          onChanged: controller.onEmailChanged,
+          keyboardType: TextInputType.emailAddress,
+          textAlignVertical: TextAlignVertical.center,
+          style: FontStyles.B3_bold_15,
+          cursorColor: AppColors.mainGreen,
+          decoration: InputDecoration(
+            hintText: 'example@dear.com',
+            hintStyle: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
+            border: InputBorder.none,
+            contentPadding:
+                EdgeInsets.only(left: 16.w, right: 12.w, bottom: 2.h),
+          ),
+        ),
+      );
+    });
+  }
+
+  // --- 인증번호 입력 필드 ---
+  Widget _codeField() {
     return Container(
       height: 48.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppColors.G_02, width: 1.w),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          )
-        ],
       ),
       child: TextField(
-        controller: controller.emailCtrl,
-        onChanged: controller.onEmailChanged,
-        keyboardType: TextInputType.emailAddress,
+        controller: controller.codeCtrl,
+        keyboardType: TextInputType.number,
         textAlignVertical: TextAlignVertical.center,
         style: FontStyles.B3_bold_15,
         cursorColor: AppColors.mainGreen,
         decoration: InputDecoration(
-          hintText: 'example@dear.com',
+          hintText: '인증번호',
           hintStyle: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
           border: InputBorder.none,
           contentPadding: EdgeInsets.only(left: 16.w, right: 12.w, bottom: 2.h),
         ),
+        onChanged: controller.onCodeChanged,
       ),
     );
   }
 
+  // --- 캡슐 버튼(중복확인/발송 공용) ---
   Widget _pillButton({
     required String label,
     required bool enabled,

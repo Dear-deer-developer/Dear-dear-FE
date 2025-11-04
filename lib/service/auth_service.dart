@@ -115,7 +115,31 @@ class AuthService extends GetxService {
   // MARK: 이메일 인증
   final isEmailVerified = false.obs; // 가입용 이메일 인증 완료 플래그
 
-  // 1) 이메일 인증코드 전송
+  // 이메일 중복 확인 (코드 발송 아님)
+  Future<bool> isEmailAvailable(String email) async {
+    try {
+      final api = Get.find<ApiService>();
+
+      // ✅ GET + query 로 호출 (스웨거 스펙)
+      final res = await api.get(
+        '/auth/native/check-email',
+        query: {'email': email},
+      );
+
+      logger.i(
+          '[이메일 중복확인] email=$email, status=${res.statusCode}, body=${res.bodyString}');
+
+      if (res.statusCode == 200) return true; // 사용 가능
+      if (res.statusCode == 409) return false; // 이미 사용 중
+      logger.w('check-email 예외 응답: ${res.statusCode} ${res.bodyString}');
+      return false;
+    } catch (e, st) {
+      logger.e('isEmailAvailable 예외', error: e, stackTrace: st);
+      return false;
+    }
+  }
+
+  // 이메일 인증코드 전송
   Future<bool> sendSignupEmailCode(String email) async {
     try {
       final api = Get.find<ApiService>();
