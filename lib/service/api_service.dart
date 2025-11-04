@@ -55,6 +55,19 @@ class ApiService extends CustomGetConnect implements GetxService {
     });
   }
 
+  // MARK: - 이메일 인증코드 전송
+  Future<Response> postSignupEmailSend(String email) {
+    return postJson('/auth/native/register-email/send', {'email': email});
+  }
+
+  // 이메일 인증코드 확인
+  Future<Response> postSignupEmailVerify(String email, String code) {
+    return postJson('/auth/native/register-email/verify', {
+      'email': email,
+      'code': code,
+    });
+  }
+
   // User
   /// 사용자 닉네임 생성/수정
   Future<DeardeerUser?> setNickname(String nickname) async {

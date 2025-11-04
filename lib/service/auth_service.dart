@@ -112,6 +112,145 @@ class AuthService extends GetxService {
     }
   }
 
+  // MARK: 이메일 인증
+  final isEmailVerified = false.obs; // 가입용 이메일 인증 완료 플래그
+
+  // 1) 이메일 인증코드 전송
+  Future<bool> sendSignupEmailCode(String email) async {
+    try {
+      final api = Get.find<ApiService>();
+      final res = await api.postJson('/auth/native/register/auth-code', {
+        'email': email,
+      });
+
+      logger.i('[이메일 인증코드 요청] email=$email, status=${res.statusCode}');
+
+      if (res.statusCode == 200) {
+        logger.i('✅ 인증 코드 발송 성공');
+        return true;
+      }
+
+      if (res.statusCode == 409) {
+        logger.w('⚠️ 중복된 이메일 - 이미 가입된 이메일입니다.');
+      } else if (res.statusCode == 400) {
+        logger.w('⚠️ 잘못된 이메일 형식입니다.');
+      } else {
+        logger.e('❌ 인증코드 요청 실패: ${res.statusCode} ${res.bodyString}');
+      }
+      return false;
+    } catch (e, st) {
+      logger.e('❌ sendSignupEmailCode 예외', error: e, stackTrace: st);
+      return false;
+    }
+  }
+
+  // 2) 이메일 인증코드 확인
+  Future<bool> verifySignupEmailCode(String email, String code) async {
+    try {
+      final api = Get.find<ApiService>();
+      final res = await api.postJson('/auth/native/register/verify-code', {
+        'email': email,
+        'code': code,
+      });
+
+      logger.i(
+          '[이메일 인증코드 검증] email=$email, code=$code, status=${res.statusCode}');
+
+      if (res.statusCode == 200) {
+        logger.i('✅ 이메일 인증 성공');
+        isEmailVerified(true);
+        return true;
+      }
+
+      if (res.statusCode == 400) {
+        logger.w('⚠️ 인증 실패 - 코드 불일치 또는 만료됨');
+      } else {
+        logger.e('❌ 인증코드 검증 실패: ${res.statusCode} ${res.bodyString}');
+      }
+      return false;
+    } catch (e, st) {
+      logger.e('❌ verifySignupEmailCode 예외', error: e, stackTrace: st);
+      return false;
+    }
+  }
+
+  // 3) 최종 회원가입 (스웨거: "사전에 반드시 '회원가입용 이메일 인증' API를 호출해야 함")
+  Future<LoginResult> register({
+    required String email,
+    required String password,
+    required String nickname,
+    required bool isAgreed,
+  }) async {
+    if (!isEmailVerified.value) {
+      logger.w('⚠️ 이메일 인증 미완료 상태에서 회원가입 시도됨');
+      return const LoginResult(
+        isSuccess: false,
+        message: '이메일 인증을 먼저 완료해주세요.',
+      );
+    }
+
+    try {
+      final api = Get.find<ApiService>();
+      final res = await api.postJson('/auth/native/register', {
+        'email': email,
+        'password': password,
+        'nickname': nickname,
+        'isAgreed': isAgreed,
+      });
+
+      logger.i('[회원가입 요청] email=$email, status=${res.statusCode}');
+
+      if (res.statusCode == 201) {
+        logger.i('✅ 회원가입 성공');
+
+        // 토큰이 함께 오는 경우 처리
+        if ((res.bodyString ?? '').isNotEmpty) {
+          try {
+            final body = jsonDecode(res.bodyString!) as Map<String, dynamic>;
+            final access = body['accessToken'] as String?;
+            final refresh = body['refreshToken'] as String?;
+
+            if (access != null && access.isNotEmpty) {
+              await _persistTokens(access, refresh);
+              _logAccessOnce();
+              await fetchMe();
+              logger.i('🔑 토큰 저장 및 사용자 정보 갱신 완료');
+              return const LoginResult(
+                isSuccess: true,
+                message: '회원가입 및 로그인 완료',
+              );
+            }
+          } catch (e) {
+            logger.w('회원가입 응답 파싱 중 예외 발생 (body가 비었을 가능성)');
+          }
+        }
+        return const LoginResult(isSuccess: true, message: '회원가입 완료');
+      }
+
+      if (res.statusCode == 401) {
+        logger.w('⚠️ 이메일 인증이 완료되지 않음');
+        return const LoginResult(
+          isSuccess: false,
+          message: '이메일 인증이 완료되지 않았습니다.',
+        );
+      }
+
+      if (res.statusCode == 409) {
+        logger.w('⚠️ 중복된 이메일/닉네임');
+        return const LoginResult(
+          isSuccess: false,
+          message: '이미 사용 중인 이메일/닉네임입니다.',
+        );
+      }
+
+      logger.e('❌ 회원가입 실패 - status:${res.statusCode}, body:${res.bodyString}');
+      return const LoginResult(isSuccess: false, message: '회원가입 실패');
+    } catch (e, st) {
+      logger.e('❌ register 예외', error: e, stackTrace: st);
+      return const LoginResult(isSuccess: false, message: '네트워크 오류');
+    }
+  }
+
   // 내 정보 재조회: GET /auth/me
   Future<bool> fetchMe() async {
     try {
