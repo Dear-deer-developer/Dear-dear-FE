@@ -198,7 +198,7 @@ class JwtSignUp extends GetView<AuthController> {
           text: isLoading ? '처리중...' : '확인하기',
           isActive: isActive && !isLoading,
           isPressed: isPressed,
-          onTap: isActive ? controller.register : null,
+          // onTap: isActive ? controller.register : null,
         );
       }),
     );

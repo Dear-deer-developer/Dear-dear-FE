@@ -33,6 +33,9 @@ class ApiService extends CustomGetConnect implements GetxService {
       const noAuthPaths = {
         '/auth/native/login',
         '/auth/native/refresh',
+        '/auth/native/register',
+        '/auth/native/register-email/send',
+        '/auth/native/register-email/verify',
       };
 
       // 3) Authorization 헤더 (필요할 때만)
@@ -52,6 +55,19 @@ class ApiService extends CustomGetConnect implements GetxService {
     httpClient.addResponseModifier<dynamic>((request, response) {
       logger.t('⬅️ [${response.statusCode}] ${request.method} ${request.url}');
       return response;
+    });
+  }
+
+  // MARK: - 이메일 인증코드 전송
+  Future<Response> postSignupEmailSend(String email) {
+    return postJson('/auth/native/register-email/send', {'email': email});
+  }
+
+  // 이메일 인증코드 확인
+  Future<Response> postSignupEmailVerify(String email, String code) {
+    return postJson('/auth/native/register-email/verify', {
+      'email': email,
+      'code': code,
     });
   }
 

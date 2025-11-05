@@ -3,6 +3,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/login/jwt_sign_up.dart';
+import 'package:dear_deer_demo/view/login/sign_up_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -282,7 +283,8 @@ class LoginMain extends GetView<AuthController> {
           }),
           _link('회원가입', () {
             TODO:
-            Get.to(() => JwtSignUp());
+            // Get.to(() => JwtSignUp());
+            Get.to(() => SignUpAgreement());
           }),
         ],
       ),

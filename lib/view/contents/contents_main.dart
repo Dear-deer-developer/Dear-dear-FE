@@ -14,46 +14,41 @@ class ContentsMain extends GetView<ContentsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _body(),
-    );
-  }
+      backgroundColor: Colors.transparent,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 8.h),
+              Center(child: Text('콘텐츠', style: FontStyles.B1_bold_20)),
+              SizedBox(height: 12.h),
 
-  Widget _body() {
-    return SafeArea(
-      top: true,
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(top: 10.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text(
-                '콘텐츠',
-                style: FontStyles.H2_bold_17,
-              ),
-            ),
+              // 상단 3분류 탭: Obx 내부에서 Rx 직접 참조
+              Obx(() => MainCategoryTab(
+                    currentIndex:
+                        controller.mainCategory.value.index, // ✅ Rx 사용
+                    onTap: controller.selectMainTab,
+                  )),
+              SizedBox(height: 12.h),
 
-            // 상단 3분류 탭
-            Obx(
-              () => MainCategoryTab(
-                currentIndex: controller.mainCategory.value.index,
-                onTap: controller.selectMainTab,
-              ),
-            ),
-            SizedBox(height: 12.h),
+              // 중간 필터 칩: Obx 내부에서 Rx 직접 참조
+              Obx(() => FilterChipList(
+                    filters: controller.filters, // ✅ getter지만 내부에서 Rx를 씀
+                    selected: controller.filterIndex.value, // ✅ Rx 사용
+                    onTap: controller.selectFilter,
+                  )),
+              SizedBox(height: 12.h),
 
-            // 중간 필터 칩
-            Obx(() => FilterChipList(
-                  filters: controller.filters,
-                  selected: controller.filterIndex.value,
-                  onTap: controller.selectFilter,
-                )),
-            SizedBox(height: 12.h),
-
-            // 리스트
-            Expanded(child: _ContentsList(controller: controller)),
-          ],
+              // 리스트
+              Expanded(child: _ContentsList(controller: controller)),
+            ],
+          ),
         ),
       ),
     );
@@ -67,7 +62,7 @@ class _ContentsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final count = controller.items.length;
+      final count = controller.items.length; // ✅ RxList 길이 직접 참조
       if (count == 0) {
         return Center(child: Text('콘텐츠가 없습니다', style: FontStyles.B3_reg_15));
       }
@@ -79,7 +74,9 @@ class _ContentsList extends StatelessWidget {
           padding: EdgeInsets.only(bottom: 24.h),
           itemCount: count,
           separatorBuilder: (_, __) => SizedBox(height: 12.h),
-          itemBuilder: (context, i) => ContentCard(item: controller.items[i]),
+          itemBuilder: (context, i) => ContentCard(
+            item: controller.items[i], // ✅ RxList 원소 직접 참조
+          ),
         ),
       );
     });
