@@ -219,10 +219,18 @@ class AuthService extends GetxService {
         'email': email,
         'password': password,
         'nickname': nickname,
+        //  'agreeMarketing': agreeMarketing ?? false,
         'isAgreed': isAgreed,
       });
 
       logger.i('[회원가입 요청] email=$email, status=${res.statusCode}');
+
+      logger.i('[회원가입 payload] ${jsonEncode({
+            'email': email,
+            'password': '***',
+            'nickname': nickname,
+            'isAgreed': isAgreed,
+          })}');
 
       if (res.statusCode == 201) {
         logger.i('✅ 회원가입 성공');

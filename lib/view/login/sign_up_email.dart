@@ -130,7 +130,7 @@ class SignUpEmail extends GetView<SignupEmailController> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Text(
-                      verifying ? '확인 중...' : '확인',
+                      '확인',
                       style: FontStyles.Button_bold_17.copyWith(
                         color: active ? Colors.white : AppColors.G_02,
                       ),

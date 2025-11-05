@@ -96,7 +96,13 @@ class SignUpAgreement extends GetView<AgreementController> {
                 child: _nextButton(
                   active: controller.canNext,
                   onTap: controller.canNext
-                      ? () => Get.to(() => const SignUpEmail())
+                      ? () {
+                          final isAgreed = controller.reqAgree.value;
+                          Get.to(
+                            () => const SignUpEmail(),
+                            arguments: {'isAgreed': isAgreed},
+                          );
+                        }
                       : null,
                 ),
               )),

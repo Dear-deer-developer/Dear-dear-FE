@@ -20,6 +20,16 @@ class SignupEmailController extends GetxController {
 
   // 추가 ⬇️
   final code = ''.obs; // 인증코드 반응형 상태
+  final agreeRequired = false.obs;
+
+  final isAgreed = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    isAgreed.value = (args?['isAgreed'] as bool?) ?? false;
+  }
 
   @override
   void onClose() {
@@ -97,7 +107,10 @@ class SignupEmailController extends GetxController {
       final ok =
           await Get.find<AuthService>().verifySignupEmailCode(email, codeInput);
       if (ok) {
-        Get.to(() => SignUpPassword(), arguments: {'email': email});
+        Get.to(() => SignUpPassword(), arguments: {
+          'email': email,
+          'isAgreed': isAgreed.value,
+        });
       }
     } catch (e, st) {
       logger.e('onConfirmCode 예외', error: e, stackTrace: st);

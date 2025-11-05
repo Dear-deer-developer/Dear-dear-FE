@@ -33,6 +33,9 @@ class ApiService extends CustomGetConnect implements GetxService {
       const noAuthPaths = {
         '/auth/native/login',
         '/auth/native/refresh',
+        '/auth/native/register',
+        '/auth/native/register-email/send',
+        '/auth/native/register-email/verify',
       };
 
       // 3) Authorization 헤더 (필요할 때만)

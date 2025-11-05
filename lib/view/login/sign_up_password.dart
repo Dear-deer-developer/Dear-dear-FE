@@ -2,6 +2,7 @@ import 'package:dear_deer_demo/controller/login/sign_up_password_controller.dart
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:dear_deer_demo/view/login/sign_up_nickname.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +12,7 @@ class SignUpPassword extends GetView<SignupPasswordController> {
   SignUpPassword({super.key});
 
   final String email = (Get.arguments?['email'] as String?) ?? '';
+  final bool isAgreed = (Get.arguments?['isAgreed'] as bool?) ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +124,7 @@ class SignUpPassword extends GetView<SignupPasswordController> {
                           Get.to(() => SignUpNickname(), arguments: {
                             'email': email,
                             'password': controller.pw.value,
+                            'isAgreed': isAgreed,
                           });
                         }
                       : null,
