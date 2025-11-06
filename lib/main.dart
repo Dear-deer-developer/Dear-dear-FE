@@ -55,15 +55,6 @@ Future<void> main() async {
   // 디버깅 체크 로그
   logger.d('Debug check');
 
-  // 이서연체 로드
-  Future<void> loadLeeSeoyunFont() async {
-    final loader = FontLoader('LeeSeoyun')
-      ..addFont(rootBundle.load('assets/fonts/LeeSeoyun.ttf'));
-    await loader.load();
-  }
-
-  await loadLeeSeoyunFont();
-
   // .env 파일 로드
   await dotenv.load();
   logger.d('환경 변수 로드 완료');

@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LetterSentService {
-  /// ✅ 내가 보낸 편지 조회
+  /// 내가 보낸 편지 조회
   static Future<List<dynamic>?> fetchSentLetters() async {
     try {
       final baseUrl = dotenv.env['BASE_URL'] ?? 'http://dearxmas.com:3000';

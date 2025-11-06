@@ -1,8 +1,8 @@
-import 'package:dear_deer_demo/view/admin/contents_view.dart';
 import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/calendar.dart';
+import 'package:dear_deer_demo/view/contents/contents_main.dart';
 import 'package:dear_deer_demo/view/home/home.dart';
 import 'package:dear_deer_demo/view/letter/post.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,7 @@ class App extends GetView<BottomNavController> {
         const Home(),
         PostMain(),
         CalendarMain(),
-        // Contents(),
+        ContentsMain(),
       ],
     );
   }

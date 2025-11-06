@@ -1,5 +1,4 @@
 import 'package:dear_deer_demo/controller/post/temporay_storage_controller.dart';
-
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ class TemporaryStorage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _amount(),
-                _list(),
+                Expanded(child: _list()), // ✅ 스크롤 지원
               ],
             )),
       ),
@@ -39,6 +38,7 @@ class TemporaryStorage extends StatelessWidget {
         ),
       );
 
+  /// 상단: 총 개수 + 삭제/확인 버튼
   Widget _amount() => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -80,6 +80,7 @@ class TemporaryStorage extends StatelessWidget {
         ],
       );
 
+  /// 편지 리스트
   Widget _list() => Padding(
         padding: const EdgeInsets.only(top: 24),
         child: Obx(() {
@@ -87,32 +88,50 @@ class TemporaryStorage extends StatelessWidget {
             return const Center(child: Text("임시 저장된 편지가 없습니다."));
           }
 
-          return Column(
-            children: controller.items.map((item) {
+          return ListView.separated(
+            itemCount: controller.items.length,
+            separatorBuilder: (_, __) =>
+                const Divider(color: AppColors.G_02, thickness: 1),
+            itemBuilder: (context, index) {
+              final item = controller.items[index];
               final id = item['id'] as int?;
-              final isSelected = controller.selectedItems.contains(id);
               final content = item['content'] ?? '';
-              final status = item['status'] ?? '';
+              final displayTitle = item['displayTitle'] ?? '';
+              final formattedTime = item['formattedTime'] ?? '';
 
-              return Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("To. 사서함번호 -", style: FontStyles.B4_bold_14),
-                            Text(content, style: FontStyles.S3_reg_10),
-                            Text("상태: $status", style: FontStyles.S3_reg_10),
-                          ],
+              // ✅ 여기서 각 item을 Obx로 감싼다.
+              return Obx(() {
+                final isSelected = controller.selectedItems.contains(id);
+
+                return GestureDetector(
+                  onTap: controller.isDeleteMode.value
+                      ? () {
+                          if (id != null) controller.toggleItemSelection(id);
+                        }
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(displayTitle, style: FontStyles.B4_bold_14),
+                              const SizedBox(height: 4),
+                              Text(content, style: FontStyles.S3_reg_10),
+                              const SizedBox(height: 2),
+                              Text(
+                                formattedTime,
+                                style: FontStyles.S3_reg_10.copyWith(
+                                    color: AppColors.G_04),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (controller.isDeleteMode.value)
-                        GestureDetector(
-                          onTap: () => controller.toggleItemSelection(id),
-                          child: Padding(
+                        if (controller.isDeleteMode.value)
+                          Padding(
                             padding: const EdgeInsets.only(left: 8.0, top: 4),
                             child: Container(
                               width: 24.w,
@@ -140,14 +159,12 @@ class TemporaryStorage extends StatelessWidget {
                                   : null,
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Divider(color: AppColors.G_02, thickness: 1),
-                  const SizedBox(height: 12),
-                ],
-              );
-            }).toList(),
+                );
+              });
+            },
           );
         }),
       );

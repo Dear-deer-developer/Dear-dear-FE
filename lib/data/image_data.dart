@@ -37,6 +37,9 @@ class ImagePath {
   static String get eyeOffIcon => 'assets/images/eye_off.png';
   static String get eyeOnIcon => 'assets/images/eye_on.png';
 
+  static String get checkboxOn => 'assets/images/check_box_on.png';
+  static String get checkboxOff => 'assets/images/check_box_off.png';
+
   // MARK: - Bot_nav_icon
   static String get homeOn => 'assets/images/home_on.png';
   static String get homeOff => 'assets/images/home_off.png';

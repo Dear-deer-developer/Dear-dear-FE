@@ -8,7 +8,7 @@
 // import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 // class KakaoAuthHelper implements AuthHelper {
-//   static const String _baseUrl = 'https://dearxmas.com';
+//   static const String _baseUrl = 'http://dearxmas.com';
 
 //   String? _firebaseIdToken;
 

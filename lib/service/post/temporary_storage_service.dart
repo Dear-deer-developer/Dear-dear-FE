@@ -38,4 +38,19 @@ class TemporaryStorageService extends GetxService {
       return null;
     }
   }
+
+  /// 특정 사용자 정보 조회
+  Future<Map<String, dynamic>?> fetchUserById(int? userId) async {
+    if (userId == null) return null;
+
+    try {
+      final res = await _api.getJson('/users/$userId');
+      if (res != null && res is Map<String, dynamic>) {
+        return res;
+      }
+    } catch (e) {
+      print('fetchUserById 실패: $e');
+    }
+    return null;
+  }
 }
