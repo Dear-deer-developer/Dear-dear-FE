@@ -44,10 +44,9 @@ class SelectRecipientController extends GetxController {
     ever(selectedIdx, (_) => _updateSelectedName());
   }
 
-  // MARK: - 서버에서 사서함 번호로 유저 검색
-  /// zipCode(우편번호 5자리)를 입력하면, 서버에서 유저를 조회합니다.
+// MARK: - 서버에서 사서함 번호로 유저 검색
   Future<void> searchUserByZipCode(String zipCode) async {
-    if (zipCode.isEmpty) {
+    if (zipCode.isEmpty || zipCode.length < 5) {
       filteredFriends.clear();
       return;
     }
@@ -55,16 +54,15 @@ class SelectRecipientController extends GetxController {
     try {
       isLoading.value = true;
 
-      /// UserService 호출 → 결과 반환
       final result = await UserService.searchByZipCode(zipCode);
 
-      /// 결과가 있을 경우 리스트에 추가
       if (result != null && result['nickname'] != null) {
         filteredFriends.assignAll([
           {
-            'name': result['nickname'] ?? '닉네임 없음',
-            'number': zipCode,
             'id': result['id'].toString(),
+            'name': result['nickname'],
+            'number': zipCode,
+            'zipCode': zipCode,
           }
         ]);
       } else {
