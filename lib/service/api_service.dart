@@ -109,7 +109,7 @@ class ApiService extends CustomGetConnect implements GetxService {
     return null;
   }
 
-  /// 내 정보 조회
+  // MARK: 내 정보 조회
   Future<DeardeerUser?> getUser() async {
     final res = await get('/users/me');
 
@@ -188,6 +188,46 @@ class ApiService extends CustomGetConnect implements GetxService {
     return res;
   }
 
+  // MARK: 회원탈퇴
+  Future<Response> deleteJson(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) {
+    return request(
+      path,
+      'DELETE',
+      body: jsonEncode(data),
+      headers: {'Content-Type': 'application/json', ...?headers},
+    );
+  }
+
+// 401이면 refresh 후 1회 재시도
+  Future<Response<T>> guardedDeleteJson<T>(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    Response<T> res = await request<T>(
+      path,
+      'DELETE',
+      body: jsonEncode(data),
+      headers: {'Content-Type': 'application/json', ...?headers},
+    );
+
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await request<T>(
+          path,
+          'DELETE',
+          body: jsonEncode(data),
+          headers: {'Content-Type': 'application/json', ...?headers},
+        );
+      }
+    }
+    return res;
+  }
   // -----------------------------------------------------------------------------
   // 🧰 JSON Request Helper (공통)
   // -----------------------------------------------------------------------------
