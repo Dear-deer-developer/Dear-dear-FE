@@ -1,6 +1,7 @@
+// lib/model/calendar/calendar_reward.dart
 class CalendarReward {
   final bool awarded;
-  final String localDate; // "YYYY-MM-DD" 로 정규화해서 보관
+  final String localDate; // "YYYY-MM-DD"
   final int? giftId;
   final String? giftName;
   final DateTime? awardedAt;
@@ -14,18 +15,22 @@ class CalendarReward {
   });
 
   factory CalendarReward.fromJson(Map<String, dynamic> j) {
-    final raw = (j['localDate'] ?? '').toString().trim();
-    final normDate = raw.isEmpty
-        ? ''
-        : raw.length >= 10
-            ? raw.substring(0, 10) // "YYYY-MM-DD"만 사용
-            : raw; // 혹시 짧게 오면 그대로
+    // 서버가 두 가지 형태를 줄 수 있음:
+    // A) {"awarded": true, "giftName": "...", "localDate": "...", ...}
+    // B) {"rewardType":"GIFT","received":true, ...}  // 스웨거 캡쳐 형태
+    final rawDate = (j['localDate'] ?? j['date'] ?? '').toString().trim();
+    final normDate = rawDate.length >= 10 ? rawDate.substring(0, 10) : rawDate;
+
+    final bool awarded =
+        (j['awarded'] == true) || (j['received'] == true); // 둘 다 지원
+
     return CalendarReward(
-      awarded: j['awarded'] == true,
-      localDate: normDate,
-      giftId: j['giftId'] as int?,
-      giftName: j['giftName'] as String?,
-      awardedAt: j['awardedAt'] != null ? DateTime.parse(j['awardedAt']) : null,
+      awarded: awarded,
+      localDate: normDate, // 없으면 빈 문자열로
+      giftId: j['giftId'] as int?, // 없으면 null
+      giftName: (j['giftName'] ?? j['name']) as String?, // 없으면 null
+      awardedAt:
+          j['awardedAt'] != null ? DateTime.tryParse(j['awardedAt']) : null,
     );
   }
 
