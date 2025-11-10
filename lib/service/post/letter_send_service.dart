@@ -46,7 +46,9 @@ class LetterService {
   }
 
   // MARK: 임시 저장 서비스
-  static Future<bool> saveDraft(String content, {int? paperId}) async {
+
+  static Future<bool> saveDraft(String content,
+      {int? paperId, int? receiverId}) async {
     try {
       final dio = Dio();
       final prefs = await SharedPreferences.getInstance();
@@ -60,6 +62,7 @@ class LetterService {
       final data = {
         'content': content,
         if (paperId != null) 'paperId': paperId,
+        if (receiverId != null) 'receiverId': receiverId,
       };
 
       print('요청 URL: $baseUrl/letters/draft');

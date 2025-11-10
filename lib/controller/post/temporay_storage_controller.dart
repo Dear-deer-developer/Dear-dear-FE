@@ -29,24 +29,16 @@ class TemporaryStorageController extends GetxController {
       for (final e in list) {
         final map = Map<String, dynamic>.from(e as Map);
 
-        // receiver 파싱 안정화
-        dynamic receiverData = map['receiver'];
+        // receiver 안전하게 추출
         String receiverNickname = '익명';
-
-        if (receiverData is Map<String, dynamic>) {
-          // 서버에서 nickname만 담긴 객체로 오는 경우
+        if (map['receiver'] != null) {
+          final receiverData = Map<String, dynamic>.from(map['receiver']);
           receiverNickname = receiverData['nickname'] ?? '익명';
-        } else if (receiverData is String) {
-          // 혹시 문자열 형태로 닉네임이 내려올 경우
-          receiverNickname = receiverData;
-        } else if (receiverData == null && map['receiverNickname'] != null) {
-          // 일부 응답에선 nickname이 따로 필드로 올 수 있음
-          receiverNickname = map['receiverNickname'];
         }
 
-        // 시간 포맷
-        final updatedAt = map['updatedAt'];
+        // 시간 포맷 변환
         String formattedTime = '';
+        final updatedAt = map['updatedAt'];
         if (updatedAt != null) {
           try {
             final utc = DateTime.parse(updatedAt);
@@ -55,12 +47,14 @@ class TemporaryStorageController extends GetxController {
           } catch (_) {}
         }
 
+        // 표시용 필드 추가
         map['displayTitle'] = 'dear. $receiverNickname';
         map['formattedTime'] = formattedTime;
 
         normalized.add(map);
       }
 
+      print('정제된 데이터: $normalized');
       items.assignAll(normalized);
     } catch (e) {
       print('fetchDraftLetters 실패: $e');

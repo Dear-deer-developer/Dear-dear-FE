@@ -140,10 +140,13 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                   ? selectedPaper['index'] + 1
                   : 1;
 
+              // ✅ receiverId 추가
               final success = await LetterService.saveDraft(
                 _textController.text,
                 paperId: paperId,
+                receiverId: _recipientId,
               );
+
               if (success) _showSaveToast(context);
             },
             child: const Text(
