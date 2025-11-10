@@ -207,7 +207,7 @@ class ApiService extends CustomGetConnect implements GetxService {
           // 예: letterIds=[1,2] → letterIds=1&letterIds=2
           return value
               .map((v) =>
-                  '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(v.toString())}')
+                  '${Uri.encodeQueryComponent(e.key)}[]=${Uri.encodeQueryComponent(v.toString())}')
               .join('&');
         } else {
           return '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(value.toString())}';

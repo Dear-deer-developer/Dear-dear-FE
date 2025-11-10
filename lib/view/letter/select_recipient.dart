@@ -39,15 +39,18 @@ class _SelectRecipientState extends State<SelectRecipient> {
           TextButton(
             onPressed: () {
               final selectedIdx = controller.selectedIdx.value;
+
+              // 선택된 인덱스 유효성 검사
               if (selectedIdx != null &&
                   selectedIdx >= 0 &&
                   selectedIdx < controller.filteredFriends.length) {
                 final friend = controller.filteredFriends[selectedIdx];
 
+                // controller가 만드는 표준 키(id, name, number)에 맞춰 그대로 반환
                 final selectedFriend = {
                   'id': friend['id'],
-                  'name': friend['nickname'] ?? friend['name'] ?? '이름 없음',
-                  'number': friend['boxNumber']?.toString() ?? '-',
+                  'name': friend['name'] ?? '이름 없음',
+                  'number': friend['number'] ?? '-', // 사서함 번호
                 };
 
                 print('선택된 친구 반환: $selectedFriend');
@@ -198,12 +201,14 @@ class _SelectRecipientState extends State<SelectRecipient> {
                   backgroundColor: Color(0xFFE0E0E0),
                   child: Icon(Icons.person, color: Colors.white, size: 32),
                 ),
+                // controller 표준 키 사용: name
                 title: Text(
-                  friend['nickname'] ?? friend['name'] ?? '',
+                  friend['name'] ?? '',
                   style: FontStyles.B4_bold_14,
                 ),
+                // controller 표준 키 사용: number(사서함 번호)
                 subtitle: Text(
-                  '사서함번호 : ${friend['zipCode'] ?? friend['zipcode'] ?? '-'}',
+                  '사서함번호 : ${friend['number'] ?? '-'}',
                   style: FontStyles.S2_reg_12,
                 ),
                 trailing: Radio<int>(

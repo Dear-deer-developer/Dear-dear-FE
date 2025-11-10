@@ -86,9 +86,15 @@ class SelectRecipientController extends GetxController {
     }
   }
 
-  // MARK: - 친구 선택
+// MARK: - 친구 선택
   void selectFriend(int? index) {
-    selectedIdx.value = index;
+    if (selectedIdx.value == index) {
+      selectedIdx.value = null; // 다시 누르면 선택 해제
+    } else {
+      selectedIdx.value = index;
+    }
+
+    update(); // ✅ 강제로 UI 새로고침 (Obx & Radio 모두 반응하도록)
   }
 
   // MARK: - 선택된 친구 반환

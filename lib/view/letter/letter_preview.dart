@@ -2,6 +2,7 @@ import 'package:dear_deer_demo/controller/post/letter_preview_controller.dart';
 import 'package:dear_deer_demo/controller/post/letter_send_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/service/post/s3_service.dart';
 import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,6 @@ class LetterPreview extends StatelessWidget {
       );
 
   // MARK: 편지 내용 미리보기
-
   Widget _letterPreviewBody(
     LetterPreviewController controller,
     String senderName,
@@ -63,107 +63,130 @@ class LetterPreview extends StatelessWidget {
     dynamic selectedPaper,
   ) {
     final selectedImage = Get.arguments?['selectedImage'];
+    final imageKey = Get.arguments?['imageKey'];
+    final s3Service = S3Service();
 
-    return Expanded(
-      child: Obx(
-        () => PageView.builder(
-          controller: controller.pageController,
-          itemCount: controller.pagedTexts.length,
-          itemBuilder: (context, index) {
-            return Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: selectedPaper != null
-                        ? Image.asset(
-                            selectedPaper['image'],
-                            width: 312.w,
-                            height: 500.h,
-                            fit: BoxFit.fill,
-                            alignment: Alignment.center,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+    return FutureBuilder<String?>(
+      future:
+          imageKey != null ? s3Service.getImagePresignedUrl(imageKey) : null,
+      builder: (context, snapshot) {
+        final s3ImageUrl = snapshot.data;
 
-                  /// 편지 내용 (편지지 위)
-                  SizedBox(
-                    width: 312.w,
-                    height: 500.h,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(20.w, 90.h, 20.w, 20.h),
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Dear 문구
-                            if (index == 0)
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 15.h),
-                                child: Text(
-                                  "Dear. ${recipientName.isNotEmpty ? recipientName : '친구'}",
-                                  style: FontStyles.L1_reg_20.copyWith(
+        return Expanded(
+          child: Obx(
+            () => PageView.builder(
+              controller: controller.pageController,
+              itemCount: controller.pagedTexts.length,
+              itemBuilder: (context, index) {
+                return Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.r),
+                        child: selectedPaper != null
+                            ? Image.asset(
+                                selectedPaper['image'],
+                                width: 312.w,
+                                height: 500.h,
+                                fit: BoxFit.fill,
+                                alignment: Alignment.center,
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+
+                      // 편지 내용 (편지지 위)
+                      SizedBox(
+                        width: 312.w,
+                        height: 500.h,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(20.w, 90.h, 20.w, 20.h),
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Dear 문구
+                                if (index == 0)
+                                  Padding(
+                                    padding: EdgeInsets.only(bottom: 15.h),
+                                    child: Text(
+                                      "Dear. ${recipientName.isNotEmpty ? recipientName : '친구'}",
+                                      style: FontStyles.L1_reg_20.copyWith(
+                                        fontFamily: 'LeeSeoyun',
+                                        color: AppColors.Black,
+                                      ),
+                                    ),
+                                  ),
+
+                                // 이미지 표시 (로컬 > S3 순서)
+                                if (index == 0)
+                                  if (selectedImage != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: Image.file(
+                                        selectedImage,
+                                        width: 280.w,
+                                        height: 184.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  else if (s3ImageUrl != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: Image.network(
+                                        s3ImageUrl,
+                                        width: 280.w,
+                                        height: 184.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+
+                                if (index == 0 &&
+                                    (selectedImage != null ||
+                                        s3ImageUrl != null))
+                                  SizedBox(height: 14.h),
+
+                                // 본문 텍스트
+                                Text(
+                                  controller.pagedTexts[index],
+                                  style: FontStyles.L3_reg_16.copyWith(
                                     fontFamily: 'LeeSeoyun',
                                     color: AppColors.Black,
+                                    height: 1.5,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
 
-                            // 선택된 사진
-                            if (index == 0 && selectedImage != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: Image.file(
-                                  selectedImage,
-                                  width: 280.w,
-                                  height: 184.h,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-
-                            if (index == 0 && selectedImage != null)
-                              SizedBox(height: 14.h),
-
-                            // 본문 텍스트
-                            Text(
-                              controller.pagedTexts[index],
-                              style: FontStyles.L3_reg_16.copyWith(
-                                fontFamily: 'LeeSeoyun',
-                                color: AppColors.Black,
-                                height: 1.5,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-
-                            // 마지막 페이지 From.
-                            if (index == controller.pagedTexts.length - 1)
-                              Padding(
-                                padding: EdgeInsets.only(top: 16.h),
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Text(
-                                    "2025년 12월 20일\nFrom. $senderName",
-                                    style: FontStyles.L3_reg_16.copyWith(
-                                      fontFamily: 'LeeSeoyun',
-                                      color: AppColors.Black,
+                                // 마지막 페이지 From.
+                                if (index == controller.pagedTexts.length - 1)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 16.h),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Text(
+                                        "2025년 12월 20일\nFrom. $senderName",
+                                        style: FontStyles.L3_reg_16.copyWith(
+                                          fontFamily: 'LeeSeoyun',
+                                          color: AppColors.Black,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.right,
                                   ),
-                                ),
-                              ),
-                          ],
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 

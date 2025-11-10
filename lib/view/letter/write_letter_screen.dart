@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dear_deer_demo/service/post/letter_send_service.dart';
+import 'package:dear_deer_demo/service/post/s3_service.dart';
 import 'package:dear_deer_demo/view/letter/letter_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,21 +21,15 @@ class WriteLetterScreen extends StatefulWidget {
 
 class _WriteLetterScreenState extends State<WriteLetterScreen> {
   final authService = Get.find<AuthService>();
-  // MARK: - State
+  final s3Service = S3Service();
+
   String? _recipientName;
   String? _recipientBoxNumber;
   int? _recipientId;
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _selectedImage = File(image.path);
-      });
-    }
-  }
+  File? _selectedImage;
+  String? _uploadedImageKey;
+  final ImagePicker _picker = ImagePicker();
 
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _senderController = TextEditingController();
@@ -47,7 +42,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
     final args = Get.arguments ?? {};
     if (args['isEditing'] == true) {
-      // 기존 편지 수정 모드
       _textController.text = args['content'] ?? '';
       _recipientId = args['receiverId'];
     }
@@ -58,6 +52,50 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     _textController.dispose();
     _senderController.dispose();
     super.dispose();
+  }
+
+  /// 갤러리에서 이미지 선택 후 S3 업로드까지 실행
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    final file = File(image.path);
+    setState(() => _selectedImage = file);
+
+    final filename = file.path.split('/').last;
+    final ext = filename.split('.').last.toLowerCase();
+    final contentType = 'image/$ext';
+
+    try {
+      // Presigned URL 요청
+      final presigned = await s3Service.getLetterPresignedUrl(
+        filename: filename,
+        contentType: contentType,
+      );
+
+      if (presigned == null || presigned['url'] == null) {
+        Get.snackbar('업로드 실패', '이미지 업로드용 URL 발급에 실패했습니다.');
+        return;
+      }
+
+      final uploadUrl = presigned['url'];
+      final key = presigned['key'];
+
+      // 실제 이미지 업로드
+      final bytes = await file.readAsBytes();
+      final success = await s3Service.uploadToS3(uploadUrl, bytes, contentType);
+
+      if (success) {
+        setState(() => _uploadedImageKey = key);
+        Get.snackbar('업로드 완료', '이미지가 성공적으로 업로드되었습니다.');
+        print('S3 업로드 성공: key=$key');
+      } else {
+        Get.snackbar('업로드 실패', 'S3 업로드 중 문제가 발생했습니다.');
+      }
+    } catch (e) {
+      print('S3 업로드 오류: $e');
+      Get.snackbar('오류', '이미지 업로드 중 오류가 발생했습니다.');
+    }
   }
 
   @override
@@ -86,7 +124,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 상단 앱바
+  // MARK: - 앱바
   AppBar _appBar() => AppBar(
         backgroundColor: AppColors.bgColor,
         elevation: 0,
@@ -121,7 +159,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         ],
       );
 
-  // MARK: - 받는 사람 선택 섹션
+  // MARK: - 받는 사람
   Widget _receiverSection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -135,14 +173,12 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             onTap: () async {
               final selectedFriend =
                   await Get.to(() => const SelectRecipient());
-
               if (selectedFriend != null) {
                 setState(() {
                   _recipientName = selectedFriend['name'];
                   _recipientBoxNumber = selectedFriend['number'];
                   _recipientId = int.tryParse(selectedFriend['id'].toString());
                 });
-                print('선택된 친구 id=${_recipientId}, name=$_recipientName');
               }
             },
             child: Container(
@@ -191,48 +227,75 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 내용 입력
+// MARK: - 내용 입력
   Widget _contentSection() {
-    return Padding(
-      padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("내용",
-              style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black)),
-          SizedBox(height: 8.h),
-          Container(
-            width: 360.w,
-            constraints: BoxConstraints(minHeight: 330.h, maxHeight: 600.h),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: AppColors.G_02, width: 1),
-            ),
-            padding: EdgeInsets.fromLTRB(24.w, 15.h, 24.w, 50.h),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (_selectedImage != null) ...[
-                    _imageBox(),
-                    SizedBox(height: 8.h),
-                  ],
-                  TextField(
-                    controller: _textController,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "내용을 입력해주세요.",
-                      hintStyle:
-                          FontStyles.L2_reg_18.copyWith(color: AppColors.G_06),
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ],
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
+          child: Text(
+            "내용",
+            style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          width: double.infinity,
+          constraints: BoxConstraints(minHeight: 330.h, maxHeight: 600.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(color: AppColors.G_02, width: 1),
+              bottom: BorderSide(color: AppColors.G_02, width: 1),
             ),
           ),
-        ],
-      ),
+          padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
+          child: Stack(
+            children: [
+              // 스크롤 가능한 본문
+              Padding(
+                padding: EdgeInsets.only(bottom: 40.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_selectedImage != null) ...[
+                        _imageBox(),
+                        SizedBox(height: 8.h),
+                      ],
+                      TextField(
+                        controller: _textController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "내용을 입력해주세요.",
+                          hintStyle: FontStyles.L2_reg_18.copyWith(
+                              color: AppColors.G_06),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Positioned(
+                bottom: 0,
+                left: 0,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child:
+                        Icon(Icons.image, size: 26.sp, color: AppColors.G_05),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -301,7 +364,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 전송 버튼
+  // MARK: - 전송 버튼 (imageKey 전달 추가)
   Widget _submitButton(dynamic selectedPaper) {
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
@@ -313,11 +376,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           final paperId =
               selectedPaper?['index'] != null ? selectedPaper['index'] + 1 : 1;
 
-          if (_recipientId == null) {
-            Get.snackbar("오류", "받는 사람을 선택해주세요.");
-            return;
-          }
-
           final arguments = {
             'senderName': _senderController.text,
             'content': _textController.text,
@@ -326,9 +384,8 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             'receiverId': _recipientId,
             'paperId': paperId,
             'selectedImage': _selectedImage,
+            'imageKey': _uploadedImageKey, // ✅ S3 key 전달
           };
-
-          print('LetterPreview 이동 인자: $arguments');
 
           Get.to(() => const LetterPreview(), arguments: arguments);
         },

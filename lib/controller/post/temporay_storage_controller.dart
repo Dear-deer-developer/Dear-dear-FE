@@ -7,10 +7,10 @@ class TemporaryStorageController extends GetxController {
   final _service = Get.put(TemporaryStorageService());
   final _auth = Get.find<AuthService>();
 
-  final items = <Map<String, dynamic>>[].obs;
-  final selectedItems = <int>{}.obs;
-  final isDeleteMode = false.obs;
-  final isLoading = false.obs;
+  final items = <Map<String, dynamic>>[].obs; // 임시보관함 편지 리스트
+  final selectedItems = <int>{}.obs; // 선택된 편지 id 집합
+  final isDeleteMode = false.obs; // 삭제 모드 on/off
+  final isLoading = false.obs; // 로딩 상태
 
   @override
   void onInit() {
@@ -19,7 +19,6 @@ class TemporaryStorageController extends GetxController {
   }
 
   /// 임시 보관함 조회
-
   Future<void> fetchDraftLetters() async {
     try {
       isLoading.value = true;
@@ -30,12 +29,22 @@ class TemporaryStorageController extends GetxController {
       for (final e in list) {
         final map = Map<String, dynamic>.from(e as Map);
 
-        final receiver = map['receiver'];
+        // receiver 파싱 안정화
+        dynamic receiverData = map['receiver'];
         String receiverNickname = '익명';
-        if (receiver is Map && receiver['nickname'] != null) {
-          receiverNickname = receiver['nickname'];
+
+        if (receiverData is Map<String, dynamic>) {
+          // 서버에서 nickname만 담긴 객체로 오는 경우
+          receiverNickname = receiverData['nickname'] ?? '익명';
+        } else if (receiverData is String) {
+          // 혹시 문자열 형태로 닉네임이 내려올 경우
+          receiverNickname = receiverData;
+        } else if (receiverData == null && map['receiverNickname'] != null) {
+          // 일부 응답에선 nickname이 따로 필드로 올 수 있음
+          receiverNickname = map['receiverNickname'];
         }
 
+        // 시간 포맷
         final updatedAt = map['updatedAt'];
         String formattedTime = '';
         if (updatedAt != null) {
@@ -79,10 +88,16 @@ class TemporaryStorageController extends GetxController {
 
   /// 삭제 처리
   Future<void> confirmDelete() async {
-    if (selectedItems.isEmpty) return;
+    if (selectedItems.isEmpty) {
+      Get.snackbar('알림', '삭제할 편지를 선택해주세요.');
+      return;
+    }
 
     try {
       final ids = selectedItems.toList();
+      print('삭제 요청 IDs: $ids');
+
+      // Swagger 명세에 맞는 쿼리 방식 호출
       final res = await _service.deleteDraftLetters(ids);
       print('삭제 결과: $res');
 
@@ -96,6 +111,7 @@ class TemporaryStorageController extends GetxController {
 
       Get.snackbar('완료', '${ids.length}개의 편지를 삭제했습니다.');
     } catch (e) {
+      print('삭제 중 오류: $e');
       Get.snackbar('오류', '삭제 중 문제가 발생했습니다.');
     } finally {
       selectedItems.clear();
