@@ -14,7 +14,7 @@ import 'package:dear_deer_demo/controller/calendar/calendar_rewards_controller.d
 import 'package:dear_deer_demo/service/calendar/calendar_rewards_service.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/view/calendar/reward_arrived_dialog.dart';
-import 'package:dear_deer_demo/data/reward_assets.dart';
+import 'package:dear_deer_demo/data/calendar/reward_assets.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -93,8 +93,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           reward: reward,
           assetFor: (name) => rewardAssetFor(name) ?? asset,
           onGoPressed: () {
-            Navigator.of(context).pop();
-            Get.find<BottomNavController>().goTo(Page.post);
+            // TODO: 후속 릴리스에서 선물함/상세로 이동 연결 예정.
+            // intentionally left blank (no-op for now)
           },
         ),
       );
