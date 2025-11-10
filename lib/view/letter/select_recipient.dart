@@ -39,18 +39,33 @@ class _SelectRecipientState extends State<SelectRecipient> {
           TextButton(
             onPressed: () {
               final selectedIdx = controller.selectedIdx.value;
+              final selectedTab = controller.selectedTabIdx.value;
 
-              // 선택된 인덱스 유효성 검사
+              // MARK: 링크 탭에서 선택 시
+              if (selectedTab == 1) {
+                // 링크 모드일 경우, 빈 데이터 반환 + isLinkMode true 전달
+                final linkResult = {
+                  'id': null,
+                  'name': '링크로 보내기',
+                  'number': null,
+                  'isLinkMode': true,
+                };
+                print('링크 모드 선택됨: $linkResult');
+                Get.back(result: linkResult);
+                return;
+              }
+
+              // MARK: 사서함 번호 탭에서 선택 시
               if (selectedIdx != null &&
                   selectedIdx >= 0 &&
                   selectedIdx < controller.filteredFriends.length) {
                 final friend = controller.filteredFriends[selectedIdx];
 
-                // controller가 만드는 표준 키(id, name, number)에 맞춰 그대로 반환
                 final selectedFriend = {
                   'id': friend['id'],
                   'name': friend['name'] ?? '이름 없음',
-                  'number': friend['number'] ?? '-', // 사서함 번호
+                  'number': friend['number'] ?? '-',
+                  'isLinkMode': false,
                 };
 
                 print('선택된 친구 반환: $selectedFriend');
@@ -201,12 +216,10 @@ class _SelectRecipientState extends State<SelectRecipient> {
                   backgroundColor: Color(0xFFE0E0E0),
                   child: Icon(Icons.person, color: Colors.white, size: 32),
                 ),
-                // controller 표준 키 사용: name
                 title: Text(
                   friend['name'] ?? '',
                   style: FontStyles.B4_bold_14,
                 ),
-                // controller 표준 키 사용: number(사서함 번호)
                 subtitle: Text(
                   '사서함번호 : ${friend['number'] ?? '-'}',
                   style: FontStyles.S2_reg_12,
@@ -225,6 +238,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
+  // MARK: - 안내 문구
   Widget _message(String text) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SizedBox(
@@ -243,6 +257,7 @@ class _SelectRecipientState extends State<SelectRecipient> {
         ),
       );
 
+  // MARK: - 링크 안내 탭
   Widget _link() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

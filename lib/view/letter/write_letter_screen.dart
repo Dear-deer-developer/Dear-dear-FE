@@ -28,7 +28,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   String? _recipientName;
   String? _recipientBoxNumber;
   int? _recipientId;
-
+  bool _isLinkMode = false;
   File? _selectedImage;
   String? _uploadedImageKey;
   final ImagePicker _picker = ImagePicker();
@@ -216,7 +216,10 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                 setState(() {
                   _recipientName = selectedFriend['name'];
                   _recipientBoxNumber = selectedFriend['number'];
-                  _recipientId = int.tryParse(selectedFriend['id'].toString());
+                  _recipientId = selectedFriend['id'] != null
+                      ? int.tryParse(selectedFriend['id'].toString())
+                      : null;
+                  _isLinkMode = selectedFriend['isLinkMode'] ?? false; // 🔥 추가됨
                 });
               }
             },
@@ -409,7 +412,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
       child: SelectLetterButton(
         isEnabled: _textController.text.isNotEmpty &&
             _senderController.text.isNotEmpty &&
-            _recipientId != null,
+            (_recipientId != null || _isLinkMode == true), // 🔥 링크 모드도 허용
         onPressed: () async {
           final paperId =
               selectedPaper?['index'] != null ? selectedPaper['index'] + 1 : 1;
@@ -419,13 +422,14 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             () => const LetterPreview(),
             arguments: {
               'content': _textController.text,
-              'receiverId': _recipientId!,
+              'receiverId': _recipientId,
               'paperId': paperId,
               'senderName': _senderController.text,
               'recipientName': _recipientName ?? '',
               'selectedPaper': selectedPaper,
               'imageUrl': _uploadedImageKey,
               'selectedImage': _selectedImage,
+              'isLinkMode': _isLinkMode, // 🔥 프리뷰로 전달
             },
           );
         },

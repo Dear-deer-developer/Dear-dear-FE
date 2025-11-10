@@ -215,6 +215,7 @@ class LetterPreview extends StatelessWidget {
     final content = arguments['content'] ?? '';
     final paperId = arguments['paperId'] ?? 1;
     final imageKey = arguments['imageKey']; // presigned에서 받은 key
+    final isLinkMode = arguments['isLinkMode'] ?? false;
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -231,6 +232,7 @@ class LetterPreview extends StatelessWidget {
           content: content,
           paperId: paperId,
           imageUrl: imageKey, // imageKey 값을 imageUrl 필드에 전달
+          isLinkMode: isLinkMode,
         );
       },
       child: Text(

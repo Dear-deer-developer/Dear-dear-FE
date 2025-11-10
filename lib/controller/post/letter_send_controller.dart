@@ -1,6 +1,7 @@
 import 'package:dear_deer_demo/model/post/letter_send_model.dart';
 import 'package:dear_deer_demo/service/post/letter_send_service.dart';
 import 'package:dear_deer_demo/view/letter/transfer_completed.dart';
+import 'package:dear_deer_demo/view/letter/transfer_share.dart';
 import 'package:get/get.dart';
 
 // MARK: - 편지 전송 컨트롤러
@@ -14,11 +15,11 @@ class LetterSendController extends GetxController {
     required String content,
     required int paperId,
     String? imageUrl,
+    bool isLinkMode = false,
   }) async {
     isSending.value = true;
 
     try {
-      // MARK: Letter 모델 구성
       final letter = Letter(
         receiverId: receiverId,
         content: content,
@@ -26,12 +27,18 @@ class LetterSendController extends GetxController {
         imageUrl: imageUrl,
       );
 
-      // MARK: 전송 요청
       final success = await LetterService.sendLetter(letter);
 
       if (success) {
         print('편지 전송 성공 (paperId: $paperId)');
-        Get.offAll(() => TransferCompleted()); // 전송 완료 화면 이동
+
+        if (isLinkMode) {
+          // 링크 모드면 TransferShare 화면으로
+          Get.offAll(() => const TransferShare());
+        } else {
+          // 일반 모드면 TransferCompleted 화면으로
+          Get.offAll(() => const TransferCompleted());
+        }
       } else {
         print('편지 전송 실패');
       }
