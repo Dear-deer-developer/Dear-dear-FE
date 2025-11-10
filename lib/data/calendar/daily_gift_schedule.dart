@@ -59,7 +59,7 @@ String? giftNameForDate(DateTime date) {
     '12-22': 'ball_4',
     '12-23': 'penguin',
     '12-24': 'ginger_cookie',
-    '12-25': 'santa_letter',
+    '12-25': 'santa_letter_trigger',
   };
   return map[ymd];
 }
