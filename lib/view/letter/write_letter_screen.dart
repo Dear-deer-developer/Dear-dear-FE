@@ -13,7 +13,8 @@ import 'select_recipient.dart';
 import 'package:image_picker/image_picker.dart';
 
 class WriteLetterScreen extends StatefulWidget {
-  const WriteLetterScreen({super.key});
+  final Map<String, dynamic>? letterData;
+  const WriteLetterScreen({super.key, this.letterData});
 
   @override
   State<WriteLetterScreen> createState() => _WriteLetterScreenState();
@@ -34,14 +35,46 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _senderController = TextEditingController();
 
+  Map<String, dynamic>? _selectedPaper;
+
   @override
   void initState() {
     super.initState();
+
     final nickname = authService.user.value?.nickname ?? '';
     _senderController.text = nickname;
 
-    final args = Get.arguments ?? {};
-    if (args['isEditing'] == true) {
+    Map<String, dynamic>? letterData;
+    if (widget.letterData != null && widget.letterData!.isNotEmpty) {
+      letterData = widget.letterData!;
+    } else if (Get.arguments is Map<String, dynamic>) {
+      letterData = Get.arguments as Map<String, dynamic>;
+    }
+
+    if (letterData != null && letterData.isNotEmpty) {
+      print('📩 복원된 임시편지 데이터: $letterData');
+
+      _textController.text = letterData['content'] ?? '';
+
+      final receiver = letterData['receiver'];
+      if (receiver is Map<String, dynamic>) {
+        _recipientName = receiver['nickname'] ?? '익명';
+        _recipientId = receiver['id'];
+        _recipientBoxNumber = receiver['zipCode']?.toString();
+      } else {
+        _recipientName = letterData['receiverNickname'] ?? '익명';
+        _recipientId = letterData['receiverId'];
+        _recipientBoxNumber = letterData['receiverZipCode']?.toString();
+      }
+
+      final int? paperId = letterData['paperId'];
+      if (paperId != null && paperId > 0) {
+        _selectedPaper = {'index': (paperId - 1)};
+      }
+    }
+
+    final args = Get.arguments;
+    if (args is Map<String, dynamic> && args['isEditing'] == true) {
       _textController.text = args['content'] ?? '';
       _recipientId = args['receiverId'];
     }
@@ -54,7 +87,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     super.dispose();
   }
 
-  /// 갤러리에서 이미지 선택 후 S3 업로드까지 실행
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -67,7 +99,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     final contentType = 'image/$ext';
 
     try {
-      // Presigned URL 요청
       final presigned = await s3Service.getLetterPresignedUrl(
         filename: filename,
         contentType: contentType,
@@ -81,7 +112,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
       final uploadUrl = presigned['url'];
       final key = presigned['key'];
 
-      // 실제 이미지 업로드
       final bytes = await file.readAsBytes();
       final success = await s3Service.uploadToS3(uploadUrl, bytes, contentType);
 
@@ -100,8 +130,8 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = Get.arguments ?? {};
-    final selectedPaper = arguments['selectedPaper'];
+    final args = Get.arguments ?? {};
+    final selectedPaper = args['selectedPaper'] ?? _selectedPaper;
 
     return Scaffold(
       backgroundColor: AppColors.bgColor,
@@ -124,7 +154,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 앱바
   AppBar _appBar() => AppBar(
         backgroundColor: AppColors.bgColor,
         elevation: 0,
@@ -135,12 +164,12 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           TextButton(
             onPressed: () async {
               final arguments = Get.arguments ?? {};
-              final selectedPaper = arguments['selectedPaper'];
+              final selectedPaper =
+                  arguments['selectedPaper'] ?? _selectedPaper;
               final paperId = selectedPaper?['index'] != null
                   ? selectedPaper['index'] + 1
                   : 1;
 
-              // ✅ receiverId 추가
               final success = await LetterService.saveDraft(
                 _textController.text,
                 paperId: paperId,
@@ -156,13 +185,14 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           ),
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text("닫기",
-                style: TextStyle(color: Colors.black, fontSize: 13)),
+            child: const Text(
+              "닫기",
+              style: TextStyle(color: Colors.black, fontSize: 13),
+            ),
           ),
         ],
       );
 
-  // MARK: - 받는 사람
   Widget _receiverSection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -230,7 +260,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-// MARK: - 내용 입력
   Widget _contentSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +285,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
           padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
           child: Stack(
             children: [
-              // 스크롤 가능한 본문
               Padding(
                 padding: EdgeInsets.only(bottom: 40.h),
                 child: SingleChildScrollView(
@@ -282,7 +310,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
                   ),
                 ),
               ),
-
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -334,7 +361,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         ],
       );
 
-  // MARK: - 보내는 사람 입력
   Widget _senderSection() {
     return Padding(
       padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
@@ -367,7 +393,6 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 전송 버튼 (imageKey 전달 추가)
   Widget _submitButton(dynamic selectedPaper) {
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
@@ -387,7 +412,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
             'receiverId': _recipientId,
             'paperId': paperId,
             'selectedImage': _selectedImage,
-            'imageKey': _uploadedImageKey, // ✅ S3 key 전달
+            'imageKey': _uploadedImageKey,
           };
 
           Get.to(() => const LetterPreview(), arguments: arguments);

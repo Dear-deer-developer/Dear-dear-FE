@@ -46,7 +46,6 @@ class LetterService {
   }
 
   // MARK: 임시 저장 서비스
-
   static Future<bool> saveDraft(String content,
       {int? paperId, int? receiverId}) async {
     try {

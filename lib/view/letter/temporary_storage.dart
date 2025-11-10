@@ -1,6 +1,7 @@
 import 'package:dear_deer_demo/controller/post/temporay_storage_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -99,7 +100,7 @@ class TemporaryStorage extends StatelessWidget {
               final displayTitle = item['displayTitle'] ?? '';
               final formattedTime = item['formattedTime'] ?? '';
 
-              // ✅ 여기서 각 item을 Obx로 감싼다.
+              // 여기서 각 item을 Obx로 감싼다.
               return Obx(() {
                 final isSelected = controller.selectedItems.contains(id);
 
@@ -108,7 +109,11 @@ class TemporaryStorage extends StatelessWidget {
                       ? () {
                           if (id != null) controller.toggleItemSelection(id);
                         }
-                      : null,
+                      : () {
+                          Get.to(
+                            () => WriteLetterScreen(letterData: item),
+                          );
+                        },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
