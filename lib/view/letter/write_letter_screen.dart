@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dear_deer_demo/model/post/letter_send_model.dart';
 import 'package:dear_deer_demo/service/post/letter_send_service.dart';
 import 'package:dear_deer_demo/service/post/s3_service.dart';
 import 'package:dear_deer_demo/view/letter/letter_preview.dart';
@@ -37,6 +38,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
 
   Map<String, dynamic>? _selectedPaper;
 
+  // MARK: 초기화
   @override
   void initState() {
     super.initState();
@@ -52,17 +54,17 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     }
 
     if (letterData != null && letterData.isNotEmpty) {
-      print('📩 복원된 임시편지 데이터: $letterData');
+      print('복원된 임시편지 데이터: $letterData');
 
       _textController.text = letterData['content'] ?? '';
 
       final receiver = letterData['receiver'];
       if (receiver is Map<String, dynamic>) {
-        _recipientName = receiver['nickname'] ?? '익명';
+        _recipientName = receiver['nickname'];
         _recipientId = receiver['id'];
         _recipientBoxNumber = receiver['zipCode']?.toString();
       } else {
-        _recipientName = letterData['receiverNickname'] ?? '익명';
+        _recipientName = letterData['receiverNickname'];
         _recipientId = letterData['receiverId'];
         _recipientBoxNumber = letterData['receiverZipCode']?.toString();
       }
@@ -87,6 +89,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     super.dispose();
   }
 
+  // MARK: 이미지 선택 및 업로드
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -128,6 +131,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     }
   }
 
+  // MARK: UI
   @override
   Widget build(BuildContext context) {
     final args = Get.arguments ?? {};
@@ -154,6 +158,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
+  // MARK: 앱바
   AppBar _appBar() => AppBar(
         backgroundColor: AppColors.bgColor,
         elevation: 0,
@@ -193,6 +198,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         ],
       );
 
+  // MARK: 받는 사람
   Widget _receiverSection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -260,6 +266,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
+  // MARK: 내용 입력
   Widget _contentSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,6 +336,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
+  // MARK: 이미지 미리보기
   Widget _imageBox() => Stack(
         children: [
           Container(
@@ -361,6 +369,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         ],
       );
 
+  // MARK: 보내는 사람
   Widget _senderSection() {
     return Padding(
       padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
@@ -393,6 +402,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
+  // MARK: 전송 버튼 (프리뷰 이동용)
   Widget _submitButton(dynamic selectedPaper) {
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
@@ -400,31 +410,35 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         isEnabled: _textController.text.isNotEmpty &&
             _senderController.text.isNotEmpty &&
             _recipientId != null,
-        onPressed: () {
+        onPressed: () async {
           final paperId =
               selectedPaper?['index'] != null ? selectedPaper['index'] + 1 : 1;
 
-          final arguments = {
-            'senderName': _senderController.text,
-            'content': _textController.text,
-            'selectedPaper': selectedPaper,
-            'recipientName': _recipientName,
-            'receiverId': _recipientId,
-            'paperId': paperId,
-            'selectedImage': _selectedImage,
-            'imageKey': _uploadedImageKey,
-          };
-
-          Get.to(() => const LetterPreview(), arguments: arguments);
+          // MARK: 프리뷰 화면으로 이동
+          Get.to(
+            () => const LetterPreview(),
+            arguments: {
+              'content': _textController.text,
+              'receiverId': _recipientId!,
+              'paperId': paperId,
+              'senderName': _senderController.text,
+              'recipientName': _recipientName ?? '',
+              'selectedPaper': selectedPaper,
+              'imageUrl': _uploadedImageKey,
+              'selectedImage': _selectedImage,
+            },
+          );
         },
-        buttonText: "편지 확인 후 전송하기",
+        buttonText: "편지 전송하기",
       ),
     );
   }
 
+  // MARK: 기타 UI
   Widget _topPadding() => SizedBox(height: 10.h);
   Widget _bottomPadding() => SizedBox(height: 20.h);
 
+  // MARK: 임시저장 토스트
   void _showSaveToast(BuildContext context) {
     final overlay = Overlay.of(context);
     final entry = OverlayEntry(

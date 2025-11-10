@@ -10,7 +10,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class App extends GetView<BottomNavController> {
-  const App({super.key});
+  const App({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

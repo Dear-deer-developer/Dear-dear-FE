@@ -82,6 +82,7 @@ class LetterPreview extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
+                      // MARK: 편지지 배경
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.r),
                         child: selectedPaper != null
@@ -95,7 +96,7 @@ class LetterPreview extends StatelessWidget {
                             : const SizedBox.shrink(),
                       ),
 
-                      // 편지 내용 (편지지 위)
+                      // MARK: 편지 내용 (편지지 위)
                       SizedBox(
                         width: 312.w,
                         height: 500.h,
@@ -106,7 +107,7 @@ class LetterPreview extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                // Dear 문구
+                                // MARK: Dear 문구
                                 if (index == 0)
                                   Padding(
                                     padding: EdgeInsets.only(bottom: 15.h),
@@ -119,7 +120,7 @@ class LetterPreview extends StatelessWidget {
                                     ),
                                   ),
 
-                                // 이미지 표시 (로컬 > S3 순서)
+                                // MARK: 이미지 표시 (로컬 > S3 순서)
                                 if (index == 0)
                                   if (selectedImage != null)
                                     ClipRRect(
@@ -147,7 +148,7 @@ class LetterPreview extends StatelessWidget {
                                         s3ImageUrl != null))
                                   SizedBox(height: 14.h),
 
-                                // 본문 텍스트
+                                // MARK: 본문 텍스트
                                 Text(
                                   controller.pagedTexts[index],
                                   style: FontStyles.L3_reg_16.copyWith(
@@ -158,7 +159,7 @@ class LetterPreview extends StatelessWidget {
                                   textAlign: TextAlign.center,
                                 ),
 
-                                // 마지막 페이지 From.
+                                // MARK: 마지막 페이지 From.
                                 if (index == controller.pagedTexts.length - 1)
                                   Padding(
                                     padding: EdgeInsets.only(top: 16.h),
@@ -205,45 +206,15 @@ class LetterPreview extends StatelessWidget {
         ),
       );
 
-// MARK: 전송 버튼
-  // Widget _button() {
-  //   final sendController = Get.put(LetterSendController());
-  //   final arguments = Get.arguments ?? {};
-
-  //   final receiverId = arguments['receiverId'] ?? 0;
-  //   final content = arguments['content'] ?? '';
-  //   final imageUrl = arguments['imageUrl'];
-
-  //   return ElevatedButton(
-  //     style: ElevatedButton.styleFrom(
-  //       minimumSize: Size(300.w, 40.h),
-  //       backgroundColor: AppColors.mainGreen,
-  //       shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //     ),
-  //     onPressed: () async {
-  //       await sendController.sendLetter(
-  //         receiverId: receiverId,
-  //         content: content,
-  //         imageUrl: imageUrl,
-  //       );
-  //     },
-  //     child: Text(
-  //       '전송하기',
-  //       style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
-  //     ),
-  //   );
-  // }
+  // MARK: 전송 버튼
   Widget _button() {
     final sendController = Get.put(LetterSendController());
     final arguments = Get.arguments ?? {};
 
-    final receiverId =
-        arguments['receiverId'] ?? 0; // WriteLetterScreen에서 전달받은 ID
+    final receiverId = arguments['receiverId'] ?? 0;
     final content = arguments['content'] ?? '';
     final paperId = arguments['paperId'] ?? 1;
-    final imageUrl = arguments['imageUrl']; //
+    final imageKey = arguments['imageKey']; // presigned에서 받은 key
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -254,11 +225,12 @@ class LetterPreview extends StatelessWidget {
         ),
       ),
       onPressed: () async {
+        // MARK: 서버에 보낼 때는 imageUrl로 전달
         await sendController.sendLetter(
           receiverId: receiverId,
           content: content,
           paperId: paperId,
-          imageUrl: imageUrl,
+          imageUrl: imageKey, // imageKey 값을 imageUrl 필드에 전달
         );
       },
       child: Text(
@@ -268,7 +240,7 @@ class LetterPreview extends StatelessWidget {
     );
   }
 
-// MARK: 수정 버튼
+  // MARK: 수정 버튼
   Widget _edit(LetterPreviewController controller) => TextButton(
         onPressed: () {
           Get.back();

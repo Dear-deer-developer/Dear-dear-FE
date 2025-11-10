@@ -4,7 +4,6 @@ import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +12,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class LetterReceived extends StatelessWidget {
   const LetterReceived({super.key});
 
+  // MARK: 날짜 포맷 변환
   String formatDate(String? isoString) {
     if (isoString == null || isoString.isEmpty) return '';
     try {
@@ -36,6 +36,7 @@ class LetterReceived extends StatelessWidget {
     final sender = arguments['sender'] ?? {};
     final senderName = sender['nickname'] ?? '보낸 사람 없음';
     final paperId = arguments['paperId'] ?? 1;
+    final presignedUrl = arguments['presignedUrl']; // 서버에서 받은 presignedUrl
 
     final paperAsset = _getPaperAsset(paperId);
 
@@ -48,11 +49,12 @@ class LetterReceived extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _AppBar(),
-      body: _Body(controller, senderName, formattedDate, paperAsset, nickname),
+      body: _Body(controller, senderName, formattedDate, paperAsset, nickname,
+          presignedUrl),
     );
   }
 
-  // MARK: - AppBar
+  // MARK: AppBar
   AppBar _AppBar() => AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -66,13 +68,12 @@ class LetterReceived extends StatelessWidget {
         ),
       );
 
-  // MARK: - Body
+  // MARK: Body
   Widget _Body(LetterPreviewController controller, String senderName,
-      String sentAt, String paperAsset, String nickname) {
+      String sentAt, String paperAsset, String nickname, String? presignedUrl) {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        // 💌 봉투 이미지
         Align(
           alignment: Alignment.bottomCenter,
           child: Image.asset(
@@ -82,7 +83,6 @@ class LetterReceived extends StatelessWidget {
             fit: BoxFit.contain,
           ),
         ),
-
         Positioned(
           bottom: 140.h,
           left: 0,
@@ -90,7 +90,8 @@ class LetterReceived extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _LetterView(controller, senderName, sentAt, paperAsset, nickname),
+              _LetterView(controller, senderName, sentAt, paperAsset, nickname,
+                  presignedUrl),
               const SizedBox(height: 30),
               _PageIndicator(controller),
             ],
@@ -100,9 +101,9 @@ class LetterReceived extends StatelessWidget {
     );
   }
 
-  // MARK: - Letter View
+  // MARK: Letter View
   Widget _LetterView(LetterPreviewController controller, String senderName,
-      String sentAt, String paperAsset, String nickname) {
+      String sentAt, String paperAsset, String nickname, String? presignedUrl) {
     return SizedBox(
       height: 460.h,
       child: Obx(() => PageView.builder(
@@ -112,15 +113,14 @@ class LetterReceived extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
                 child: _LetterCard(index, controller, senderName, sentAt,
-                    paperAsset, nickname),
+                    paperAsset, nickname, presignedUrl),
               );
             },
           )),
     );
   }
 
-  // MARK: - Letter Card
-
+  // MARK: Letter Card
   Widget _LetterCard(
     int index,
     LetterPreviewController controller,
@@ -128,6 +128,7 @@ class LetterReceived extends StatelessWidget {
     String sentAt,
     String paperAsset,
     String nickname,
+    String? presignedUrl,
   ) {
     return AspectRatio(
       aspectRatio: 3 / 4.4,
@@ -155,6 +156,22 @@ class LetterReceived extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // 이미지 표시 (첫 페이지에만)
+                  if (index == 0 &&
+                      presignedUrl != null &&
+                      presignedUrl.isNotEmpty) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Image.network(
+                        presignedUrl,
+                        fit: BoxFit.cover,
+                        width: 280.w,
+                        height: 180.h,
+                      ),
+                    ),
+                    SizedBox(height: 14.h),
+                  ],
 
                   // 본문
                   Expanded(
@@ -197,7 +214,7 @@ class LetterReceived extends StatelessWidget {
     );
   }
 
-  // MARK: - Page Indicator
+  // MARK: Page Indicator
   Widget _PageIndicator(LetterPreviewController controller) => Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Obx(() {
@@ -216,7 +233,7 @@ class LetterReceived extends StatelessWidget {
         }),
       );
 
-  // MARK: - 편지지 매핑
+  // MARK: 편지지 매핑
   String _getPaperAsset(int paperId) {
     switch (paperId) {
       case 1:

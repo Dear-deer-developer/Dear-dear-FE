@@ -1,14 +1,13 @@
-import 'package:dear_deer_demo/controller/post/post_controller.dart';
+import 'package:dear_deer_demo/app.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/view/letter/post.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 
-class transferCompleted extends StatelessWidget {
-  const transferCompleted({super.key});
+class TransferCompleted extends StatelessWidget {
+  const TransferCompleted({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,10 @@ class transferCompleted extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: _appbar(),
       body: Column(
-        children: [_middle(), _button()],
+        children: [
+          _middle(),
+          _button(),
+        ],
       ),
     );
   }
@@ -27,10 +29,7 @@ class transferCompleted extends StatelessWidget {
         scrolledUnderElevation: 0,
         title: Padding(
           padding: const EdgeInsets.only(left: 24),
-          child: Text(
-            '전송 완료',
-            style: FontStyles.H2_bold_17,
-          ),
+          child: Text('전송 완료', style: FontStyles.H2_bold_17),
         ),
         centerTitle: false,
       );
@@ -49,17 +48,12 @@ class transferCompleted extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 30, bottom: 4),
             child: Center(
-              child: Text(
-                '우편이 성공적으로 접수되었습니다!',
-                style: FontStyles.B3_bold_15,
-              ),
+              child: Text('우편이 성공적으로 접수되었습니다!', style: FontStyles.B3_bold_15),
             ),
           ),
           Center(
-            child: Text(
-              '이 편지는 12 월 25 일 00 시부터 열람 가능합니다. ',
-              style: FontStyles.B5_reg_13,
-            ),
+            child: Text('이 편지는 12월 25일 00시부터 열람 가능합니다.',
+                style: FontStyles.B5_reg_13),
           ),
         ],
       );
@@ -74,12 +68,10 @@ class transferCompleted extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: () {
-            Get.put(PostController()); //
-            Get.offUntil(
-              GetPageRoute(page: () => PostMain()),
-              (route) => route.isFirst,
-            );
+          onPressed: () async {
+            await Get.deleteAll(force: true);
+            Phoenix.rebirth(Get.context!);
+            Get.offAll(() => const App());
           },
           child: Text(
             '닫기',

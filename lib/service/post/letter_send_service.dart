@@ -3,10 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dear_deer_demo/model/post/letter_send_model.dart';
 
+// MARK: - 편지 전송 및 임시저장 네트워크 서비스
 class LetterService {
   static final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
 
-  // MARK: 편지 전송 서비스
+  // MARK: 편지 전송
   static Future<bool> sendLetter(Letter letter) async {
     try {
       final dio = Dio();
@@ -21,7 +22,7 @@ class LetterService {
       final data = letter.toJson();
 
       print('요청 URL: $baseUrl/letters');
-      print('전송 데이터: $data');
+      print('전송 데이터: $data'); // ✅ imageKey 포함 확인용 로그
       print('Authorization 헤더: Bearer $token');
 
       final response = await dio.post(
@@ -37,7 +38,6 @@ class LetterService {
 
       print('응답 코드: ${response.statusCode}');
       print('응답 데이터: ${response.data}');
-
       return response.statusCode == 201;
     } catch (e) {
       print('네트워크 에러: $e');
@@ -45,7 +45,7 @@ class LetterService {
     }
   }
 
-  // MARK: 임시 저장 서비스
+  // MARK: 임시 저장
   static Future<bool> saveDraft(String content,
       {int? paperId, int? receiverId}) async {
     try {

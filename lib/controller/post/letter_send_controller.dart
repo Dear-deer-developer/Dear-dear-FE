@@ -3,9 +3,12 @@ import 'package:dear_deer_demo/service/post/letter_send_service.dart';
 import 'package:dear_deer_demo/view/letter/transfer_completed.dart';
 import 'package:get/get.dart';
 
+// MARK: - 편지 전송 컨트롤러
+// S3 업로드가 완료된 후 imageKey를 받아 LetterService로 전달
 class LetterSendController extends GetxController {
   var isSending = false.obs;
 
+  // MARK: - 편지 전송 메서드
   Future<void> sendLetter({
     required int receiverId,
     required String content,
@@ -15,6 +18,7 @@ class LetterSendController extends GetxController {
     isSending.value = true;
 
     try {
+      // MARK: Letter 모델 구성
       final letter = Letter(
         receiverId: receiverId,
         content: content,
@@ -22,11 +26,12 @@ class LetterSendController extends GetxController {
         imageUrl: imageUrl,
       );
 
+      // MARK: 전송 요청
       final success = await LetterService.sendLetter(letter);
 
       if (success) {
         print('편지 전송 성공 (paperId: $paperId)');
-        Get.offAll(() => transferCompleted());
+        Get.offAll(() => TransferCompleted()); // 전송 완료 화면 이동
       } else {
         print('편지 전송 실패');
       }
