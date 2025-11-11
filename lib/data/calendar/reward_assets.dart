@@ -55,7 +55,7 @@ final Map<String, String> rewardAssetMap = {
   'ginger_cookie': 'assets/images/rewards/ginger_cookie.png',
 
   // 12/25
-  'santa_letter': 'assets/images/rewards/santa_letter.png',
+  'santa_letter_trigger': 'assets/images/rewards/santa_letter.png',
 };
 
 String? rewardAssetFor(String? giftName) =>

@@ -40,13 +40,15 @@ class CalendarDayBox extends StatelessWidget {
             ? AppColors.G_07.withOpacity(0.6)
             : AppColors.G_07;
 
+    final boxBg = isPast ? const Color(0xFFDBB586) : Colors.white;
+
     return GestureDetector(
       onTap: () => onTap(date),
       child: Container(
         width: 34.w,
         height: 48.h,
         decoration: BoxDecoration(
-          color: isPast ? const Color(0xFFDBB586) : Colors.white,
+          color: boxBg,
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Stack(
@@ -69,9 +71,9 @@ class CalendarDayBox extends StatelessWidget {
               bottom: 5.5.h,
               child: Padding(
                 padding: sortedEvents.length <= 3
-                    ? EdgeInsets.zero // 이벤트가 3개 이하일 때는 패딩 없음
-                    : EdgeInsets.only(left: 3.w, right: 1.w), // 3개 초과일 때만 좌측 여백
-                child: _eventDots(sortedEvents),
+                    ? EdgeInsets.zero
+                    : EdgeInsets.only(left: 3.w, right: 1.w),
+                child: _eventDots(sortedEvents, isPast: isPast, boxBg: boxBg),
               ),
             ),
           ],
@@ -93,9 +95,15 @@ class CalendarDayBox extends StatelessWidget {
         ),
       );
 
-  Widget _eventDots(List<CalendarEvent> events) {
-    // 이벤트 개수에 따라 간격 결정
+  /// 이벤트 점(최대 3개 + 오버플로) - 지난날이면 점 투명도 낮춤
+  Widget _eventDots(List<CalendarEvent> events,
+      {required bool isPast, required Color boxBg}) {
     final double spacing = events.length <= 3 ? 4.w : 3.w;
+
+    Color _dotColor(String category) {
+      final base = CalendarCategoryMeta.colorByLabel(category);
+      return base.withOpacity(isPast ? 0.4 : 1.0);
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -109,18 +117,29 @@ class CalendarDayBox extends StatelessWidget {
               width: 5.w,
               height: 5.w,
               decoration: BoxDecoration(
-                color: CalendarCategoryMeta.colorByLabel(event.category),
+                color: _dotColor(event.category),
                 shape: BoxShape.circle,
               ),
             ),
           );
         }),
-        if (events.length > 3) _overflowDot(events[3].category),
+        if (events.length > 3)
+          _overflowDot(
+            events[3].category,
+            isPast: isPast,
+            boxBg: boxBg,
+          ),
       ],
     );
   }
 
-  Widget _overflowDot(String category) {
+  /// 4개 이상일 때 마지막 점 + 오른쪽 페이드.
+  /// 지난날이면 점도 흐리고, 페이드 배경도 dayBox 배경색을 사용.
+  Widget _overflowDot(String category,
+      {required bool isPast, required Color boxBg}) {
+    final dotColor = CalendarCategoryMeta.colorByLabel(category)
+        .withOpacity(isPast ? 0.4 : 1.0);
+
     return Padding(
       padding: EdgeInsets.only(left: 3.w),
       child: SizedBox(
@@ -131,7 +150,7 @@ class CalendarDayBox extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: CalendarCategoryMeta.colorByLabel(category),
+                color: dotColor,
                 shape: BoxShape.circle,
               ),
             ),
@@ -146,8 +165,8 @@ class CalendarDayBox extends StatelessWidget {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      Colors.white.withOpacity(0.0),
-                      Colors.white.withOpacity(1.0),
+                      boxBg.withOpacity(0.0),
+                      boxBg.withOpacity(1.0),
                     ],
                   ),
                   borderRadius: BorderRadius.horizontal(
