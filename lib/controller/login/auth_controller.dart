@@ -22,7 +22,51 @@ class AuthController extends GetxController {
   final signPw2Ctrl = TextEditingController();
   final signNicknameCtrl = TextEditingController();
 
+  // 회원탈퇴
+  final withdrawAgree = false.obs;
+  final withdrawPwCtrl = TextEditingController();
+  final withdrawPw = ''.obs;
+
   final isLoading = false.obs;
+
+  // ✅ 새로 추가: 비밀번호 입력만으로 다음 단계로 갈 수 있는 조건
+  bool get canGoConfirm =>
+      withdrawPw.value.trim().isNotEmpty && !isLoading.value;
+
+  // ✅ 기존: 최종 탈퇴 버튼 활성화 조건
+  bool get canWithdraw =>
+      withdrawAgree.value &&
+      withdrawPw.value.trim().isNotEmpty &&
+      !isLoading.value;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _resetWithdrawState();
+
+    // ✅ TextField <-> Rx 동기화
+    withdrawPwCtrl.addListener(() {
+      withdrawPw.value = withdrawPwCtrl.text;
+    });
+  }
+
+  // ✅ 외부에서 접근 가능한 초기화 (check_pw.dart 진입 시 호출)
+  void resetWithdrawFlow() {
+    withdrawAgree.value = false;
+    withdrawPw.value = '';
+    withdrawPwCtrl.text = '';
+  }
+
+  // 기존 내부 함수는 유지해도 무방
+  void _resetWithdrawState() {
+    withdrawAgree.value = false;
+    withdrawPwCtrl.text = '';
+  }
+
+  void setWithdrawPassword(String v) {
+    withdrawPwCtrl.text = v;
+    update(); // 버튼 활성화 즉시 반영
+  }
 
   @override
   void onClose() {
@@ -32,6 +76,7 @@ class AuthController extends GetxController {
     signPwCtrl.dispose();
     signPw2Ctrl.dispose();
     signNicknameCtrl.dispose();
+    withdrawPwCtrl.dispose();
     super.onClose();
   }
 
@@ -175,6 +220,41 @@ class AuthController extends GetxController {
     } catch (e, st) {
       logger.e('submitNickname 예외', error: e, stackTrace: st);
       Get.snackbar('오류', '일시적 오류가 발생했습니다.');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // MARK: 회원탈퇴
+  Future<void> withdraw() async {
+    if (!canWithdraw || isLoading.value) return;
+    isLoading(true);
+    try {
+      final password = withdrawPw.value.trim();
+      logger.i('[WITHDRAW] 요청 시작 (pwLen=${password.length})');
+
+      final auth = Get.find<AuthService>();
+      final ok = await auth.withdraw(password); // ✅ 비번 전달
+
+      if (ok) {
+        logger.i('[WITHDRAW] 성공 → 상태 초기화 + LoginMain 이동');
+
+        // 1) 전역 상태 완전 초기화
+        await Get.deleteAll(force: true);
+        await sharedPreferences.clear();
+
+        // 2) 로그인 화면에서 필요한 최소 의존성만 재바인딩
+        Get.put<ApiService>(ApiService(), permanent: true);
+        Get.put<AuthService>(AuthService(), permanent: true);
+        Get.lazyPut<AuthController>(() => AuthController());
+
+        // 3) 로그인 화면으로 이동
+        Get.offAll(() => const LoginMain());
+      } else {
+        logger.w('[WITHDRAW] 실패 - 서버 오류/인증 실패');
+      }
+    } catch (e, st) {
+      logger.e('[WITHDRAW] 예외 발생', error: e, stackTrace: st);
     } finally {
       isLoading(false);
     }
