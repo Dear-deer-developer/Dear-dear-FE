@@ -1,4 +1,8 @@
 import 'package:dear_deer_demo/controller/post/post_controller.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/view/letter/letter_sent_list.dart';
+import 'package:dear_deer_demo/view/letter/received_letter_list.dart';
+import 'package:dear_deer_demo/view/letter/temporary_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,27 +10,25 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 
-/// 우체국 메인 화면(우편함)입니다.
+/// 우체국 메인 화면(우편함)
 /// 사용자는 이 화면에서 편지 보내기, 내 사서함 확인, 보낸 편지함, 임시 보관함 등
 /// 다양한 우체국 서비스를 이용할 수 있습니다.
 class PostMain extends GetView<PostController> {
-  const PostMain({super.key});
+  PostMain({super.key});
 
-  // MARK: - Controller
-  /// 우체국 관련 비즈니스 로직을 담당하는 컨트롤러입니다.
-  // @override
-  // final controller = Get.put(PostController());
+  final authService = Get.find<AuthService>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor, // NOTE: 전체 배경은 흰색으로 설정
+      backgroundColor: AppColors.bgColor,
       appBar: _appBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _deerPostImage(),
             _mainButtonsRow(),
+            _number(),
             _otherServicesSection(),
           ],
         ),
@@ -35,12 +37,9 @@ class PostMain extends GetView<PostController> {
   }
 
   // MARK: - AppBar
-
-  /// 우체국 메인 화면의 상단 앱바입니다.
-  /// "우체국" 타이틀을 가운데 정렬로 표시합니다.
   AppBar _appBar() => AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // FIXME: 그림자 제거
+        elevation: 0,
         centerTitle: true,
         title: Text(
           "우체국",
@@ -49,9 +48,6 @@ class PostMain extends GetView<PostController> {
       );
 
   // MARK: - 상단 이미지
-
-  /// 화면 상단에 위치하는 디어디어 캐릭터 이미지입니다.
-  /// 우체국 메인 화면을 시각적으로 강조합니다.
   Widget _deerPostImage() => Padding(
         padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
         child: Image.asset(
@@ -63,9 +59,6 @@ class PostMain extends GetView<PostController> {
       );
 
   // MARK: - 메인 버튼 영역
-
-  /// 편지 보내기와 내 사서함 버튼을 가로로 배치하는 영역입니다.
-  /// 각 버튼은 카드 형태로, 이미지와 텍스트로 구성되어 있습니다.
   Widget _mainButtonsRow() => Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 4.h),
         child: Row(
@@ -81,14 +74,12 @@ class PostMain extends GetView<PostController> {
               image: ImagePath.letterBoxImage,
               title: "내 사서함 확인",
               subtitle: "내용은 12월 25일부터 확인 가능",
-              onTap: controller.openMyMailbox,
+              onTap: () => Get.to(() => ReceivedLetterList()),
             ),
           ],
         ),
       );
 
-  /// 카드 형태의 메인 버튼 위젯입니다.
-  /// 이미지, 제목, 부제목, 클릭 이벤트를 받습니다.
   Widget _mainCardButton({
     required String image,
     required String title,
@@ -130,10 +121,57 @@ class PostMain extends GetView<PostController> {
         ),
       );
 
-  // MARK: - 그 외 업무 영역
+  // MARK: - 사서함 번호
+  Widget _number() {
+    // ✅ 로그인한 유저 정보에서 zipCode 가져오기
+    final zipCode = authService.user.value?.zipCode ?? '00000';
 
-  /// 보낸 편지함, 임시 보관함 등 그 외 업무 버튼을 배치하는 영역입니다.
-  /// 왼쪽 정렬로, 각 버튼은 텍스트 형태로 제공됩니다.
+    return Padding(
+      padding: EdgeInsets.only(top: 14.h),
+      child: Container(
+        width: 312.w,
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: AppColors.G_01,
+          borderRadius: BorderRadius.circular(7.r),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "내 사서함 번호: $zipCode",
+              style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
+            ),
+            SizedBox(
+              width: 38.w,
+              height: 22.h,
+              child: ElevatedButton(
+                onPressed: () {
+                  // TODO: 공유 기능 추가
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  "공유",
+                  style: FontStyles.S3_reg_10.copyWith(color: Colors.black),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // MARK: - 그 외 업무 영역
   Widget _otherServicesSection() => Padding(
         padding: EdgeInsets.only(left: 24.w, top: 32.h, right: 24.w),
         child: Column(
@@ -144,15 +182,19 @@ class PostMain extends GetView<PostController> {
               style: FontStyles.H3_bold_16.copyWith(color: Colors.black),
             ),
             SizedBox(height: 16.h),
-            _serviceTextButton("보낸 편지함", controller.openSentLetters),
+            _serviceTextButton(
+              "보낸 편지함",
+              () => Get.to(() => LetterSentList()),
+            ),
             SizedBox(height: 12.h),
-            _serviceTextButton("임시 보관함", controller.openDrafts),
+            _serviceTextButton(
+              "임시 보관함",
+              () => Get.to(() => TemporaryStorage()),
+            ),
           ],
         ),
       );
 
-  /// 그 외 업무용 텍스트 버튼입니다.
-  /// 텍스트와 클릭 이벤트를 받으며, 좌측 정렬됩니다.
   Widget _serviceTextButton(String label, VoidCallback onTap) => TextButton(
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,

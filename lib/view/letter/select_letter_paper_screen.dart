@@ -21,10 +21,17 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
   // MARK: - State
   /// 선택된 편지지의 인덱스를 저장하는 상태 변수입니다.
   int? selectedIndex;
-  // 우체국 관련 비즈니스 로직을 담당하는 컨트롤러입니다.
+
+  /// 우체국 관련 비즈니스 로직을 담당하는 컨트롤러입니다.
   final PostController controller = Get.find();
-  // 편지지 색상 리스트입니다. (임시로 회색 6개 생성)
-  final List<Color> letterPapers = List.generate(6, (_) => Colors.grey[300]!);
+
+  /// 편지지 이미지 리스트입니다.
+  /// 이제 실제 에셋 경로(`assets/images/letter1.png` ~ `letter11.png`)를 사용합니다.
+  /// List.generate를 사용해 자동으로 11개의 이미지 경로를 생성합니다.
+  final List<String> letterPapers = List.generate(
+    11,
+    (index) => 'assets/images/letter${index + 1}.png',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +41,7 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
       body: SafeArea(
         child: Center(
           child: SizedBox(
-            width: 360.w, // Figma 기준 화면 고정
+            width: 360.w,
             child: Column(
               children: [
                 Expanded(child: _letterGrid()),
@@ -98,7 +105,9 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
   // MARK: - 편지지 아이템
 
   /// 개별 편지지 아이템을 반환합니다.
-  /// 사용자가 아이템을 터치하면 선택 상태가 토글되며, 선택된 아이템은 빨간색 테두리로 표시됩니다.
+  /// 사용자가 아이템을 터치하면 선택 상태가 토글되며,
+  /// 선택된 아이템은 빨간색 테두리로 표시됩니다.
+  /// 'clipBehavior: Clip.hardEdge`를 설정하여 둥근 모서리 영역을 벗어나는 이미지가 잘리도록 처리했습니다.
   Widget _letterPaperItem(int index) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
@@ -112,11 +121,18 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
         width: 148.w,
         height: 208.h,
         decoration: BoxDecoration(
-          color: letterPapers[index],
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
             color: isSelected ? Colors.red : Colors.transparent,
             width: 3.w,
+          ),
+        ),
+        clipBehavior: Clip.hardEdge, // 컨테이너 모서리 기준으로 이미지 자르기
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4.r),
+          child: Image.asset(
+            letterPapers[index],
+            fit: BoxFit.cover,
           ),
         ),
       ),
@@ -126,10 +142,20 @@ class _SelectLetterPaperScreenState extends State<SelectLetterPaperScreen> {
   // MARK: - 선택 버튼
 
   /// '이 편지지로 선택하기' 버튼을 반환합니다.
-  /// 편지지가 선택되어야 활성화되며, 버튼을 누르면 다음 단계로 이동합니다.
+  /// 편지지가 선택되어야 활성화되며,
+  /// 버튼을 누르면 다음 단계로 이동합니다.
   Widget _selectButton() => SelectLetterButton(
         isEnabled: selectedIndex != null,
-        onPressed: () => controller.goToWriteLetter(),
-        buttonText: "이 편지지로 선택하기", // 원하는 텍스트로 변경 가능
+        onPressed: () {
+          if (selectedIndex != null) {
+            final selectedPaper = {
+              'index': selectedIndex,
+              'image': letterPapers[selectedIndex!],
+            };
+
+            controller.goToWriteLetter(selectedPaper);
+          }
+        },
+        buttonText: "이 편지지로 선택하기",
       );
 }

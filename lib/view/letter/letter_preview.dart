@@ -1,6 +1,9 @@
 import 'package:dear_deer_demo/controller/post/letter_preview_controller.dart';
+import 'package:dear_deer_demo/controller/post/letter_send_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/service/post/s3_service.dart';
+import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -13,119 +16,186 @@ class LetterPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(LetterPreviewController());
 
+    // WriteLetterScreen에서 전달된 모든 인자 받기
+    final arguments = Get.arguments ?? {};
+    final senderName = arguments['senderName'] ?? '';
+    final content = arguments['content'] ?? '';
+    final selectedPaper = arguments['selectedPaper'];
+    final recipientName = arguments['recipientName'] ?? '';
+    final recipientNumber = arguments['recipientNumber'] ?? '';
+
+    // 컨트롤러 초기화
+    controller.setLetterContent(content);
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _appBar(), // 상단 앱바
+      backgroundColor: AppColors.bgColor,
+      appBar: _appBar(),
       body: Column(
         children: [
-          _letterPreviewBody(controller),
+          _letterPreviewBody(
+              controller, senderName, recipientName, selectedPaper),
           _slide(controller),
           const SizedBox(height: 20),
-          _button(controller), // 전송 버튼
-          _edit(controller), // 수정 버튼
+          _button(),
+          _edit(controller),
         ],
       ),
     );
   }
 
-// MARK: 앱 바
+  // MARK: 앱바
   AppBar _appBar() => AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Padding(
           padding: const EdgeInsets.only(left: 24),
-          child: Text(
-            '편지 확인',
-            style: FontStyles.H2_bold_17,
-          ),
+          child: Text('편지 확인', style: FontStyles.H2_bold_17),
         ),
         centerTitle: false,
       );
 
-// MARK: 편지 내용 미리보기
-  /// 편지 내용을 페이지별로 나누어 보여주는 위젯입니다.
-  /// 페이지 수는 500 자씩 끊어서 나누어진 리스트로 관리됩니다.
-  /// 각 페이지는 PageView.builder를 사용하여 스크롤할 수 있습니다.
-  Widget _letterPreviewBody(LetterPreviewController controller) {
-    final arguments = Get.arguments ?? {};
-    final senderName = arguments['senderName'] ?? '';
+  // MARK: 편지 내용 미리보기
+  Widget _letterPreviewBody(
+    LetterPreviewController controller,
+    String senderName,
+    String recipientName,
+    dynamic selectedPaper,
+  ) {
+    final selectedImage = Get.arguments?['selectedImage'];
+    final imageKey = Get.arguments['imageUrl'] ?? Get.arguments['imageKey'];
+    print('LetterPreview 전달된 imageKey/imageUrl = $imageKey');
+    final s3Service = S3Service();
 
-    return Expanded(
-      child: Obx(
-        () => PageView.builder(
-          controller: controller.pageController,
-          itemCount: controller.pagedTexts.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 27, horizontal: 30),
-              child: Container(
-                width: 300.w,
-                decoration: BoxDecoration(
-                  color: AppColors.G_01,
-                  borderRadius: BorderRadius.circular(8.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+    return FutureBuilder<String?>(
+      future:
+          imageKey != null ? s3Service.getImagePresignedUrl(imageKey) : null,
+      builder: (context, snapshot) {
+        final s3ImageUrl = snapshot.data;
 
-                /// 첫 페이지에만 "Dear. 닉네임 이용" 문구를 추가하고, 마지막 페이지에만 날짜와 발신자 정보를 표시합니다.
-                /// 각 페이지는 컨테이너 내에서 스크롤할 수 없도록 설정되어 있습니다.
-                /// 첫 페이지가 아닌 경우에는 상단의 여백을 추가하여 레이아웃을 맞추었습니다.
-                /// 발신자 정보 컨트롤러 추가
-                child: Column(
-                  children: [
-                    if (index == 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 99, bottom: 15),
-                        child: Text("Dear. 닉네임이용", style: FontStyles.L1_reg_20),
-                      )
-                    else
-                      SizedBox(height: 80.h),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: Text(
-                            controller.pagedTexts[index],
-                            style: FontStyles.L3_reg_16,
+        return Expanded(
+          child: Obx(
+            () => PageView.builder(
+              controller: controller.pageController,
+              itemCount: controller.pagedTexts.length,
+              itemBuilder: (context, index) {
+                return Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // MARK: 편지지 배경
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.r),
+                        child: selectedPaper != null
+                            ? Image.asset(
+                                selectedPaper['image'],
+                                width: 312.w,
+                                height: 500.h,
+                                fit: BoxFit.fill,
+                                alignment: Alignment.center,
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+
+                      // MARK: 편지 내용 (편지지 위)
+                      SizedBox(
+                        width: 312.w,
+                        height: 500.h,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(20.w, 90.h, 20.w, 20.h),
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // MARK: Dear 문구
+                                if (index == 0)
+                                  Padding(
+                                    padding: EdgeInsets.only(bottom: 15.h),
+                                    child: Text(
+                                      "Dear. ${recipientName.isNotEmpty ? recipientName : '친구'}",
+                                      style: FontStyles.L1_reg_20.copyWith(
+                                        fontFamily: 'LeeSeoyun',
+                                        color: AppColors.Black,
+                                      ),
+                                    ),
+                                  ),
+
+                                // MARK: 이미지 표시 (로컬 > S3 순서)
+                                if (index == 0)
+                                  if (selectedImage != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: Image.file(
+                                        selectedImage,
+                                        width: 280.w,
+                                        height: 184.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  else if (s3ImageUrl != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      child: Image.network(
+                                        s3ImageUrl,
+                                        width: 280.w,
+                                        height: 184.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+
+                                if (index == 0 &&
+                                    (selectedImage != null ||
+                                        s3ImageUrl != null))
+                                  SizedBox(height: 14.h),
+
+                                // MARK: 본문 텍스트
+                                Text(
+                                  controller.pagedTexts[index],
+                                  style: FontStyles.L3_reg_16.copyWith(
+                                    fontFamily: 'LeeSeoyun',
+                                    color: AppColors.Black,
+                                    height: 1.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+
+                                // MARK: 마지막 페이지 From.
+                                if (index == controller.pagedTexts.length - 1)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 16.h),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Text(
+                                        "2025년 12월 20일\nFrom. $senderName",
+                                        style: FontStyles.L3_reg_16.copyWith(
+                                          fontFamily: 'LeeSeoyun',
+                                          color: AppColors.Black,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(right: 15, top: 15, bottom: 15),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: index == controller.pagedTexts.length - 1
-                            ? Text("2025년 12월 20일 \nFrom. $senderName",
-                                style: FontStyles.L3_reg_16,
-                                textAlign: TextAlign.right)
-                            : const SizedBox.shrink(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-//MARK: 페이지 슬라이드 인디케이터
-  /// SmoothPageIndicator를 사용하여 현재 페이지를 표시합니다.
-  /// 현재 페이지는 빨간색으로 표시되고, 나머지 페이지는 회색으로 표시됩니다.
+  // MARK: 페이지 인디케이터
   Widget _slide(LetterPreviewController controller) => Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SmoothPageIndicator(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: SmoothPageIndicator(
           controller: controller.pageController,
           count: controller.pagedTexts.length,
           effect: const SlideEffect(
@@ -133,30 +203,61 @@ class LetterPreview extends StatelessWidget {
             dotHeight: 6,
             activeDotColor: AppColors.mainRed,
             dotColor: AppColors.G_03,
-          )));
-
-//MARK: 전송 버튼
-  Widget _button(LetterPreviewController controller) => ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: Size(300.w, 40.h),
-          backgroundColor: AppColors.mainGreen,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
           ),
         ),
-        onPressed: controller.onSend,
-        child: Text('전송하기',
-            style: FontStyles.Button_bold_17.copyWith(color: AppColors.White)),
       );
 
-//MARK: 수정 버튼
+  // MARK: 전송 버튼
+
+  Widget _button() {
+    final sendController = Get.put(LetterSendController());
+    final arguments = Get.arguments ?? {};
+
+    final receiverId = arguments['receiverId'] ?? 0;
+    final content = arguments['content'] ?? '';
+    final paperId = arguments['paperId'] ?? 1;
+    final imageUrl = arguments['imageUrl'] ?? arguments['imageKey'];
+    final isLinkMode = arguments['isLinkMode'] ?? false;
+
+    print('LetterPreview 전송 버튼 imageUrl 확인: $imageUrl');
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(300.w, 40.h),
+        backgroundColor: AppColors.mainGreen,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: () async {
+        // MARK: 서버에 보낼 때는 imageUrl로 전달
+        await sendController.sendLetter(
+          receiverId: receiverId,
+          content: content,
+          paperId: paperId,
+          imageUrl: imageUrl,
+          isLinkMode: isLinkMode,
+        );
+      },
+      child: Text(
+        '전송하기',
+        style: FontStyles.Button_bold_17.copyWith(color: AppColors.White),
+      ),
+    );
+  }
+
+  // MARK: 수정 버튼
   Widget _edit(LetterPreviewController controller) => TextButton(
-        onPressed: controller.onEdit,
-        child: Text("수정하기",
-            style: FontStyles.S1_reg_13.copyWith(
-              decoration: TextDecoration.underline,
-              decorationThickness: 1.0,
-              decorationColor: AppColors.Black,
-            )),
+        onPressed: () {
+          Get.back();
+        },
+        child: Text(
+          "수정하기",
+          style: FontStyles.S1_reg_13.copyWith(
+            decoration: TextDecoration.underline,
+            decorationThickness: 1.0,
+            decorationColor: AppColors.Black,
+          ),
+        ),
       );
 }

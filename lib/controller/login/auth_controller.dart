@@ -41,7 +41,7 @@ class AuthController extends GetxController {
     final pw = loginPwCtrl.text;
 
     if (!_validEmail(email) || pw.isEmpty) {
-      Get.snackbar('로그인', '이메일/비밀번호를 확인해주세요.');
+      Get.snackbar('로그인', '이메일/비밀번호를 확인해 주세요.');
       return;
     }
 
@@ -51,7 +51,7 @@ class AuthController extends GetxController {
       final r = await auth.loginWithEmail(email: email, password: pw);
 
       if (!r.isSuccess) {
-        Get.snackbar('로그인 실패', r.message ?? '이메일/비밀번호를 확인해주세요.');
+        Get.snackbar('로그인 실패', r.message ?? '이메일/비밀번호를 확인해 주세요.');
         return;
       }
 
@@ -118,7 +118,10 @@ class AuthController extends GetxController {
       logger.i('[REGISTER payload] ${jsonEncode(payload)}');
       logger.i('요청 바디: $payload');
 
-      final res = await api.postJson('/auth/native/register', payload);
+      final res = await api.postJson(
+        '/auth/native/register',
+        data: payload,
+      );
 
       logger.i('서버 응답 상태코드: ${res.statusCode}');
       logger.i('서버 응답 본문: ${res.bodyString}');

@@ -9,15 +9,15 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class LetterSent extends StatelessWidget {
-  const LetterSent({super.key});
+class LetterReceived extends StatelessWidget {
+  const LetterReceived({super.key});
 
-  // MARK: 날짜 포맷 변환 함수
+  // MARK: 날짜 포맷 변환
   String formatDate(String? isoString) {
     if (isoString == null || isoString.isEmpty) return '';
     try {
       final utcTime = DateTime.parse(isoString).toUtc();
-      final kstTime = utcTime.add(const Duration(hours: 9));
+      final kstTime = utcTime.add(const Duration(hours: 9)); // 한국 시간 변환
       return DateFormat('yyyy년 MM월 dd일').format(kstTime);
     } catch (_) {
       return isoString;
@@ -33,10 +33,10 @@ class LetterSent extends StatelessWidget {
     final arguments = Get.arguments ?? {};
     final content = arguments['content'] ?? '';
     final sentAt = arguments['sentAt'] ?? '';
-    final receiver = arguments['receiver'] ?? {};
-    final recipientName = receiver['nickname'] ?? '받는 사람 없음';
+    final sender = arguments['sender'] ?? {};
+    final senderName = sender['nickname'] ?? '보낸 사람 없음';
     final paperId = arguments['paperId'] ?? 1;
-    final presignedUrl = arguments['presignedUrl'];
+    final presignedUrl = arguments['presignedUrl']; // 서버에서 받은 presignedUrl
 
     final paperAsset = _getPaperAsset(paperId);
 
@@ -49,8 +49,8 @@ class LetterSent extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _AppBar(),
-      body: _Body(controller, recipientName, formattedDate, paperAsset,
-          nickname, presignedUrl),
+      body: _Body(controller, senderName, formattedDate, paperAsset, nickname,
+          presignedUrl),
     );
   }
 
@@ -62,14 +62,14 @@ class LetterSent extends StatelessWidget {
         title: Padding(
           padding: const EdgeInsets.only(left: 24),
           child: Text(
-            '보낸 편지함',
+            '받은 편지함',
             style: FontStyles.H2_bold_17,
           ),
         ),
       );
 
   // MARK: Body
-  Widget _Body(LetterPreviewController controller, String recipientName,
+  Widget _Body(LetterPreviewController controller, String senderName,
       String sentAt, String paperAsset, String nickname, String? presignedUrl) {
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -90,8 +90,8 @@ class LetterSent extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _LetterView(controller, recipientName, sentAt, paperAsset,
-                  nickname, presignedUrl),
+              _LetterView(controller, senderName, sentAt, paperAsset, nickname,
+                  presignedUrl),
               const SizedBox(height: 30),
               _PageIndicator(controller),
             ],
@@ -102,7 +102,7 @@ class LetterSent extends StatelessWidget {
   }
 
   // MARK: Letter View
-  Widget _LetterView(LetterPreviewController controller, String recipientName,
+  Widget _LetterView(LetterPreviewController controller, String senderName,
       String sentAt, String paperAsset, String nickname, String? presignedUrl) {
     return SizedBox(
       height: 460.h,
@@ -112,7 +112,7 @@ class LetterSent extends StatelessWidget {
             itemBuilder: (context, index) {
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
-                child: _LetterCard(index, controller, recipientName, sentAt,
+                child: _LetterCard(index, controller, senderName, sentAt,
                     paperAsset, nickname, presignedUrl),
               );
             },
@@ -124,7 +124,7 @@ class LetterSent extends StatelessWidget {
   Widget _LetterCard(
     int index,
     LetterPreviewController controller,
-    String recipientName,
+    String senderName,
     String sentAt,
     String paperAsset,
     String nickname,
@@ -146,11 +146,12 @@ class LetterSent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Dear 문구
                   Center(
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 10.h),
                       child: Text(
-                        "Dear. $recipientName",
+                        "Dear. $nickname",
                         style: FontStyles.L1_reg_20,
                       ),
                     ),
@@ -172,6 +173,7 @@ class LetterSent extends StatelessWidget {
                     SizedBox(height: 14.h),
                   ],
 
+                  // 본문
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
@@ -189,12 +191,13 @@ class LetterSent extends StatelessWidget {
                     ),
                   ),
 
+                  // 날짜 & From
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
                       padding: EdgeInsets.only(top: 20.h),
                       child: Text(
-                        "$sentAt\nFrom. $nickname",
+                        "$sentAt\nFrom. $senderName",
                         textAlign: TextAlign.right,
                         style: FontStyles.L3_reg_16.merge(
                           const TextStyle(fontFamily: 'LeeSeoyun'),
@@ -230,7 +233,7 @@ class LetterSent extends StatelessWidget {
         }),
       );
 
-  // MARK: 편지지 이미지 매핑
+  // MARK: 편지지 매핑
   String _getPaperAsset(int paperId) {
     switch (paperId) {
       case 1:
