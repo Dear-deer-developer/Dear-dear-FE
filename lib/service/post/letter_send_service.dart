@@ -22,7 +22,7 @@ class LetterService {
       final data = letter.toJson();
 
       print('요청 URL: $baseUrl/letters');
-      print('전송 데이터: $data'); // ✅ imageKey 포함 확인용 로그
+      print('전송 데이터: $data');
       print('Authorization 헤더: Bearer $token');
 
       final response = await dio.post(

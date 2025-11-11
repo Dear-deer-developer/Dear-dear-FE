@@ -429,7 +429,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
               'selectedPaper': selectedPaper,
               'imageUrl': _uploadedImageKey,
               'selectedImage': _selectedImage,
-              'isLinkMode': _isLinkMode, // 🔥 프리뷰로 전달
+              'isLinkMode': _isLinkMode,
             },
           );
         },

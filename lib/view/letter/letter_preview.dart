@@ -63,7 +63,8 @@ class LetterPreview extends StatelessWidget {
     dynamic selectedPaper,
   ) {
     final selectedImage = Get.arguments?['selectedImage'];
-    final imageKey = Get.arguments?['imageKey'];
+    final imageKey = Get.arguments['imageUrl'] ?? Get.arguments['imageKey'];
+    print('LetterPreview 전달된 imageKey/imageUrl = $imageKey');
     final s3Service = S3Service();
 
     return FutureBuilder<String?>(
@@ -207,6 +208,7 @@ class LetterPreview extends StatelessWidget {
       );
 
   // MARK: 전송 버튼
+
   Widget _button() {
     final sendController = Get.put(LetterSendController());
     final arguments = Get.arguments ?? {};
@@ -214,8 +216,10 @@ class LetterPreview extends StatelessWidget {
     final receiverId = arguments['receiverId'] ?? 0;
     final content = arguments['content'] ?? '';
     final paperId = arguments['paperId'] ?? 1;
-    final imageKey = arguments['imageKey']; // presigned에서 받은 key
+    final imageUrl = arguments['imageUrl'] ?? arguments['imageKey'];
     final isLinkMode = arguments['isLinkMode'] ?? false;
+
+    print('LetterPreview 전송 버튼 imageUrl 확인: $imageUrl');
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
@@ -231,7 +235,7 @@ class LetterPreview extends StatelessWidget {
           receiverId: receiverId,
           content: content,
           paperId: paperId,
-          imageUrl: imageKey, // imageKey 값을 imageUrl 필드에 전달
+          imageUrl: imageUrl,
           isLinkMode: isLinkMode,
         );
       },
