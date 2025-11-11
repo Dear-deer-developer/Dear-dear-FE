@@ -4,6 +4,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/util/logger.dart';
+import 'package:dear_deer_demo/view/profile/account_setting.dart';
 import 'package:dear_deer_demo/widget/camera_dialog.dart';
 import 'package:dear_deer_demo/widget/logout_dialog.dart';
 import 'package:flutter/material.dart';
@@ -150,19 +151,24 @@ class ProfileMain extends GetView<ProfileController> {
           padding: EdgeInsets.only(left: 24.w, top: 12.h),
           child: Text(
             '사용자 설정',
-            style: FontStyles.H3_bold_16, // H3로 변경
+            style: FontStyles.H3_bold_16,
           ),
         ),
-        // 보안 설정
+        // MARK: - 보안 설정
         SizedBox(
           height: 48.h,
           child: Padding(
             padding: EdgeInsets.only(left: 24.w),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                '보안 설정',
-                style: FontStyles.B3_reg_15,
+              child: GestureDetector(
+                onTap: () {
+                  Get.to(() => AccountSetting());
+                },
+                child: Text(
+                  '보안 설정',
+                  style: FontStyles.B3_reg_15,
+                ),
               ),
             ),
           ),
