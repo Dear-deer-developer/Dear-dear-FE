@@ -22,7 +22,51 @@ class AuthController extends GetxController {
   final signPw2Ctrl = TextEditingController();
   final signNicknameCtrl = TextEditingController();
 
+  // 회원탈퇴
+  final withdrawAgree = false.obs;
+  final withdrawPwCtrl = TextEditingController();
+  final withdrawPw = ''.obs;
+
   final isLoading = false.obs;
+
+  // ✅ 새로 추가: 비밀번호 입력만으로 다음 단계로 갈 수 있는 조건
+  bool get canGoConfirm =>
+      withdrawPw.value.trim().isNotEmpty && !isLoading.value;
+
+  // ✅ 기존: 최종 탈퇴 버튼 활성화 조건
+  bool get canWithdraw =>
+      withdrawAgree.value &&
+      withdrawPw.value.trim().isNotEmpty &&
+      !isLoading.value;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _resetWithdrawState();
+
+    // ✅ TextField <-> Rx 동기화
+    withdrawPwCtrl.addListener(() {
+      withdrawPw.value = withdrawPwCtrl.text;
+    });
+  }
+
+  // ✅ 외부에서 접근 가능한 초기화 (check_pw.dart 진입 시 호출)
+  void resetWithdrawFlow() {
+    withdrawAgree.value = false;
+    withdrawPw.value = '';
+    withdrawPwCtrl.text = '';
+  }
+
+  // 기존 내부 함수는 유지해도 무방
+  void _resetWithdrawState() {
+    withdrawAgree.value = false;
+    withdrawPwCtrl.text = '';
+  }
+
+  void setWithdrawPassword(String v) {
+    withdrawPwCtrl.text = v;
+    update(); // 버튼 활성화 즉시 반영
+  }
 
   @override
   void onClose() {
@@ -32,6 +76,7 @@ class AuthController extends GetxController {
     signPwCtrl.dispose();
     signPw2Ctrl.dispose();
     signNicknameCtrl.dispose();
+    withdrawPwCtrl.dispose();
     super.onClose();
   }
 
@@ -173,11 +218,45 @@ class AuthController extends GetxController {
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
 
-      Get.offAll(() => const App());
+      Get.offAll(() => const App(), binding: MainBindings());
       Get.snackbar('완료', '닉네임이 설정되었습니다.');
     } catch (e, st) {
       logger.e('submitNickname 예외', error: e, stackTrace: st);
       Get.snackbar('오류', '일시적 오류가 발생했습니다.');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // MARK: 회원탈퇴
+  Future<void> withdraw() async {
+    if (!canWithdraw || isLoading.value) return;
+    isLoading(true);
+    try {
+      final password = withdrawPw.value.trim();
+      final ok = await Get.find<AuthService>().withdraw(password);
+
+      if (ok) {
+        // ✅ 전역 SharedPreferences/캐시 초기화는 AuthService.withdraw 내부에서 이미 처리됨(_clearAuthLocal)
+        // ✅ 여기서는 "화면 트리 교체 + 새 바인딩"만 책임지자
+        FocusManager.instance.primaryFocus?.unfocus();
+        if (Get.isSnackbarOpen) Get.closeAllSnackbars();
+        await Future<void>.delayed(Duration.zero);
+        await WidgetsBinding.instance.endOfFrame;
+        Get.offAll(
+          () => const LoginMain(),
+          binding: BindingsBuilder(() {
+            // 로그인 화면에서도 AuthController 요청 시 재생성 보장
+            if (!Get.isRegistered<AuthController>()) {
+              Get.lazyPut<AuthController>(() => AuthController(), fenix: true);
+            }
+          }),
+        );
+      } else {
+        Get.snackbar('탈퇴', '실패했습니다. 비밀번호를 확인해주세요.');
+      }
+    } catch (e, st) {
+      logger.e('[WITHDRAW] 예외', error: e, stackTrace: st);
     } finally {
       isLoading(false);
     }
@@ -204,7 +283,7 @@ class AuthController extends GetxController {
       Get.offAll(
         () => const LoginMain(),
         binding: BindingsBuilder(() {
-          Get.lazyPut<AuthController>(() => AuthController()); // 새 인스턴스
+          Get.lazyPut<AuthController>(() => AuthController(), fenix: true); // ✅
         }),
       );
     } catch (e, st) {

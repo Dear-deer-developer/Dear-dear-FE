@@ -315,6 +315,34 @@ class AuthService extends GetxService {
     }
   }
 
+  // MARK: 회원 탈퇴
+  Future<bool> withdraw(String password) async {
+    try {
+      final api = Get.find<ApiService>();
+      final res = await api.guardedDeleteJson(
+        '/auth/native/withdraw',
+        {'password': password},
+      );
+
+      if (res.statusCode == 204) {
+        await _clearAuthLocal();
+        logger.i('🚪 회원 탈퇴 완료');
+        return true;
+      }
+
+      if (res.statusCode == 401) {
+        logger.w('❌ 탈퇴 실패: 토큰 불일치/만료 (401)');
+        return false;
+      }
+
+      logger.e('❌ 탈퇴 실패: ${res.statusCode} ${res.bodyString}');
+      return false;
+    } catch (e, st) {
+      logger.e('withdraw 예외', error: e, stackTrace: st);
+      return false;
+    }
+  }
+
   // MARK: refreshToken 갱신
   Future<bool> refreshAccessToken() async {
     try {

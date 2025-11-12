@@ -59,7 +59,7 @@ class MainBindings extends Bindings {
     Get.put(BottomNavController(), permanent: true);
 
     // ── 페이지 컨트롤러
-    Get.lazyPut(() => AuthController());
+    Get.lazyPut<AuthController>(() => AuthController(), fenix: true);
     Get.lazyPut(() => HomeController());
     Get.lazyPut(() => PostController());
     Get.lazyPut(() => CalendarController());
