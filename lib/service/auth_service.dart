@@ -42,11 +42,13 @@ class AuthService extends GetxService {
     try {
       final api = Get.find<ApiService>();
 
-      final res = await api.postJson('/auth/native/login', {
-        'email': email,
-        'password': password,
-      });
-
+      final res = await api.postJson(
+        '/auth/native/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
       final bodyStr = res.bodyString;
       if (res.statusCode != 200 || bodyStr == null || bodyStr.isEmpty) {
         logger.e('loginWithEmail 실패: ${res.statusCode} ${res.bodyString}');
@@ -143,9 +145,10 @@ class AuthService extends GetxService {
   Future<bool> sendSignupEmailCode(String email) async {
     try {
       final api = Get.find<ApiService>();
-      final res = await api.postJson('/auth/native/register/auth-code', {
-        'email': email,
-      });
+      final res = await api.postJson(
+        '/auth/native/register/auth-code',
+        data: {'email': email},
+      );
 
       logger.i('[이메일 인증코드 요청] email=$email, status=${res.statusCode}');
 
@@ -172,10 +175,10 @@ class AuthService extends GetxService {
   Future<bool> verifySignupEmailCode(String email, String code) async {
     try {
       final api = Get.find<ApiService>();
-      final res = await api.postJson('/auth/native/register/verify-code', {
-        'email': email,
-        'code': code,
-      });
+      final res = await api.postJson(
+        '/auth/native/register/verify-code',
+        data: {'email': email, 'code': code},
+      );
 
       logger.i(
           '[이메일 인증코드 검증] email=$email, code=$code, status=${res.statusCode}');
@@ -215,7 +218,7 @@ class AuthService extends GetxService {
 
     try {
       final api = Get.find<ApiService>();
-      final res = await api.postJson('/auth/native/register', {
+      final res = await api.postJson('/auth/native/register', data: {
         'email': email,
         'password': password,
         'nickname': nickname,

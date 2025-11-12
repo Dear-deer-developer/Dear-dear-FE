@@ -1,78 +1,108 @@
+import 'package:dear_deer_demo/service/post/user_service.dart';
 import 'package:get/get.dart';
 
 /// 친구 선택 화면의 상태를 관리하는 컨트롤러입니다.
-/// 친구 목록을 필터링, 탭 상태, 선택된 친구 인덱스를 관리합니다.
+/// 친구 목록, 검색, 탭 상태, 선택된 친구, 선택된 이름을 관리합니다.
+/// UI에서 선택된 친구 1명을 바로 Radio 버튼과 연동합니다.
 class SelectRecipientController extends GetxController {
+  // MARK: - 선택된 친구 인덱스
+  /// 선택된 친구의 인덱스를 저장합니다.
+  /// 선택 안 됐으면 null
   final Rxn<int> selectedIdx = Rxn<int>();
 
-  /// 선택된 상단 탭 인덱스를 의미합니다.
-  /// 0: 카카오 친구, 1: 사서함 번호, 2: 미가입자
+  // MARK: - 상단 탭 인덱스
+  /// 0: 사서함 번호, 1: 링크로 보내기
   RxInt selectedTabIdx = 0.obs;
 
-  /// 검색어를 의미합니다.
+  // MARK: - 검색어
   final searchQuery = ''.obs;
 
-  /// 친구 목록을 의미합니다.
-  /// 현재 더미 데이터로 구성.
-  final friends = List.generate(10, (index) {
-    return {
-      'name': '친구 이름 $index',
-      'number': '0000-000$index',
-      'nickname': '닉네임 $index',
-    };
-  }).obs;
-
-  /// 필터링이 된 친구 목록이며, 검색 및 탭에 따라 변동됩니다.
+  // MARK: - 검색 결과
+  /// 서버에서 받아올 때 교체되는 실제 유저 데이터 목록
   final filteredFriends = <Map<String, String>>[].obs;
+
+  // MARK: - 선택된 친구 이름
+  /// UI에서 바로 쓸 수 있도록 Rx 상태
+  Rxn<String> selectedName = Rxn<String>();
+
+  // MARK: - 로딩 상태
+  /// 서버 요청 중일 때 true
+  var isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    /// 초기 상태에는 전체 친구를 보여 줍니다.
-    /// 검색어가 변경되거나 선택된 탭이 변경될 때마다 친구 목록을 필터링합니다.
-    _filterFriends();
-    ever(searchQuery, (_) => _filterFriends());
-    ever(selectedTabIdx, (_) => _filterFriends());
+    /// 검색어나 탭 변경 시 필터링 및 API 호출
+    ever(searchQuery, (value) {
+      if (selectedTabIdx.value == 0) {
+        searchUserByZipCode(value);
+      }
+    });
+
+    /// 선택 인덱스 변경 시 selectedName 갱신
+    ever(selectedIdx, (_) => _updateSelectedName());
   }
 
-  /// 검색어와 탭에 따라 친구 목록을 필터링합니다.
-  /// 미가입자 탭(2번) 에서는 친구 목록을 보여 주지 않습니다.
-  /// 검색어가 비어 있을 경우, 전체 친구 목록을 노출합니다.
-  /// 검색어가 있을 경우, 검색어가 포함된 친구들만 필터링합니다.
-
-  void _filterFriends() {
-    // 미가입자 탭일 경우 친구 목록 비우기
-    if (selectedTabIdx.value == 2) {
+// MARK: - 서버에서 사서함 번호로 유저 검색
+  Future<void> searchUserByZipCode(String zipCode) async {
+    if (zipCode.isEmpty || zipCode.length < 5) {
       filteredFriends.clear();
       return;
     }
 
-    // 검색어가 없으면 전체 친구 목록 보여줌
-    if (searchQuery.value.isEmpty) {
-      filteredFriends.assignAll(friends);
-    } else {
-      filteredFriends.assignAll(
-        friends
-            .where((friend) => friend['name']!
-                .toLowerCase()
-                .contains(searchQuery.value.toLowerCase()))
-            .toList(),
-      );
+    try {
+      isLoading.value = true;
+
+      final result = await UserService.searchByZipCode(zipCode);
+
+      if (result != null && result['nickname'] != null) {
+        filteredFriends.assignAll([
+          {
+            'id': result['id'].toString(),
+            'name': result['nickname'],
+            'number': zipCode,
+            'zipCode': zipCode,
+          }
+        ]);
+      } else {
+        filteredFriends.clear();
+      }
+    } catch (e) {
+      print('사서함(우편번호) 검색 에러: $e');
+      filteredFriends.clear();
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  void selectFriend(int? index) {
-    selectedIdx.value = index;
-  }
-
-  /// 선택된 친구들 출력하고, 선택된 친구가 없는 경우 예외 메세지를 출력.
-  void confirmSelection() {
+  // MARK: - 선택된 친구 이름 갱신
+  void _updateSelectedName() {
     final idx = selectedIdx.value;
     if (idx != null && idx < filteredFriends.length) {
-      print('선택된 친구: ${filteredFriends[idx]['name']}');
+      selectedName.value = filteredFriends[idx]['name'];
     } else {
-      print('선택된 친구 없음');
+      selectedName.value = null;
     }
+  }
+
+// MARK: - 친구 선택
+  void selectFriend(int? index) {
+    if (selectedIdx.value == index) {
+      selectedIdx.value = null; // 다시 누르면 선택 해제
+    } else {
+      selectedIdx.value = index;
+    }
+
+    update(); // ✅ 강제로 UI 새로고침 (Obx & Radio 모두 반응하도록)
+  }
+
+  // MARK: - 선택된 친구 반환
+  Map<String, String>? getSelectedFriend() {
+    final idx = selectedIdx.value;
+    if (idx != null && idx < filteredFriends.length) {
+      return filteredFriends[idx];
+    }
+    return null;
   }
 }

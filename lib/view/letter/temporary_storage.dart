@@ -1,7 +1,7 @@
 import 'package:dear_deer_demo/controller/post/temporay_storage_controller.dart';
-
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/view/letter/write_letter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -22,7 +22,7 @@ class TemporaryStorage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _amount(),
-                _list(),
+                Expanded(child: _list()), // ✅ 스크롤 지원
               ],
             )),
       ),
@@ -39,6 +39,7 @@ class TemporaryStorage extends StatelessWidget {
         ),
       );
 
+  /// 상단: 총 개수 + 삭제/확인 버튼
   Widget _amount() => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -80,86 +81,95 @@ class TemporaryStorage extends StatelessWidget {
         ],
       );
 
+  /// 편지 리스트
   Widget _list() => Padding(
         padding: const EdgeInsets.only(top: 24),
         child: Obx(() {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(controller.itemCount, (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  children: [
-                    Row(
+          if (controller.items.isEmpty) {
+            return const Center(child: Text("임시 저장된 편지가 없습니다."));
+          }
+
+          return ListView.separated(
+            itemCount: controller.items.length,
+            separatorBuilder: (_, __) =>
+                const Divider(color: AppColors.G_02, thickness: 1),
+            itemBuilder: (context, index) {
+              final item = controller.items[index];
+              final id = item['id'] as int?;
+              final content = item['content'] ?? '';
+              final displayTitle = item['displayTitle'] ?? '';
+              final formattedTime = item['formattedTime'] ?? '';
+
+              // 여기서 각 item을 Obx로 감싼다.
+              return Obx(() {
+                final isSelected = controller.selectedItems.contains(id);
+
+                return GestureDetector(
+                  onTap: controller.isDeleteMode.value
+                      ? () {
+                          if (id != null) controller.toggleItemSelection(id);
+                        }
+                      : () {
+                          Get.to(
+                            () => WriteLetterScreen(letterData: item),
+                          );
+                        },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📦 텍스트 묶음
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Dear. 닉네임", style: FontStyles.B4_bold_14),
+                              Text(displayTitle, style: FontStyles.B4_bold_14),
+                              const SizedBox(height: 4),
+                              Text(content, style: FontStyles.S3_reg_10),
+                              const SizedBox(height: 2),
                               Text(
-                                "작성하던 편지 내용 한줄. 작성하던 편지 내용 한줄. 작성하던",
-                                style: FontStyles.S3_reg_10,
-                              ),
-                              Text(
-                                "마지막 저장 : 2025. 11. 28. 23: 45",
-                                style: FontStyles.S3_reg_10,
+                                formattedTime,
+                                style: FontStyles.S3_reg_10.copyWith(
+                                    color: AppColors.G_04),
                               ),
                             ],
                           ),
                         ),
-
                         if (controller.isDeleteMode.value)
-                          GestureDetector(
-                            onTap: () => controller
-                                .toggleItemSelection(controller.items[index]),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0, top: 4),
-                              child: Container(
-                                width: 24.w,
-                                height: 24.h,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: controller.selectedItems
-                                            .contains(controller.items[index])
-                                        ? AppColors.mainRed
-                                        : AppColors.G_03,
-                                    width: 2,
-                                  ),
-                                  color: Colors.transparent, // 바깥 원은 투명하게 유지
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, top: 4),
+                            child: Container(
+                              width: 24.w,
+                              height: 24.h,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.mainRed
+                                      : AppColors.G_03,
+                                  width: 2,
                                 ),
-                                child: controller.selectedItems
-                                        .contains(controller.items[index])
-                                    ? Center(
-                                        child: Container(
-                                          width: 16.w, // 바깥 원보다 작게
-                                          height: 16.h,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppColors
-                                                .mainRed, // 내부 작은 원만 주황색
-                                          ),
-                                        ),
-                                      )
-                                    : null,
                               ),
+                              child: isSelected
+                                  ? Center(
+                                      child: Container(
+                                        width: 12.w,
+                                        height: 12.h,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.mainRed,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    const Divider(
-                      color: AppColors.G_02,
-                      thickness: 1,
-                      height: 1,
-                    ),
-                  ],
-                ),
-              );
-            }),
+                  ),
+                );
+              });
+            },
           );
         }),
       );

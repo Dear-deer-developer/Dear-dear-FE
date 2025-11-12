@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:dear_deer_demo/model/post/letter_send_model.dart';
+import 'package:dear_deer_demo/service/post/letter_send_service.dart';
+import 'package:dear_deer_demo/service/post/s3_service.dart';
 import 'package:dear_deer_demo/view/letter/letter_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,42 +9,134 @@ import 'package:get/get.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/widget/custom_button.dart';
-import 'package:dear_deer_demo/view/letter/letter_preview.dart';
-import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'select_recipient.dart';
+import 'package:image_picker/image_picker.dart';
 
-/// 편지 작성 화면입니다.
-/// 사용자는 이 화면에서 받는 사람, 편지 내용, 보내는 사람을 입력하고,
-/// 이미지를 첨부할 수 있습니다.
-/// 모든 필수 입력이 완료되면 '편지 확인 후 전송하기' 버튼이 활성화됩니다.
 class WriteLetterScreen extends StatefulWidget {
-  const WriteLetterScreen({super.key});
+  final Map<String, dynamic>? letterData;
+  const WriteLetterScreen({super.key, this.letterData});
 
   @override
   State<WriteLetterScreen> createState() => _WriteLetterScreenState();
 }
 
 class _WriteLetterScreenState extends State<WriteLetterScreen> {
-  // MARK: - State
-  String? _recipientName;
+  final authService = Get.find<AuthService>();
+  final s3Service = S3Service();
 
-  /// 이미지 박스 표시 여부를 관리하는 상태 변수입니다.
-  bool _showImageBox = false;
-  // 편지 내용 입력을 위한 컨트롤러입니다.
+  String? _recipientName;
+  String? _recipientBoxNumber;
+  int? _recipientId;
+  bool _isLinkMode = false;
+  File? _selectedImage;
+  String? _uploadedImageKey;
+  final ImagePicker _picker = ImagePicker();
+
   final TextEditingController _textController = TextEditingController();
-  // 보내는 사람 입력을 위한 컨트롤러입니다.
   final TextEditingController _senderController = TextEditingController();
+
+  Map<String, dynamic>? _selectedPaper;
+
+  // MARK: 초기화
+  @override
+  void initState() {
+    super.initState();
+
+    final nickname = authService.user.value?.nickname ?? '';
+    _senderController.text = nickname;
+
+    Map<String, dynamic>? letterData;
+    if (widget.letterData != null && widget.letterData!.isNotEmpty) {
+      letterData = widget.letterData!;
+    } else if (Get.arguments is Map<String, dynamic>) {
+      letterData = Get.arguments as Map<String, dynamic>;
+    }
+
+    if (letterData != null && letterData.isNotEmpty) {
+      print('복원된 임시편지 데이터: $letterData');
+
+      _textController.text = letterData['content'] ?? '';
+
+      final receiver = letterData['receiver'];
+      if (receiver is Map<String, dynamic>) {
+        _recipientName = receiver['nickname'];
+        _recipientId = receiver['id'];
+        _recipientBoxNumber = receiver['zipCode']?.toString();
+      } else {
+        _recipientName = letterData['receiverNickname'];
+        _recipientId = letterData['receiverId'];
+        _recipientBoxNumber = letterData['receiverZipCode']?.toString();
+      }
+
+      final int? paperId = letterData['paperId'];
+      if (paperId != null && paperId > 0) {
+        _selectedPaper = {'index': (paperId - 1)};
+      }
+    }
+
+    final args = Get.arguments;
+    if (args is Map<String, dynamic> && args['isEditing'] == true) {
+      _textController.text = args['content'] ?? '';
+      _recipientId = args['receiverId'];
+    }
+  }
 
   @override
   void dispose() {
-    // 컨트롤러 해제
     _textController.dispose();
     _senderController.dispose();
     super.dispose();
   }
 
+  // MARK: 이미지 선택 및 업로드
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    final file = File(image.path);
+    setState(() => _selectedImage = file);
+
+    final filename = file.path.split('/').last;
+    final ext = filename.split('.').last.toLowerCase();
+    final contentType = 'image/$ext';
+
+    try {
+      final presigned = await s3Service.getLetterPresignedUrl(
+        filename: filename,
+        contentType: contentType,
+      );
+
+      if (presigned == null || presigned['url'] == null) {
+        Get.snackbar('업로드 실패', '이미지 업로드용 URL 발급에 실패했습니다.');
+        return;
+      }
+
+      final uploadUrl = presigned['url'];
+      final key = presigned['key'];
+
+      final bytes = await file.readAsBytes();
+      final success = await s3Service.uploadToS3(uploadUrl, bytes, contentType);
+
+      if (success) {
+        setState(() => _uploadedImageKey = key);
+        Get.snackbar('업로드 완료', '이미지가 성공적으로 업로드되었습니다.');
+        print('S3 업로드 성공: key=$key');
+      } else {
+        Get.snackbar('업로드 실패', 'S3 업로드 중 문제가 발생했습니다.');
+      }
+    } catch (e) {
+      print('S3 업로드 오류: $e');
+      Get.snackbar('오류', '이미지 업로드 중 오류가 발생했습니다.');
+    }
+  }
+
+  // MARK: UI
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments ?? {};
+    final selectedPaper = args['selectedPaper'] ?? _selectedPaper;
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: _appBar(),
@@ -53,7 +149,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
               _receiverSection(),
               _contentSection(),
               _senderSection(),
-              _submitButton(),
+              _submitButton(selectedPaper),
               _bottomPadding(),
             ],
           ),
@@ -62,54 +158,68 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 상단 앱바
-
-  /// 상단 앱바를 반환합니다.
-  /// "편지 쓰기" 타이틀을 왼쪽 정렬로 표시합니다.
+  // MARK: 앱바
   AppBar _appBar() => AppBar(
         backgroundColor: AppColors.bgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        titleSpacing: 0,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "편지 쓰기",
-            style: FontStyles.H2_bold_17,
-            textAlign: TextAlign.left,
+        title: Text("편지 쓰기", style: FontStyles.H2_bold_17),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final arguments = Get.arguments ?? {};
+              final selectedPaper =
+                  arguments['selectedPaper'] ?? _selectedPaper;
+              final paperId = selectedPaper?['index'] != null
+                  ? selectedPaper['index'] + 1
+                  : 1;
+
+              final success = await LetterService.saveDraft(
+                _textController.text,
+                paperId: paperId,
+                receiverId: _recipientId,
+              );
+
+              if (success) _showSaveToast(context);
+            },
+            child: const Text(
+              "임시저장",
+              style: TextStyle(color: Colors.black, fontSize: 13),
+            ),
           ),
-        ),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              "닫기",
+              style: TextStyle(color: Colors.black, fontSize: 13),
+            ),
+          ),
+        ],
       );
 
-  // MARK: - 상단 여백
-
-  /// 상단에 여백을 추가하는 위젯입니다.
-  Widget _topPadding() => SizedBox(height: 10.h);
-
-  // MARK: - 받는 사람 섹션
-
-  /// 받는 사람 입력 섹션을 반환합니다.
-  /// 사용자는 이 영역을 터치하여 받는 사람을 선택할 수 있습니다.
+  // MARK: 받는 사람
   Widget _receiverSection() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 받는 사람 라벨
-          Text(
-            "받는 사람",
-            style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
-          ),
+          Text("받는 사람",
+              style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black)),
           SizedBox(height: 4.h),
-          // 받는 사람 입력 필드
           GestureDetector(
             onTap: () async {
-              final selectedName = await Get.to(() => const SelectRecipient());
-              if (selectedName != null) {
+              final selectedFriend =
+                  await Get.to(() => const SelectRecipient());
+              if (selectedFriend != null) {
                 setState(() {
-                  _recipientName = selectedName;
+                  _recipientName = selectedFriend['name'];
+                  _recipientBoxNumber = selectedFriend['number'];
+                  _recipientId = selectedFriend['id'] != null
+                      ? int.tryParse(selectedFriend['id'].toString())
+                      : null;
+                  _isLinkMode = selectedFriend['isLinkMode'] ?? false; // 🔥 추가됨
                 });
               }
             },
@@ -119,209 +229,106 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(
-                  color: AppColors.G_02,
-                  width: 1,
-                ),
+                border: Border.all(color: AppColors.G_02, width: 1),
               ),
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              child: _recipientName != null
+                  ? Row(
+                      children: [
+                        Container(
+                          width: 40.w,
+                          height: 40.h,
+                          decoration: const BoxDecoration(
+                            color: AppColors.G_01,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.person,
+                              color: AppColors.G_04, size: 28),
+                        ),
+                        SizedBox(width: 12.w),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Dear. $_recipientName",
+                                style: FontStyles.L2_reg_18.copyWith(
+                                    color: AppColors.Black)),
+                            Text("사서함번호: ${_recipientBoxNumber ?? '-'}",
+                                style: FontStyles.S2_reg_12.copyWith(
+                                    color: AppColors.G_06)),
+                          ],
+                        ),
+                      ],
+                    )
+                  : const SizedBox(),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  // MARK: - 내용 입력 섹션
-
-  /// 편지 내용 입력 섹션을 반환합니다.
-  /// 사용자는 이 영역에서 편지 내용을 입력하고, 이미지를 추가할 수 있습니다.
+  // MARK: 내용 입력
   Widget _contentSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20.h),
-        // 내용 라벨
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
           child: Text(
             "내용",
             style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
           ),
         ),
-        SizedBox(height: 4.h),
-        // 내용 입력 컨테이너
+        SizedBox(height: 8.h),
         Container(
-          width: 360.w,
-          decoration: const BoxDecoration(
+          width: double.infinity,
+          constraints: BoxConstraints(minHeight: 330.h, maxHeight: 600.h),
+          decoration: BoxDecoration(
             color: Colors.white,
             border: Border(
               top: BorderSide(color: AppColors.G_02, width: 1),
               bottom: BorderSide(color: AppColors.G_02, width: 1),
             ),
           ),
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 15.h, 24.w, 15.h),
-              child: Column(
-                children: [
-                  if (_showImageBox) _imageBox(),
-                  _contentField(),
-                  _imageIconButton(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // MARK: - 이미지 박스
-
-  /// 이미지 첨부 시 표시되는 이미지 박스입니다.
-  /// 사용자가 이미지를 추가하면 이 영역에 이미지가 표시됩니다.
-  Widget _imageBox() => Stack(
-        children: [
-          Container(
-            width: 312.w,
-            height: 184.h,
-            margin: EdgeInsets.only(bottom: 8.h),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(5.r),
-            ),
-          ),
-          Positioned(
-            top: 11.h,
-            right: 11.w,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showImageBox = false;
-                });
-              },
-              child: Container(
-                width: 18.w,
-                height: 18.h,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 12.sp,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-
-  // MARK: - 내용 입력 필드
-
-  /// 편지 내용을 입력하는 필드입니다.
-  /// 최대 500자까지 입력 가능하며, 500자를 초과하면 자동으로 잘립니다.
-  Widget _contentField() => Container(
-        constraints: BoxConstraints(minHeight: 250.h),
-        child: TextField(
-          controller: _textController,
-          maxLines: null,
-          onChanged: (value) {
-            // 500자 초과 시 자동으로 잘라줌
-            if (value.length > 500) {
-              _textController.value = TextEditingValue(
-                text: value.substring(0, 500),
-                selection: const TextSelection.collapsed(offset: 500),
-              );
-            }
-            setState(() {});
-          },
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            contentPadding:
-                const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 20),
-            hintText: "내용을 입력해주세요.",
-            hintStyle: FontStyles.L3_reg_16.copyWith(color: AppColors.G_06),
-          ),
-        ),
-      );
-
-// MARK: - 이미지 아이콘 버튼
-
-  /// 이미지 첨부 버튼입니다.
-  /// 이미지가 추가된 경우 다른 아이콘으로 변경되고, 버튼은 비활성화됩니다.
-  Widget _imageIconButton() {
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: _showImageBox
-          // 이미지가 추가된 경우: 회색 아이콘 + 비활성화
-          ? Image.asset(
-              ImagePath.imageIconDisabled, // 이미지 추가된 후 보여줄 비활성화 아이콘
-              width: 20.w,
-              height: 20.h,
-              color: AppColors.G_04, // 비활성화 느낌 주는 회색
-            )
-          // 이미지가 없는 경우: 활성화된 버튼
-          : GestureDetector(
-              onTap: () {
-                setState(() {
-                  _showImageBox = true;
-                });
-              },
-              child: Image.asset(
-                ImagePath.imageIcon,
-                width: 20.w,
-                height: 20.h,
-              ),
-            ),
-    );
-  }
-
-  // MARK: - 보내는 사람 섹션
-
-  /// 보내는 사람 입력 섹션을 반환합니다.
-  /// 사용자는 이 영역에서 보내는 사람 이름을 입력할 수 있습니다.
-  Widget _senderSection() {
-    return Column(
-      children: [
-        SizedBox(height: 20.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 20.h),
+          child: Stack(
             children: [
-              // 보내는 사람 라벨
-              Text(
-                "보내는 사람",
-                style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black),
-              ),
-              SizedBox(height: 4.h),
-              // 보내는 사람 입력 필드
-              Container(
-                width: 312.w,
-                height: 48.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(
-                    color: AppColors.G_02,
-                    width: 1,
+              Padding(
+                padding: EdgeInsets.only(bottom: 40.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_selectedImage != null) ...[
+                        _imageBox(),
+                        SizedBox(height: 8.h),
+                      ],
+                      TextField(
+                        controller: _textController,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "내용을 입력해주세요.",
+                          hintStyle: FontStyles.L2_reg_18.copyWith(
+                              color: AppColors.G_06),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
                   ),
                 ),
-                child: TextField(
-                  controller: _senderController,
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 14.h,
-                    ),
-                    border: InputBorder.none,
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child:
+                        Icon(Icons.image, size: 26.sp, color: AppColors.G_05),
                   ),
                 ),
               ),
@@ -332,35 +339,150 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
     );
   }
 
-  // MARK: - 전송 버튼
+  // MARK: 이미지 미리보기
+  Widget _imageBox() => Stack(
+        children: [
+          Container(
+            width: 312.w,
+            height: 184.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.r),
+              image: DecorationImage(
+                image: FileImage(_selectedImage!),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 10.h,
+            right: 10.w,
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedImage = null),
+              child: Container(
+                width: 20.w,
+                height: 20.h,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      );
 
-  /// '편지 확인 후 전송하기' 버튼입니다.
-  /// 내용과 보내는 사람이 모두 입력되어야 활성화됩니다.
-  /// 버튼을 누르면 편지 미리보기 화면으로 이동합니다.
-  Widget _submitButton() {
-    return Column(
-      children: [
-        SizedBox(height: 20.h),
-        SelectLetterButton(
-          isEnabled: _textController.text.isNotEmpty &&
-              _senderController.text.isNotEmpty,
-          onPressed: () {
-            Get.to(
-              () => const LetterPreview(),
-              arguments: {
-                'senderName': _senderController.text,
-                'content': _textController.text,
-              },
-            );
-          },
-          buttonText: "편지 확인 후 전송하기",
-        ),
-      ],
+  // MARK: 보내는 사람
+  Widget _senderSection() {
+    return Padding(
+      padding: EdgeInsets.only(top: 20.h, left: 24.w, right: 24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("보내는 사람",
+              style: FontStyles.B4_bold_14.copyWith(color: AppColors.Black)),
+          SizedBox(height: 4.h),
+          Container(
+            width: 312.w,
+            height: 48.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: AppColors.G_02, width: 1),
+            ),
+            child: TextField(
+              controller: _senderController,
+              decoration: const InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: InputBorder.none,
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  // MARK: - 하단 여백
+  // MARK: 전송 버튼 (프리뷰 이동용)
+  Widget _submitButton(dynamic selectedPaper) {
+    return Padding(
+      padding: EdgeInsets.only(top: 20.h),
+      child: SelectLetterButton(
+        isEnabled: _textController.text.isNotEmpty &&
+            _senderController.text.isNotEmpty &&
+            (_recipientId != null || _isLinkMode == true), // 🔥 링크 모드도 허용
+        onPressed: () async {
+          final paperId =
+              selectedPaper?['index'] != null ? selectedPaper['index'] + 1 : 1;
 
-  /// 하단에 여백을 추가하는 위젯입니다.
+          // MARK: 프리뷰 화면으로 이동
+          Get.to(
+            () => const LetterPreview(),
+            arguments: {
+              'content': _textController.text,
+              'receiverId': _recipientId,
+              'paperId': paperId,
+              'senderName': _senderController.text,
+              'recipientName': _recipientName ?? '',
+              'selectedPaper': selectedPaper,
+              'imageUrl': _uploadedImageKey,
+              'selectedImage': _selectedImage,
+              'isLinkMode': _isLinkMode,
+            },
+          );
+        },
+        buttonText: "편지 전송하기",
+      ),
+    );
+  }
+
+  // MARK: 기타 UI
+  Widget _topPadding() => SizedBox(height: 10.h);
   Widget _bottomPadding() => SizedBox(height: 20.h);
+
+  // MARK: 임시저장 토스트
+  void _showSaveToast(BuildContext context) {
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 100.h,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            width: 312.w,
+            height: 48.h,
+            decoration: BoxDecoration(
+              color: AppColors.G_06,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: 24.w,
+                  height: 24.h,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF8CC08C),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 16),
+                ),
+                SizedBox(width: 12.w),
+                const Text(
+                  "임시저장이 완료되었어요",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    overlay.insert(entry);
+    Future.delayed(const Duration(milliseconds: 1800), () => entry.remove());
+  }
 }
