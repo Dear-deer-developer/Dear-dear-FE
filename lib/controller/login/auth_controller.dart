@@ -215,7 +215,7 @@ class AuthController extends GetxController {
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
 
-      Get.offAll(() => const App());
+      Get.offAll(() => const App(), binding: MainBindings());
       Get.snackbar('완료', '닉네임이 설정되었습니다.');
     } catch (e, st) {
       logger.e('submitNickname 예외', error: e, stackTrace: st);
@@ -231,30 +231,29 @@ class AuthController extends GetxController {
     isLoading(true);
     try {
       final password = withdrawPw.value.trim();
-      logger.i('[WITHDRAW] 요청 시작 (pwLen=${password.length})');
-
-      final auth = Get.find<AuthService>();
-      final ok = await auth.withdraw(password); // ✅ 비번 전달
+      final ok = await Get.find<AuthService>().withdraw(password);
 
       if (ok) {
-        logger.i('[WITHDRAW] 성공 → 상태 초기화 + LoginMain 이동');
-
-        // 1) 전역 상태 완전 초기화
-        await Get.deleteAll(force: true);
-        await sharedPreferences.clear();
-
-        // 2) 로그인 화면에서 필요한 최소 의존성만 재바인딩
-        Get.put<ApiService>(ApiService(), permanent: true);
-        Get.put<AuthService>(AuthService(), permanent: true);
-        Get.lazyPut<AuthController>(() => AuthController());
-
-        // 3) 로그인 화면으로 이동
-        Get.offAll(() => const LoginMain());
+        // ✅ 전역 SharedPreferences/캐시 초기화는 AuthService.withdraw 내부에서 이미 처리됨(_clearAuthLocal)
+        // ✅ 여기서는 "화면 트리 교체 + 새 바인딩"만 책임지자
+        FocusManager.instance.primaryFocus?.unfocus();
+        if (Get.isSnackbarOpen) Get.closeAllSnackbars();
+        await Future<void>.delayed(Duration.zero);
+        await WidgetsBinding.instance.endOfFrame;
+        Get.offAll(
+          () => const LoginMain(),
+          binding: BindingsBuilder(() {
+            // 로그인 화면에서도 AuthController 요청 시 재생성 보장
+            if (!Get.isRegistered<AuthController>()) {
+              Get.lazyPut<AuthController>(() => AuthController(), fenix: true);
+            }
+          }),
+        );
       } else {
-        logger.w('[WITHDRAW] 실패 - 서버 오류/인증 실패');
+        Get.snackbar('탈퇴', '실패했습니다. 비밀번호를 확인해주세요.');
       }
     } catch (e, st) {
-      logger.e('[WITHDRAW] 예외 발생', error: e, stackTrace: st);
+      logger.e('[WITHDRAW] 예외', error: e, stackTrace: st);
     } finally {
       isLoading(false);
     }
@@ -281,7 +280,7 @@ class AuthController extends GetxController {
       Get.offAll(
         () => const LoginMain(),
         binding: BindingsBuilder(() {
-          Get.lazyPut<AuthController>(() => AuthController()); // 새 인스턴스
+          Get.lazyPut<AuthController>(() => AuthController(), fenix: true); // ✅
         }),
       );
     } catch (e, st) {

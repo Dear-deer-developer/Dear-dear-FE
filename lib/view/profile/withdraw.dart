@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-class Withdraw extends StatelessWidget {
+class Withdraw extends GetView<AuthController> {
   Withdraw({super.key});
 
   final RxBool agreed = false.obs; // ✅ 동의 체크 상태
@@ -18,15 +18,12 @@ class Withdraw extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Get.find<AuthService>();
     final user = auth.user.value; // 로그인한 유저 정보 가져오기
-    final ctrl = Get.isRegistered<AuthController>()
-        ? Get.find<AuthController>()
-        : Get.put(AuthController());
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-        child: _body(user, ctrl),
+        child: _body(user, controller),
       ),
     );
   }
