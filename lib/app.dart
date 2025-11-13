@@ -1,5 +1,6 @@
 import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/calendar.dart';
 import 'package:dear_deer_demo/view/contents/contents_main.dart';
@@ -67,7 +68,7 @@ class _FloatingBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70.h,
+      height: 80.h,
       decoration: const BoxDecoration(
         color: Colors.transparent,
         boxShadow: [
@@ -91,38 +92,41 @@ class _FloatingBottomNav extends StatelessWidget {
           color: Colors.white, // 바 자체는 흰색
           child: SizedBox(
             height: 70.h,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _NavItem(
-                  selected: index == 0,
-                  label: '홈',
-                  iconOff: ImagePath.homeOff,
-                  iconOn: ImagePath.homeOn,
-                  onTap: () => onTap(0),
-                ),
-                _NavItem(
-                  selected: index == 1,
-                  label: '우체국',
-                  iconOff: ImagePath.postOff,
-                  iconOn: ImagePath.postOn,
-                  onTap: () => onTap(1),
-                ),
-                _NavItem(
-                  selected: index == 2,
-                  label: '캘린더',
-                  iconOff: ImagePath.calenderOff,
-                  iconOn: ImagePath.calenderOn,
-                  onTap: () => onTap(2),
-                ),
-                _NavItem(
-                  selected: index == 3,
-                  label: '콘텐츠',
-                  iconOff: ImagePath.contentsOff,
-                  iconOn: ImagePath.contentsOn,
-                  onTap: () => onTap(3),
-                ),
-              ],
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _NavItem(
+                    selected: index == 0,
+                    label: '홈',
+                    iconOff: ImagePath.homeOff,
+                    iconOn: ImagePath.homeOn,
+                    onTap: () => onTap(0),
+                  ),
+                  _NavItem(
+                    selected: index == 1,
+                    label: '우체국',
+                    iconOff: ImagePath.postOff,
+                    iconOn: ImagePath.postOn,
+                    onTap: () => onTap(1),
+                  ),
+                  _NavItem(
+                    selected: index == 2,
+                    label: '캘린더',
+                    iconOff: ImagePath.calenderOff,
+                    iconOn: ImagePath.calenderOn,
+                    onTap: () => onTap(2),
+                  ),
+                  _NavItem(
+                    selected: index == 3,
+                    label: '콘텐츠',
+                    iconOff: ImagePath.contentsOff,
+                    iconOn: ImagePath.contentsOn,
+                    onTap: () => onTap(3),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -156,24 +160,22 @@ class _NavItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.h),
+          padding: EdgeInsets.only(bottom: 20.h),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 아이콘
               ImageData(
                 path: selected ? iconOn : iconOff,
-                width: 48.w,
-                height: 48.h,
+                width: 70.w,
+                height: 70.h,
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: 3.h),
               // 라벨
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 10.sp,
+                style: FontStyles.navi_bold_10.copyWith(
                   color: selected ? active : inactive,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ],
