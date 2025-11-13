@@ -222,6 +222,31 @@ class ApiService extends CustomGetConnect implements GetxService {
     );
   }
 
+  // 401 발생 시 refresh 후 한 번 더 시도하는 DELETE JSON 헬퍼
+  Future<Response> guardedDeleteJson(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    // deleteJson은 이미 path에 queryString을 붙여서 DELETE 호출
+    Response res = await deleteJson(
+      path,
+      data: data,
+    );
+
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await deleteJson(
+          path,
+          data: data,
+        );
+      }
+    }
+
+    return res;
+  }
+
   Future<dynamic> getJson(String path, {Map<String, String>? headers}) async {
     final res = await guardedGet(path);
 
