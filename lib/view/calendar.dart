@@ -46,7 +46,7 @@ class CalendarMain extends StatelessWidget {
                       top: 0,
                       left: 0,
                       right: 0,
-                      bottom: 50.h, // ← 아래쪽 여백
+                      bottom: 55.h, // ← 아래쪽 여백
                       child: Image.asset(
                         ImagePath.calendarBackground,
                         // fit: BoxFit.cover,

@@ -73,7 +73,7 @@ class CalendarView extends StatelessWidget {
       padding: EdgeInsets.only(left: 33.w, right: 58.5.w),
       child: Column(
         children: [
-          SizedBox(height: 145.h),
+          SizedBox(height: 140.h),
           Text(DateFormat('yyyy.MM').format(monthDate), style: titleStyle),
           SizedBox(height: 28.h),
           CalendarWeekdayHeader(textStyle: weekdayStyle),
