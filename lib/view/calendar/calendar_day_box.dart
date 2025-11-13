@@ -34,13 +34,16 @@ class CalendarDayBox extends StatelessWidget {
           .compareTo(CalendarCategoryMeta.priorityByLabel(b.category)));
 
     final isSpecialDate = date.month == 12 && date.day == 25;
+    final isAfterChristmas = date.month == 12 && date.day > 25;
+    final bool isDisabled = isPast || isAfterChristmas;
+
     final numberColor = isSpecialDate
         ? AppColors.mainRed
-        : isPast
+        : isDisabled
             ? AppColors.G_07.withOpacity(0.6)
             : AppColors.G_07;
 
-    final boxBg = isPast ? const Color(0xFFDBB586) : Colors.white;
+    final boxBg = isDisabled ? const Color(0xFFDBB586) : Colors.white;
 
     return GestureDetector(
       onTap: () => onTap(date),
@@ -73,7 +76,8 @@ class CalendarDayBox extends StatelessWidget {
                 padding: sortedEvents.length <= 3
                     ? EdgeInsets.zero
                     : EdgeInsets.only(left: 3.w, right: 1.w),
-                child: _eventDots(sortedEvents, isPast: isPast, boxBg: boxBg),
+                child:
+                    _eventDots(sortedEvents, isPast: isDisabled, boxBg: boxBg),
               ),
             ),
           ],
