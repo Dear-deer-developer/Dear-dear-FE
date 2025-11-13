@@ -53,7 +53,7 @@ class PostMain extends GetView<PostController> {
         child: Image.asset(
           ImagePath.deerPost,
           width: 360.w,
-          height: 190.h,
+          height: 165.h,
           fit: BoxFit.cover,
         ),
       );
