@@ -81,3 +81,7 @@ flutter:
     - family: KCCGanpan
       fonts:
         - asset: assets/fonts/KCC-Ganpan.ttf
+
+    - family: TJJoyofSinging
+      fonts:
+        - asset: assets/fonts/TJJoyofSinging.ttf
