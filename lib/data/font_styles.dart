@@ -77,7 +77,7 @@ class FontStyles {
   static TextStyle S3_reg_10 = TextStyle(
     fontFamily: 'KakaoSmallSansRegular',
     fontSize: 10.sp,
-    height: 1.2.h,
+    height: 1.6.h,
   );
 
   // MARK: - letter
@@ -90,13 +90,13 @@ class FontStyles {
   static TextStyle L2_reg_18 = TextStyle(
     fontFamily: 'LeeSeoyun',
     fontSize: 18.sp,
-    height: 1.2.h,
+    height: 1.6.h,
   );
 
   static TextStyle L3_reg_16 = TextStyle(
-    fontFamily: 'Lsy',
+    fontFamily: 'LeeSeoyun',
     fontSize: 16.sp,
-    height: 1.2.h,
+    height: 1.6.h,
   );
 
   // MARK: - cal
@@ -122,7 +122,7 @@ class FontStyles {
   );
 
   // MARK : - novi
-  static TextStyle novi_bold_10 = TextStyle(
+  static TextStyle navi_bold_10 = TextStyle(
     fontFamily: 'KakaoSmallSansBold',
     fontSize: 10.sp,
     fontWeight: FontWeight.bold,
