@@ -73,9 +73,9 @@ class CalendarView extends StatelessWidget {
       padding: EdgeInsets.only(left: 33.w, right: 58.5.w),
       child: Column(
         children: [
-          SizedBox(height: 150.h),
+          SizedBox(height: 145.h),
           Text(DateFormat('yyyy.MM').format(monthDate), style: titleStyle),
-          SizedBox(height: 30.h),
+          SizedBox(height: 28.h),
           CalendarWeekdayHeader(textStyle: weekdayStyle),
           SizedBox(height: 6.h),
           SizedBox(
@@ -86,7 +86,7 @@ class CalendarView extends StatelessWidget {
               itemCount: boxWidgets.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                mainAxisSpacing: 11.h,
+                mainAxisSpacing: 9.h,
                 crossAxisSpacing: 5.w,
                 childAspectRatio: 34 / 48,
               ),
