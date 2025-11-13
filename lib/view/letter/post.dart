@@ -23,14 +23,17 @@ class PostMain extends GetView<PostController> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: _appBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _deerPostImage(),
-            _mainButtonsRow(),
-            _number(),
-            _otherServicesSection(),
-          ],
+      body: SafeArea(
+        bottom: true,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _deerPostImage(),
+              _mainButtonsRow(),
+              _number(),
+              _otherServicesSection(),
+            ],
+          ),
         ),
       ),
     );
@@ -53,7 +56,7 @@ class PostMain extends GetView<PostController> {
         child: Image.asset(
           ImagePath.deerPost,
           width: 360.w,
-          height: 190.h,
+          height: 165.h,
           fit: BoxFit.cover,
         ),
       );

@@ -42,9 +42,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 상태바, UI 표시 설정
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-      overlays: [SystemUiOverlay.bottom] // 상단바 숨기기
-      );
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
 
   // 가로모드 X
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
