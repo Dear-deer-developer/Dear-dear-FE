@@ -1,51 +1,68 @@
 import 'package:dear_deer_demo/controller/calendar/calendar_controller.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
-import 'calendar/calendar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import 'calendar/calendar_screen.dart';
 
 class CalendarMain extends StatelessWidget {
   CalendarMain({super.key});
 
-  final controller = Get.put(CalendarController());
-
-  String _getBackgroundImage() {
-    final now = DateTime.now();
-    final hour = now.hour;
-
-    if (hour >= 7 && hour < 18) {
-      return ImagePath.dayBackground;
-    } else {
-      return ImagePath.nightBackground;
-    }
-  }
+  final CalendarController controller = Get.put(CalendarController());
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
-        statusBarColor: Colors.transparent, // 상태바 배경 투명
-        statusBarIconBrightness: Brightness.light, // 아이콘 색상 흰색 계열
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(
-                _getBackgroundImage(),
-                fit: BoxFit.cover,
+        body: Obx(() {
+          final bgPath = controller.isNight.value
+              ? ImagePath.homeBgImagePm
+              : ImagePath.homeBgImageAm;
+
+          return Stack(
+            children: [
+              // === 배경 ===
+              Positioned.fill(
+                child: Image.asset(
+                  bgPath,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center, // ⭐ 홈과 완전히 동일하게!
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
               ),
-            ),
-            Positioned.fill(
-                child: Image.asset(ImagePath.calendarBackground,
-                    fit: BoxFit.cover)),
-            const Positioned.fill(
-              child: CalendarScreen(),
-            ),
-          ],
-        ),
+
+              SafeArea(
+                bottom: false,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 55.h, // ← 아래쪽 여백
+                      child: Image.asset(
+                        ImagePath.calendarBackground,
+                        // fit: BoxFit.cover,
+                      ),
+                    ),
+
+                    // 캘린더 화면
+                    const Positioned.fill(
+                      child: CalendarScreen(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }

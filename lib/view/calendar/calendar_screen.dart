@@ -1,5 +1,6 @@
 import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:flutter/material.dart' hide Page;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
@@ -234,7 +235,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         FontStyles.C2_reg_24.copyWith(color: AppColors.White);
     final weekdayTextStyle =
         FontStyles.S2_reg_12.copyWith(color: AppColors.White);
-    final dayNumberTextStyle = FontStyles.B3_bold_15;
+    final dayNumberTextStyle = FontStyles.C1_bold_14;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -242,12 +243,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
         builder: (context) {
           final safeBottom = MediaQuery.of(context).padding.bottom;
           return Padding(
-            padding: EdgeInsets.only(right: 8, bottom: safeBottom + 70),
+            padding: EdgeInsets.only(right: 8, bottom: safeBottom + 80.h),
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               shape: const CircleBorder(),
               onPressed: _openAddSheet,
-              child: const Icon(Icons.add, size: 40, color: Color(0xFFA14E4A)),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: 48,
+                  minHeight: 48,
+                  maxWidth: 48,
+                  maxHeight: 48,
+                ),
+                child: Transform.scale(
+                    scale: 1.7, // 아이콘만 확대됨
+                    child: const Icon(
+                      Icons.add_rounded,
+                      color: Color(0xFFA14E4A),
+                    )),
+              ),
             ),
           );
         },
