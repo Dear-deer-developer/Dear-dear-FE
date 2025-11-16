@@ -2,7 +2,6 @@ import 'package:dear_deer_demo/controller/login/auth_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
-import 'package:dear_deer_demo/view/login/jwt_sign_up.dart';
 import 'package:dear_deer_demo/view/login/sign_up_agreement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,7 +25,12 @@ class LoginMain extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: _body()),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: _body(),
+        ),
+      ),
     );
   }
 
@@ -114,7 +118,7 @@ class LoginMain extends GetView<AuthController> {
                 _email.value = '';
                 _recalcSubmit();
               },
-              behavior: HitTestBehavior.translucent, // 터치 영역
+              // behavior: HitTestBehavior.translucent, // 터치 영역
               child: Image.asset(
                 ImagePath.textDeleteIcon,
                 width: 48.w,
@@ -282,8 +286,6 @@ class LoginMain extends GetView<AuthController> {
             // TODO: 라우팅 연결
           }),
           _link('회원가입', () {
-            TODO:
-            // Get.to(() => JwtSignUp());
             Get.to(() => SignUpAgreement());
           }),
         ],
