@@ -26,7 +26,7 @@ class ProfileMain extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      body: SafeArea(child: _body(context)),
+      body: _body(context),
     );
   }
 
@@ -47,7 +47,7 @@ class ProfileMain extends GetView<ProfileController> {
   // MARK: 헤더
   Widget _head() {
     return Padding(
-      padding: EdgeInsets.only(top: 12.h, left: 4.w),
+      padding: EdgeInsets.only(top: 41.h, left: 4.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,

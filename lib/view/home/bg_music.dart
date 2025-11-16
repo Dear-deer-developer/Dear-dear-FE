@@ -31,7 +31,7 @@ class BgMusic extends GetView<BgMusicController> {
 
   Widget _head() {
     return Padding(
-      padding: EdgeInsets.only(top: 12.h, left: 4.w),
+      padding: EdgeInsets.only(top: 17.h, left: 4.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -48,7 +48,7 @@ class BgMusic extends GetView<BgMusicController> {
           Text(
             '배경음악',
             textAlign: TextAlign.center,
-            style: FontStyles.H2_bold_17, // H2로 변경해야함.
+            style: FontStyles.H2_bold_17,
           ),
         ],
       ),
