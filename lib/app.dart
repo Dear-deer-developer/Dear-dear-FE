@@ -25,7 +25,7 @@ class App extends GetView<BottomNavController> {
           extendBody: true,
           body: Stack(
             children: [
-              SafeArea(child: _body()),
+              _body(),
               // 🔻 떠 있는 커스텀 바텀네비
               Align(
                 alignment: Alignment.bottomCenter,
