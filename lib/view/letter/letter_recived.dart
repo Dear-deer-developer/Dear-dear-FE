@@ -3,6 +3,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/service/post/report_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -36,7 +37,13 @@ class LetterReceived extends StatelessWidget {
     final sender = arguments['sender'] ?? {};
     final senderName = sender['nickname'] ?? '보낸 사람 없음';
     final paperId = arguments['paperId'] ?? 1;
-    final presignedUrl = arguments['presignedUrl']; // 서버에서 받은 presignedUrl
+    final presignedUrl = arguments['presignedUrl'];
+
+    final int letterId = arguments['id'] ?? 0;
+    final int senderId = sender['id'] ?? 0;
+
+    print('LetterReceived: letterId = $letterId');
+    print('LetterReceived: senderId = $senderId');
 
     final paperAsset = _getPaperAsset(paperId);
 
@@ -48,14 +55,14 @@ class LetterReceived extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _AppBar(),
+      appBar: _AppBar(letterId, senderId), // 수정된 부분
       body: _Body(controller, senderName, formattedDate, paperAsset, nickname,
           presignedUrl),
     );
   }
 
-  // MARK: AppBar
-  AppBar _AppBar() => AppBar(
+  // MARK: AppBar (letterId, senderId 전달 추가)
+  AppBar _AppBar(int letterId, int senderId) => AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -66,6 +73,14 @@ class LetterReceived extends StatelessWidget {
             style: FontStyles.H2_bold_17,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.flag_outlined, color: Colors.red),
+            onPressed: () {
+              _openReportBottomSheet(letterId, senderId);
+            },
+          ),
+        ],
       );
 
   // MARK: Body
@@ -157,7 +172,7 @@ class LetterReceived extends StatelessWidget {
                     ),
                   ),
 
-                  // 이미지 표시 (첫 페이지에만)
+                  // 이미지 표시 (첫 페이지)
                   if (index == 0 &&
                       presignedUrl != null &&
                       presignedUrl.isNotEmpty) ...[
@@ -261,5 +276,69 @@ class LetterReceived extends StatelessWidget {
       default:
         return ImagePath.imageLetter1;
     }
+  }
+
+  // MARK: 신고 BottomSheet
+  void _openReportBottomSheet(int letterId, int senderId) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "신고 사유 선택",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            _reportItem("사칭 및 사기", "IMPERSONATION_FRAUD", letterId, senderId),
+            _reportItem("성적인 콘텐츠", "SEXUAL_CONTENT", letterId, senderId),
+            _reportItem("스팸 및 낚시", "SPAM_AND_PHISHING", letterId, senderId),
+            _reportItem("욕설 및 비하", "ABUSIVE_LANGUAGE", letterId, senderId),
+            _reportItem("광고 및 상업적 목적", "COMMERCIAL_AD", letterId, senderId),
+            _reportItem("정치적 선동", "POLITICAL_PROPAGANDA", letterId, senderId),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // MARK: 신고 항목
+  Widget _reportItem(
+    String label,
+    String reason,
+    int letterId,
+    int senderId,
+  ) {
+    return ListTile(
+      title: Text(label),
+      onTap: () async {
+        final service = ReportService();
+
+        print('신고 요청 시작');
+        print('letterId: $letterId, senderId: $senderId, reason: $reason');
+
+        final success = await service.createReport(
+          reportedUserId: senderId,
+          letterId: letterId,
+          reason: reason,
+        );
+
+        if (success) {
+          print('신고 성공');
+          Get.back();
+          Get.snackbar('신고 완료', '신고가 접수되었습니다.');
+        } else {
+          print('신고 실패');
+          Get.snackbar('오류', '신고 중 문제가 발생했습니다.');
+        }
+      },
+    );
   }
 }
