@@ -3,6 +3,7 @@ import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/home/alarm_onboarding.dart';
 import 'package:dear_deer_demo/view/home/bg_music.dart';
 import 'package:dear_deer_demo/view/home/gift_main.dart';
+import 'package:dear_deer_demo/view/home/not_yet.dart';
 import 'package:dear_deer_demo/view/profile/profile_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -125,14 +126,15 @@ class Home extends GetView<HomeController> {
             ),
           ),
         ),
-        // 선물함
+        // 선물함 - 임시 처리
         Positioned(
           bottom: 136.h,
           left: 292.w,
           right: 28.h,
           child: GestureDetector(
             onTap: () {
-              Get.to(() => const GiftMain());
+              // Get.to(() => const GiftMain());
+              Get.to(() => NotYet());
             },
             child: Image.asset(
               ImagePath.giftBoxIcon,

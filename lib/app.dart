@@ -49,7 +49,7 @@ class App extends GetView<BottomNavController> {
         const Home(),
         PostMain(),
         CalendarMain(),
-        ContentsMain(),
+        // ContentsMain(),
       ],
     );
   }
@@ -118,13 +118,13 @@ class _FloatingBottomNav extends StatelessWidget {
                     iconOn: ImagePath.calenderOn,
                     onTap: () => onTap(2),
                   ),
-                  _NavItem(
-                    selected: index == 3,
-                    label: '콘텐츠',
-                    iconOff: ImagePath.contentsOff,
-                    iconOn: ImagePath.contentsOn,
-                    onTap: () => onTap(3),
-                  ),
+                  // _NavItem(
+                  //   selected: index == 3,
+                  //   label: '콘텐츠',
+                  //   iconOff: ImagePath.contentsOff,
+                  //   iconOn: ImagePath.contentsOn,
+                  //   onTap: () => onTap(3),
+                  // ),
                 ],
               ),
             ),

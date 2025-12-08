@@ -1,4 +1,4 @@
-package com.example.dear_deer_demo
+package com.dear_deer_demo
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : FlutterActivity()
