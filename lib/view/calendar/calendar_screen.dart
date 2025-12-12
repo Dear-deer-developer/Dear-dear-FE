@@ -26,30 +26,36 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   final _sc = Get.find<ScheduleController>();
+
   late final int _currentYear;
   late final List<DateTime> _months;
+
   final DateTime _today = DateTime.now();
   DateTime? _selectedDate;
 
-  // BottomNav 탭 변경 구독 해제용
+  late final PageController _pageController;
+
   Worker? _navWorker;
 
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
+  int get _initialMonthIndex => _today.month == 12 ? 1 : 0;
+
   @override
   void initState() {
     super.initState();
+
     _currentYear = DateTime.now().year;
     _months = [DateTime(_currentYear, 11), DateTime(_currentYear, 12)];
     _selectedDate = _today;
 
-    // 캘린더 탭이 선택되는 순간에만 로직 실행
+    _pageController = PageController(initialPage: _initialMonthIndex);
+
     final bnc = Get.find<BottomNavController>();
     _navWorker = ever<int>(bnc.rxIndex, (i) {
       if (Page.values[i] == Page.calendar) _onEnteredCalendar();
     });
 
-    // 이미 캘린더 탭이면 최초 1회 실행
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (bnc.currentPage == Page.calendar) _onEnteredCalendar();
     });
@@ -58,12 +64,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void dispose() {
     _navWorker?.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   /// 캘린더 탭에 들어왔을 때: 데이터 로드 + 보상 팝업
   Future<void> _onEnteredCalendar() async {
     if (!mounted) return;
+
+    // 탭 진입 시에도 규칙대로 첫 페이지 강제
+    // _pageController.jumpToPage(_initialMonthIndex);
 
     for (final m in _months) {
       await _sc.loadMonthly(m.year, m.month);
@@ -256,11 +266,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   maxHeight: 48,
                 ),
                 child: Transform.scale(
-                    scale: 1.7, // 아이콘만 확대됨
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: Color(0xFFA14E4A),
-                    )),
+                  scale: 1.7, // 아이콘만 확대됨
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Color(0xFFA14E4A),
+                  ),
+                ),
               ),
             ),
           );
@@ -273,6 +284,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           final __ = _sc.daily.length;
 
           return PageView.builder(
+            controller: _pageController, // ✅ 추가
             itemCount: _months.length,
             onPageChanged: (i) async {
               final m = _months[i];
