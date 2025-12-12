@@ -52,7 +52,7 @@ class PostMain extends GetView<PostController> {
 
   // MARK: - 상단 이미지
   Widget _deerPostImage() => Padding(
-        padding: EdgeInsets.only(top: 8.h, bottom: 8.h),
+        padding: EdgeInsets.only(top: 10.h),
         child: Image.asset(
           ImagePath.deerPost,
           width: 360.w,
@@ -63,7 +63,7 @@ class PostMain extends GetView<PostController> {
 
   // MARK: - 메인 버튼 영역
   Widget _mainButtonsRow() => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 4.h),
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 15.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -129,54 +129,51 @@ class PostMain extends GetView<PostController> {
     // ✅ 로그인한 유저 정보에서 zipCode 가져오기
     final zipCode = authService.user.value?.zipCode ?? '00000';
 
-    return Padding(
-      padding: EdgeInsets.only(top: 14.h),
-      child: Container(
-        width: 312.w,
-        height: 48.h,
-        decoration: BoxDecoration(
-          color: AppColors.G_01,
-          borderRadius: BorderRadius.circular(7.r),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "내 사서함 번호: $zipCode",
-              style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
-            ),
-            SizedBox(
-              width: 38.w,
-              height: 22.h,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: 공유 기능 추가
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  elevation: 0,
+    return Container(
+      width: 312.w,
+      height: 48.h,
+      decoration: BoxDecoration(
+        color: AppColors.G_01,
+        borderRadius: BorderRadius.circular(7.r),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "내 사서함 번호: $zipCode",
+            style: FontStyles.S1_reg_13.copyWith(color: Colors.black),
+          ),
+          SizedBox(
+            width: 38.w,
+            height: 22.h,
+            child: ElevatedButton(
+              onPressed: () {
+                // TODO: 공유 기능 추가
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
                 ),
-                child: Text(
-                  "공유",
-                  style: FontStyles.S3_reg_10.copyWith(color: Colors.black),
-                ),
+                elevation: 0,
+              ),
+              child: Text(
+                "공유",
+                style: FontStyles.S3_reg_10.copyWith(color: Colors.black),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   // MARK: - 그 외 업무 영역
   Widget _otherServicesSection() => Padding(
-        padding: EdgeInsets.only(left: 24.w, top: 32.h, right: 24.w),
+        padding: EdgeInsets.only(left: 24.w, top: 15.h, right: 24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
