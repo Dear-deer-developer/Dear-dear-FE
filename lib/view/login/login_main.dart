@@ -7,20 +7,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-class LoginMain extends GetView<AuthController> {
+class LoginMain extends StatefulWidget {
   const LoginMain({super.key});
 
-  // --- 로컬 상태 ---
-  // --- 로컬 상태 (디자인 요구에 맞춰 단순화) ---
-  static final RxString _email = ''.obs;
-  static final RxString _pw = ''.obs;
+  @override
+  State<LoginMain> createState() => _LoginMainState();
+}
 
-  static final RxBool _canSubmit = false.obs;
-  static final RxBool _pwVisible = false.obs;
-  static final RxBool _loading = false.obs;
+class _LoginMainState extends State<LoginMain> {
+  // ✅ 로그인 화면 진입 시 AuthController가 반드시 존재하도록 보장
+  late final AuthController controller;
+
+  // ✅ "static" 제거: 화면 재진입 시 상태 꼬임 방지
+  final RxString _email = ''.obs;
+  final RxString _pw = ''.obs;
+
+  final RxBool _canSubmit = false.obs;
+  final RxBool _pwVisible = false.obs;
+  final RxBool _loading = false.obs;
 
   // 서버 응답 에러(아이디/비밀번호 불일치 등)만 노출
-  static final RxnString _loginError = RxnString();
+  final RxnString _loginError = RxnString();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ 이미 있으면 가져오고, 없으면 생성
+    controller = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
+
+    // ✅ 화면 열릴 때 입력값/에러 초기화(원하면 유지해도 됨)
+    controller.loginEmailCtrl.text = '';
+    controller.loginPwCtrl.text = '';
+    _email.value = '';
+    _pw.value = '';
+    _loginError.value = null;
+    _recalcSubmit();
+  }
+
+  @override
+  void dispose() {
+    // Rx 자체는 GetX가 자동 정리해주진 않아서, close 해주는 게 안전
+    _email.close();
+    _pw.close();
+    _canSubmit.close();
+    _pwVisible.close();
+    _loading.close();
+    _loginError.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +88,11 @@ class LoginMain extends GetView<AuthController> {
                     width: 120.w,
                     height: 120.h,
                   ),
-                  SizedBox(
-                    height: 24.h,
-                  ),
+                  SizedBox(height: 24.h),
+
                   // MARK: - 로그인 입력
                   _idField(),
-                  SizedBox(
-                    height: 8.h,
-                  ),
+                  SizedBox(height: 8.h),
                   _passwordField(),
                   SizedBox(height: 24.h),
                   _loginButton(),
@@ -86,7 +120,6 @@ class LoginMain extends GetView<AuthController> {
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
-          // TextField
           TextField(
             controller: controller.loginEmailCtrl,
             keyboardType: TextInputType.emailAddress,
@@ -103,13 +136,12 @@ class LoginMain extends GetView<AuthController> {
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
-              // 오른쪽 패딩 추가 (X 아이콘 영역 확보)
             ),
           ),
 
-          // X 삭제 버튼 (오른쪽 끝 정렬)
+          // X 삭제 버튼
           Positioned(
-            right: 0.w, // ← 오른쪽 테두리에 완전히 붙임
+            right: 0.w,
             top: 0,
             bottom: 0,
             child: GestureDetector(
@@ -118,7 +150,6 @@ class LoginMain extends GetView<AuthController> {
                 _email.value = '';
                 _recalcSubmit();
               },
-              // behavior: HitTestBehavior.translucent, // 터치 영역
               child: Image.asset(
                 ImagePath.textDeleteIcon,
                 width: 48.w,
@@ -150,7 +181,6 @@ class LoginMain extends GetView<AuthController> {
             child: Stack(
               alignment: Alignment.centerLeft,
               children: [
-                // TextField
                 TextField(
                   controller: controller.loginPwCtrl,
                   obscureText: !_pwVisible.value,
@@ -168,14 +198,13 @@ class LoginMain extends GetView<AuthController> {
                         FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
                     border: InputBorder.none,
                     isDense: true,
-                    // 오른쪽 여백 확보 (eye + delete 아이콘 영역)
                     contentPadding: EdgeInsets.only(left: 16.w, right: 48.w),
                   ),
                 ),
 
-                // 눈 아이콘 (보이기/가리기)
+                // 눈 아이콘
                 Positioned(
-                  right: 48.w, // ← 삭제 버튼 바로 왼쪽에 붙음
+                  right: 48.w,
                   top: 0,
                   bottom: 0,
                   child: GestureDetector(
@@ -197,7 +226,7 @@ class LoginMain extends GetView<AuthController> {
                   ),
                 ),
 
-                // X 삭제 버튼 (오른쪽 끝)
+                // X 삭제 버튼
                 Positioned(
                   right: 0.w,
                   top: 0,
@@ -225,8 +254,6 @@ class LoginMain extends GetView<AuthController> {
               ],
             ),
           ),
-
-          // 에러 메시지
           if (hasError) ...[
             SizedBox(height: 6.h),
             Text(
@@ -279,12 +306,8 @@ class LoginMain extends GetView<AuthController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _link('비밀번호 찾기', () {
-            // TODO: 라우팅 연결
-          }),
-          _link('아이디 찾기', () {
-            // TODO: 라우팅 연결
-          }),
+          _link('비밀번호 찾기', () {}),
+          _link('아이디 찾기', () {}),
           _link('회원가입', () {
             Get.to(() => SignUpAgreement());
           }),
@@ -296,14 +319,10 @@ class LoginMain extends GetView<AuthController> {
   Widget _link(String text, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Text(
-        text,
-        style: FontStyles.S2_reg_12,
-      ),
+      child: Text(text, style: FontStyles.S2_reg_12),
     );
   }
 
-  // -------------------- 내부 검증 & 유틸 --------------------
   void _recalcSubmit() {
     _canSubmit.value = _email.isNotEmpty && _pw.isNotEmpty;
   }
@@ -313,7 +332,7 @@ class LoginMain extends GetView<AuthController> {
     _loginError.value = null;
 
     try {
-      await controller.login(); // ← 여기로 변경!
+      await controller.login();
     } catch (e) {
       _loginError.value = '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요.';
     } finally {
