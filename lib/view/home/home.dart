@@ -126,23 +126,23 @@ class Home extends GetView<HomeController> {
             ),
           ),
         ),
-        // 선물함 - 임시 처리
-        // Positioned(
-        //   bottom: 136.h,
-        //   left: 292.w,
-        //   right: 28.h,
-        //   child: GestureDetector(
-        //     onTap: () {
-        //       // Get.to(() => const GiftMain());
-        //       Get.to(() => NotYet());
-        //     },
-        //     child: Image.asset(
-        //       ImagePath.giftBoxIcon,
-        //       width: 48.w,
-        //       height: 48.h,
-        //     ),
-        //   ),
-        // ),
+        // MARK: - 선물함 - 임시 처리
+        Positioned(
+          bottom: 136.h,
+          left: 292.w,
+          right: 28.h,
+          child: GestureDetector(
+            onTap: () {
+              Get.to(() => const GiftMain());
+              // Get.to(() => NotYet());
+            },
+            child: Image.asset(
+              ImagePath.giftBoxIcon,
+              width: 48.w,
+              height: 48.h,
+            ),
+          ),
+        ),
         // 배경음악
         Positioned(
           bottom: 87.h,

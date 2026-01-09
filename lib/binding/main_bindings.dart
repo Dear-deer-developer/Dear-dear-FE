@@ -64,7 +64,7 @@ class MainBindings extends Bindings {
     Get.lazyPut(() => PostController());
     Get.lazyPut(() => CalendarController());
     Get.lazyPut(() => ContentsController());
-    Get.lazyPut(() => GiftController());
+    Get.put(GiftController(), permanent: true);
     Get.lazyPut(() => ContentsController());
     Get.lazyPut<AlarmController>(() => AlarmController(), fenix: true);
   }
