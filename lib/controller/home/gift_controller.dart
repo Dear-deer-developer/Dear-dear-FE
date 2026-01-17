@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dear_deer_demo/model/deardeer_gift.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/util/logger.dart';
@@ -62,10 +61,26 @@ class GiftController extends GetxController {
     _loadSelected();
   }
 
-  Future<void> refreshSelected() => _loadSelected(force: true);
+  /// force는 지금 API 캐시를 쓰는 구조가 아니면 의미가 크진 않지만,
+  /// "캘린더 → 선물함 도착 확인" 같은 흐름에서 명시적으로 호출하려고 유지.
+  Future<void> refreshSelected({bool force = true}) =>
+      _loadSelected(force: force);
+
+  /// 캘린더 reward로 받은 선물이 선물함(items)에 "도착"했는지 확인
+  /// - giftId 있으면 id로 우선 매칭
+  /// - giftId 없으면 giftName으로 차선 매칭
+  bool hasGiftInBox({int? giftId, String? giftName}) {
+    if (giftId != null) {
+      return items.any((g) => g.id == giftId);
+    }
+    final name = (giftName ?? '').trim();
+    if (name.isNotEmpty) {
+      return items.any((g) => g.name.trim() == name);
+    }
+    return false;
+  }
 
   /// UI 탭을 서버 카테고리 묶음으로 매핑
-  /// 현재 서버 enum 을 기준으로 예시 매핑
   List<GiftCategory> _tabToCategories(GiftTab tab) {
     switch (tab) {
       case GiftTab.ornament:
@@ -85,6 +100,8 @@ class GiftController extends GetxController {
   }
 
   Future<void> _loadSelected({bool force = false}) async {
+    final prevCount = items.length;
+
     isLoading.value = true;
     error.value = null;
 
@@ -92,7 +109,7 @@ class GiftController extends GetxController {
       final tab = selectedTab;
       final catList = _tabToCategories(tab);
 
-      logger.d('🎁 탭 선택: ${tab.labelKo}, 카테고리: $catList');
+      logger.d('🎁 탭 선택: ${tab.labelKo}, 카테고리: $catList (force=$force)');
 
       final List<DeardeerGift> all = [];
 
@@ -105,18 +122,49 @@ class GiftController extends GetxController {
         final json = await _api.getJson('/gifts/category/$serverName');
 
         if (json is List) {
-          all.addAll(
-            json
-                .map((e) => DeardeerGift.fromJson(e as Map<String, dynamic>))
-                .toList(),
-          );
+          logger.i(
+              '🎁 응답 수신: tab=${tab.labelKo}, cat=$serverName, count=${json.length}');
+
+          // ✅ 파싱
+          final parsed = json
+              .map((e) => DeardeerGift.fromJson(e as Map<String, dynamic>))
+              .toList();
+
+          // ✅ "새 선물"만 로그 (isNew=true)
+          final newOnes = parsed.where((g) => g.isNew).toList();
+          if (newOnes.isNotEmpty) {
+            logger.i(
+                '🆕 새 선물 발견: tab=${tab.labelKo}, cat=$serverName, newCount=${newOnes.length}');
+            for (final g in newOnes) {
+              logger.i(
+                '🆕 id=${g.id}, name=${g.name}, category=${giftCategoryToServer(g.category)}, imageUrl=${g.imageUrl}',
+              );
+            }
+          }
+
+          // ✅ 샘플 로그(최대 3개) - 필요 없으면 지워도 됨
+          for (final g in parsed.take(3)) {
+            logger.d(
+              '🎁 sample: id=${g.id}, name=${g.name}, category=${giftCategoryToServer(g.category)}, isNew=${g.isNew}',
+            );
+          }
+
+          all.addAll(parsed);
         } else {
           logger.w('⚠️ 응답이 List가 아님: $json');
         }
       }
 
       items.assignAll(all);
-      logger.i('${all.length}개 아이템 로딩 완료 (${tab.labelKo})');
+
+      logger.i('✅ items 반영 완료: tab=${tab.labelKo}, total=${items.length}');
+
+      final diff = items.length - prevCount;
+      if (diff > 0) {
+        logger.i('📦 선물함 아이템 증가: +$diff (tab=${tab.labelKo})');
+      } else {
+        logger.d('📦 선물함 아이템 변동 없음 (tab=${tab.labelKo})');
+      }
     } catch (err) {
       error.value = '네트워크 오류: $err';
       items.clear();
