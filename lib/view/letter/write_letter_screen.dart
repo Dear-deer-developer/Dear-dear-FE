@@ -285,7 +285,7 @@ class _WriteLetterScreenState extends State<WriteLetterScreen> {
         Container(
           width: double.infinity,
           constraints: BoxConstraints(minHeight: 330.h, maxHeight: 600.h),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             border: Border(
               top: BorderSide(color: AppColors.G_02, width: 1),
