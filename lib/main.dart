@@ -12,12 +12,8 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// kakao, firebase 관련 import
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-// import 'firebase_options.dart';
 
 // SharedPreferences 선언 - 내부 디스크 이용
 late SharedPreferences sharedPreferences;
@@ -31,7 +27,7 @@ class SharedPreferencesKeys {
   static const String accessToken = "accessToken";
   static const String refreshToken = "refreshToken";
 
-  // static const String firebaseToken = "token";
+  static const String firebaseToken = "token";
 
   // bgmusic
   static String bgMusicSelectedIndex = "bg_music_selected_index";
@@ -65,8 +61,8 @@ Future<void> main() async {
   // );
 
   // Kakao SDK 초기화
-  // KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']);
-  // logger.d("Kakao SDK 초기화 완료");
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']);
+  logger.d("Kakao SDK 초기화 완료");
 
   // Firebase 초기화 완료 대기
   // await firebaseFuture;
