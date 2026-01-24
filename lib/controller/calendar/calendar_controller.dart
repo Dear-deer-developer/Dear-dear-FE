@@ -1,13 +1,13 @@
-import 'package:flutter/widgets.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CalendarController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
-  void scrollUp() {
-    scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 700), curve: Curves.easeIn);
-  }
+  // 밤/낮 상태 (홈이랑 동일하게 사용 가능)
+  final RxBool isNight = false.obs;
+  Timer? _timer;
 
   // 현재 날짜를 저장합니다. (앱 실행 시점의 날짜)
   final DateTime now = DateTime.now();
@@ -24,11 +24,66 @@ class CalendarController extends GetxController {
   // 날짜별 일정 목록을 저장하는 맵
   RxMap<String, List<String>> events = <String, List<String>>{}.obs;
 
-  // /// 연도와 월 업데이트
-  // void updateYearAndMonth(int year, int month) {
-  //   selectedYear.value = year;
-  //   selectedMonth.value = month;
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    _recompute(); // 첫 계산
+    _scheduleNextTick(); // 다음 경계(07:00/18:00)에 갱신
+  }
+
+  void scrollUp() {
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeIn,
+    );
+  }
+
+  // ---- 밤/낮 계산 로직 (HomeController와 동일) ----
+
+  void _recompute() {
+    // 한국 시간 기준 (KST)
+    final now = DateTime.now().toUtc().add(const Duration(hours: 9));
+    final hour = now.hour;
+    isNight.value = (hour < 7 || hour >= 18);
+  }
+
+  void _scheduleNextTick() {
+    _timer?.cancel();
+
+    // KST 현재시간
+    final now = DateTime.now().toUtc().add(const Duration(hours: 9));
+    final hour = now.hour;
+
+    // 다음 경계(07:00 / 18:00) 계산도 KST 기준으로 해야 함!
+    DateTime nextBoundaryKst;
+    if (hour < 7) {
+      nextBoundaryKst = DateTime(now.year, now.month, now.day, 7);
+    } else if (hour < 18) {
+      nextBoundaryKst = DateTime(now.year, now.month, now.day, 18);
+    } else {
+      // 내일 07:00
+      final tomorrow = now.add(const Duration(days: 1));
+      nextBoundaryKst =
+          DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 7);
+    }
+
+    // diff 계산도 KST 기준
+    final diff = nextBoundaryKst.difference(now);
+
+    _timer = Timer(diff, () {
+      _recompute();
+      _scheduleNextTick();
+    });
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
+  }
+
+  // ---- 일정 관련 기존 로직들 그대로 유지 ----
 
   /// 선택된 날짜 변경
   void updateSelectedDate(DateTime date) {

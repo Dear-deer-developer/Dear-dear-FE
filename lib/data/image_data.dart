@@ -33,6 +33,12 @@ class ImagePath {
   static String get nicknameDeletdButton =>
       'assets/images/nickname_delete_button.png';
   static String get loginIcon => 'assets/images/main_icon_login_page.png';
+  static String get textDeleteIcon => 'assets/images/icon_textdelete.png';
+  static String get eyeOffIcon => 'assets/images/eye_off.png';
+  static String get eyeOnIcon => 'assets/images/eye_on.png';
+
+  static String get checkboxOn => 'assets/images/check_box_on.png';
+  static String get checkboxOff => 'assets/images/check_box_off.png';
 
   // MARK: - Bot_nav_icon
   static String get homeOn => 'assets/images/home_on.png';
@@ -56,6 +62,27 @@ class ImagePath {
   static String get giftBoxIcon => 'assets/images/giftbox_widget.png';
   static String get bgMusicIcon => 'assets/images/bgmusic_widget.png';
 
+  static String get alarmEve => 'assets/images/alarm_image_eve.png';
+  static String get alarmXmas => 'assets/images/alarm_image_xmas.png';
+
+  static String get greyArrow => 'assets/images/grey_arrow.png';
+
+  // MARK: - Background Music
+  static String get cover_image_1 => 'assets/images/music_image_1.png';
+  static String get cover_image_2 => 'assets/images/music_image_2.png';
+  static String get cover_image_3 => 'assets/images/music_image_3.png';
+  static String get cover_image_4 => 'assets/images/music_image_4.png';
+  static String get cover_image_5 => 'assets/images/music_image_5.png';
+  static String get cover_image_6 => 'assets/images/music_image_6.png';
+
+  static String get musicPlayIcon => 'assets/images/music_play_icon.png';
+  static String get musicStopIcon => 'assets/images/music_stop_icon.png';
+
+  static String get musicPlayIconWhite => 'assets/images/icon_play_white.png';
+  static String get musicStopIconWhite => 'assets/images/music_pause_icon.png';
+  static String get musicNextIconWhite =>
+      'assets/images/ic_round_skip_next.png';
+
   // MARK: - Setting
   static String get cameraIcon => 'assets/images/camera_icon.png';
   static String get sampleImage => 'assets/images/profile_sample_image.png';
@@ -78,6 +105,21 @@ class ImagePath {
 
   static String get imageIcon => 'assets/images/image_icon.png';
   static String get imageIconDisabled => 'assets/images/image_icon_disable.png';
+
+  static String get imageLetter1 => 'assets/images/letter1.png';
+  static String get imageLetter2 => 'assets/images/letter2.png';
+  static String get imageLetter3 => 'assets/images/letter3.png';
+  static String get imageLetter4 => 'assets/images/letter4.png';
+  static String get imageLetter5 => 'assets/images/letter5.png';
+  static String get imageLetter6 => 'assets/images/letter6.png';
+  static String get imageLetter7 => 'assets/images/letter7.png';
+  static String get imageLetter8 => 'assets/images/letter8.png';
+  static String get imageLetter9 => 'assets/images/letter9.png';
+  static String get imageLetter10 => 'assets/images/letter10.png';
+  static String get imageLetter11 => 'assets/images/letter11.png';
+
+  static String get imageLetterEnvelope => 'assets/images/letter_envelope.png';
+  static String get imageOpenLetter => 'assets/images/open_letter.png';
 
   // MARK: - Calendar
   static String get calendarBackground =>

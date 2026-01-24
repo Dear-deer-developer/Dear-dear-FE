@@ -2,6 +2,7 @@ import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
+import 'package:dear_deer_demo/view/home/alarm_main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -64,6 +65,8 @@ class AlarmOnboarding extends StatelessWidget {
 
   Widget _ment(String nickname) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Dear. $nickname',
@@ -75,8 +78,10 @@ class AlarmOnboarding extends StatelessWidget {
         ),
         Text(
           '크리스마스를 기다리는 마음,\n올해도 여전히 설레죠?\n그 특별한 시작을 우리가 알람으로 살짝 알려드릴게요.\n가장 반짝이는 순간, 함께 준비해요. 🎁',
-          style: FontStyles.L3_reg_16,
-          textAlign: TextAlign.left,
+          style: TextStyle(
+              fontFamily: 'LeeSeoyun',
+              fontWeight: FontWeight.w400,
+              fontSize: 16.sp),
         )
       ],
     );
@@ -84,7 +89,10 @@ class AlarmOnboarding extends StatelessWidget {
 
   Widget _setting() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        // TODO: - 알람 세팅 페이지로 이동
+        Get.to(() => AlarmMain());
+      },
       child: Container(
         width: 312.w,
         height: 48.h,

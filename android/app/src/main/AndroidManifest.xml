@@ -1,9 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.dear_deer_demo">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- 인터넷 권한 (권장) -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- 🔊 오디오 포그라운드 서비스용 권한 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- 카카오톡 설치 여부 확인 (권장) -->
     <queries>
@@ -57,6 +61,16 @@
                     android:host="oauth"/>
             </intent-filter>
         </activity>
+
+            <!-- 🔊 AudioService (just_audio_background / audio_service용) -->
+        <service
+            android:name="com.ryanheise.audioservice.AudioService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="flutterEmbedding"

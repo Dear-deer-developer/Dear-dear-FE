@@ -22,6 +22,15 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<!-- 카카오톡으로 로그인 -->
+		<string>kakaokompassauth</string>
+		<!-- 카카오톡 공유 -->
+		<string>kakaolink</string>
+		<!-- 카카오톡 채널 -->
+		<string>kakaoplus</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -45,5 +54,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- ✅ 여기에 추가 -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>사진 선택을 위해 갤러리 접근 권한이 필요합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>사진을 찍기 위해 카메라 접근 권한이 필요합니다.</string>
+
 </dict>
 </plist>

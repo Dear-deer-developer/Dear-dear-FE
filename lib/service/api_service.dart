@@ -1,15 +1,16 @@
+// MARK: - JWT Token 자체 로그인 ver.
 import 'dart:convert';
 import 'package:dear_deer_demo/main.dart';
 import 'package:dear_deer_demo/model/deardeer_user.dart';
 import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:dear_deer_demo/util/custom_get_connect.dart';
+import 'package:dear_deer_demo/util/logger.dart';
 import 'package:dear_deer_demo/util/mem_cache.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class ApiService extends CustomGetConnect implements GetxService {
-  final String _baseUrl = "https://dearxmas.com";
+  final String _baseUrl = "https://dearxmas.com"; // ← 누락된 .com 복원
 
   @override
   void onInit() {
@@ -19,74 +20,61 @@ class ApiService extends CustomGetConnect implements GetxService {
       ..baseUrl = _baseUrl
       ..timeout = const Duration(seconds: 15);
 
-// 모든 요청에 Firebase ID Token 자동 첨부
+    // ✅ 모든 요청에 JWT AccessToken 자동 첨부 (리프레시/로그인 예외)
     httpClient.addRequestModifier<dynamic>((request) async {
-      // 1) MemCache 시도
-      String? idToken =
-          MemCache.get(MemCacheKey.firebaseAuthIdToken) as String?;
+      // 1) 토큰
+      String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
+      accessToken ??=
+          sharedPreferences.getString(SharedPreferencesKeys.accessToken);
 
-      // 2) 없으면 Firebase에서 최신 토큰
-      idToken ??= await FirebaseAuth.instance.currentUser?.getIdToken();
+      // 2) Authorization 제외할 경로 (로그인/리프레시)
+      const noAuthPaths = {
+        '/auth/native/login',
+        '/auth/native/refresh',
+        '/auth/native/register',
+        '/auth/native/register-email/send',
+        '/auth/native/register-email/verify',
+      };
 
-      if (idToken != null && idToken.isNotEmpty) {
-        request.headers['Authorization'] = 'Bearer $idToken';
+      // 3) Authorization 헤더 (필요할 때만)
+      if (accessToken != null &&
+          accessToken.isNotEmpty &&
+          !noAuthPaths.contains(request.url.path)) {
+        request.headers['Authorization'] = 'Bearer $accessToken';
       }
-      // JSON 기본
+
+      // 4) JSON 기본 헤더
       request.headers['Content-Type'] = 'application/json';
+      logger.t('➡️ ${request.method} ${request.url}');
       return request;
     });
-  }
-  // ---------------------------------------------------------------------------
-  // MARK: - AUTH
-  // ---------------------------------------------------------------------------
 
-  /// Kakao accessToken → Firebase customToken 교환
-  /// - POST /auth/kakao
-  /// Request: { "accessToken": "<kakao access token>" }
-  /// Response(200): { "customToken": "<firebase custom token>" }
-  Future<String?> exchangeKakaoAccessToken(String accessToken) async {
-    final res = await post(
-      '/auth/kakao',
-      jsonEncode({'accessToken': accessToken}),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (res.statusCode == 200 && res.bodyString != null) {
-      try {
-        final body = jsonDecode(res.bodyString!) as Map<String, dynamic>;
-        final customToken = body['customToken'] as String?;
-        return (customToken != null && customToken.isNotEmpty)
-            ? customToken
-            : null;
-      } catch (e) {
-        debugPrint('exchangeKakaoAccessToken 파싱 실패: $e / ${res.bodyString}');
-        return null;
-      }
-    }
-
-    debugPrint(
-        'exchangeKakaoAccessToken 실패: ${res.statusCode} / ${res.bodyString}');
-    return null;
+    // 응답 로깅
+    httpClient.addResponseModifier<dynamic>((request, response) {
+      logger.t('⬅️ [${response.statusCode}] ${request.method} ${request.url}');
+      return response;
+    });
   }
 
-  /// (선택) 서버에 Firebase ID Token을 전달
-  /// - POST /auth/id-token
-  /// Request: { "idToken": "<firebase id token>" }
-  /// Response: 201(or 200) 이면 성공으로 간주
-  Future<bool> submitFirebaseIdToken(String idToken) async {
-    final res = await post(
-      '/auth/id-token',
-      jsonEncode({'idToken': idToken}),
-      headers: {'Content-Type': 'application/json'},
-    );
-    return res.statusCode == 201 || res.statusCode == 200;
+  // MARK: - 이메일 인증코드
+  Future<Response> postSignupEmailSend(String email) {
+    return postJson('/auth/native/register-email/send', data: {'email': email});
   }
 
-  // ---------------------------------------------------------------------------
-  // USERS
-  // ---------------------------------------------------------------------------
+  Future<Response> postSignupEmailVerify(String email, String code) {
+    return postJson('/auth/native/register-email/verify',
+        data: {'email': email, 'code': code});
+  }
 
-  /// 사용자 닉네임 생성/수정
+  /// 현재 저장된 JWT 토큰 반환
+  Future<String?> getToken() async {
+    String? accessToken = MemCache.get(MemCacheKey.jwtAccessToken) as String?;
+    accessToken ??=
+        sharedPreferences.getString(SharedPreferencesKeys.accessToken);
+    return accessToken;
+  }
+
+  // MARK: - User API
   Future<DeardeerUser?> setNickname(String nickname) async {
     final res = await patch(
       '/users/nickname',
@@ -94,21 +82,17 @@ class ApiService extends CustomGetConnect implements GetxService {
       headers: {'Content-Type': 'application/json'},
     );
 
-    // === 정상 응답(JSON Body 포함) ===
     if (res.statusCode == 200 && (res.bodyString?.isNotEmpty ?? false)) {
       try {
         final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
         final user = DeardeerUser.fromJson(map);
 
-        // 캐시 갱신
         await sharedPreferences.setString(
             'user_json', jsonEncode(user.toJson()));
 
-        // 전역 상태(AuthService.user)도 같이 갱신해두면 편리
         if (Get.isRegistered<AuthService>()) {
           Get.find<AuthService>().user.value = user;
         }
-
         return user;
       } catch (e) {
         debugPrint('setNickname 파싱 실패: $e / ${res.bodyString}');
@@ -116,13 +100,8 @@ class ApiService extends CustomGetConnect implements GetxService {
       }
     }
 
-    // === No Content(204) ===
-    if (res.statusCode == 204) {
-      // 서버가 바디 없이 성공만 주는 경우 → 바로 getUser() 호출해서 최신화 필요
-      return null;
-    }
+    if (res.statusCode == 204) return null;
 
-    // === 기타 실패 ===
     debugPrint('setNickname 실패: ${res.statusCode} / ${res.bodyString}');
     return null;
   }
@@ -134,31 +113,80 @@ class ApiService extends CustomGetConnect implements GetxService {
       try {
         final map = jsonDecode(res.bodyString!) as Map<String, dynamic>;
         final user = DeardeerUser.fromJson(map);
-
-        // 재시작 복구용 캐시
         await sharedPreferences.setString('user_json', res.bodyString!);
-
         return user;
       } catch (e) {
-        debugPrint('getMe 파싱 실패: $e / ${res.bodyString}');
+        debugPrint('getUser 파싱 실패: $e / ${res.bodyString}');
         return null;
       }
     }
 
-    debugPrint('getMe 실패: ${res.statusCode} / ${res.bodyString}');
+    debugPrint('getUser 실패: ${res.statusCode} / ${res.bodyString}');
     return null;
   }
 
-  // ---------------------------------------------------------------------------
-  // 유틸 (선택) JSON POST/PATCH 래퍼
-  // ---------------------------------------------------------------------------
+  // MARK: - 공통 요청 메서드
+  Future<Response<T>> guardedGet<T>(String path) async {
+    Response<T> res = await get<T>(path);
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) res = await get<T>(path);
+    }
+    return res;
+  }
 
-  Future<Response> postJson(String path, Map<String, dynamic> data,
-      {Map<String, String>? headers}) {
-    return post(
+  Future<Response<T>> guardedPostJson<T>(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    Response<T> res = await post<T>(
       path,
       jsonEncode(data),
       headers: {'Content-Type': 'application/json', ...?headers},
+    );
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await post<T>(
+          path,
+          jsonEncode(data),
+          headers: {'Content-Type': 'application/json', ...?headers},
+        );
+      }
+    }
+    return res;
+  }
+
+  Future<Response<T>> guardedPatchJson<T>(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    Response<T> res = await patch<T>(
+      path,
+      jsonEncode(data),
+      headers: {'Content-Type': 'application/json', ...?headers},
+    );
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await patch<T>(
+          path,
+          jsonEncode(data),
+          headers: {'Content-Type': 'application/json', ...?headers},
+        );
+      }
+    }
+    return res;
+  }
+
+  // MARK: - 공통 JSON 요청 헬퍼
+  Future<Response> postJson(String path, {Map<String, dynamic>? data}) {
+    return post(
+      path,
+      data != null ? jsonEncode(data) : null,
+      headers: {'Content-Type': 'application/json'},
     );
   }
 
@@ -171,7 +199,71 @@ class ApiService extends CustomGetConnect implements GetxService {
     );
   }
 
-  /// 캐시된 유저 JSON을 우선 복구
+  Future<Response> deleteJson(String path, {Map<String, dynamic>? data}) {
+    if (data != null && data.isNotEmpty) {
+      final query = data.entries.map((e) {
+        final value = e.value;
+        if (value is List) {
+          // 예: letterIds=[1,2] → letterIds=1&letterIds=2
+          return value
+              .map((v) =>
+                  '${Uri.encodeQueryComponent(e.key)}[]=${Uri.encodeQueryComponent(v.toString())}')
+              .join('&');
+        } else {
+          return '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(value.toString())}';
+        }
+      }).join('&');
+      path = '$path?$query';
+    }
+
+    return delete(
+      path,
+      headers: {'Content-Type': 'application/json'},
+    );
+  }
+
+  // 401 발생 시 refresh 후 한 번 더 시도하는 DELETE JSON 헬퍼
+  Future<Response> guardedDeleteJson(
+    String path,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    // deleteJson은 이미 path에 queryString을 붙여서 DELETE 호출
+    Response res = await deleteJson(
+      path,
+      data: data,
+    );
+
+    if (res.statusCode == 401) {
+      final ok = await Get.find<AuthService>().refreshAccessToken();
+      if (ok) {
+        res = await deleteJson(
+          path,
+          data: data,
+        );
+      }
+    }
+
+    return res;
+  }
+
+  Future<dynamic> getJson(String path, {Map<String, String>? headers}) async {
+    final res = await guardedGet(path);
+
+    if (res.statusCode == 200) {
+      try {
+        if (res.bodyString?.isNotEmpty ?? false) {
+          return jsonDecode(res.bodyString!);
+        }
+      } catch (e) {
+        debugPrint('getJson 파싱 실패: $e');
+      }
+    }
+
+    debugPrint('getJson 실패: ${res.statusCode} / ${res.bodyString}');
+    return null;
+  }
+
   DeardeerUser? getCachedUser() {
     final raw = sharedPreferences.getString('user_json');
     if (raw == null) return null;

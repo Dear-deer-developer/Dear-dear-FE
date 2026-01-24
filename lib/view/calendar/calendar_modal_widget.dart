@@ -1,6 +1,5 @@
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
-import 'package:dear_deer_demo/data/today_ex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -10,10 +9,10 @@ class CustomCalendarWidget extends StatefulWidget {
   final ValueChanged<DateTime> onDateSelected;
 
   const CustomCalendarWidget({
-    super.key,
+    Key? key,
     required this.selectedDate,
     required this.onDateSelected,
-  });
+  }) : super(key: key);
 
   @override
   State<CustomCalendarWidget> createState() => _CustomCalendarWidgetState();
@@ -22,7 +21,7 @@ class CustomCalendarWidget extends StatefulWidget {
 class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
   late DateTime focusedDay;
 
-  final TextStyle _commonTextStyle = const TextStyle(color: AppColors.G_06);
+  final TextStyle _commonTextStyle = TextStyle(color: AppColors.G_06);
 
   @override
   void initState() {
@@ -35,8 +34,8 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
     return TableCalendar(
       locale: 'ko_KR',
       focusedDay: focusedDay,
-      firstDay: DateTime(fakeToday.year, 11, 1),
-      lastDay: DateTime(fakeToday.year, 12, 31),
+      firstDay: DateTime(DateTime.now().year, 11, 1),
+      lastDay: DateTime(DateTime.now().year, 12, 31),
       calendarFormat: CalendarFormat.month,
       selectedDayPredicate: (day) => isSameDay(day, widget.selectedDate),
       onDaySelected: (selected, focused) {
@@ -55,14 +54,14 @@ class _CustomCalendarWidgetState extends State<CustomCalendarWidget> {
       ),
       daysOfWeekHeight: 20,
       daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
-        weekdayStyle: FontStyles.S1_reg_12.copyWith(color: AppColors.G_06),
+        weekendStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
+        weekdayStyle: FontStyles.S2_reg_12.copyWith(color: AppColors.G_06),
         dowTextFormatter: (date, locale) =>
             ['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7],
       ),
-      rowHeight: 35.h,
+      rowHeight: 30.h,
       calendarStyle: CalendarStyle(
-        cellMargin: EdgeInsets.only(top: 5.h, bottom: 5.h),
+        cellMargin: EdgeInsets.only(top: 3.h, bottom: 3.h),
         outsideDaysVisible: false,
         defaultTextStyle: _commonTextStyle,
         weekendTextStyle: _commonTextStyle,
