@@ -13,28 +13,65 @@ class SelectRecipient extends StatefulWidget {
 }
 
 class _SelectRecipientState extends State<SelectRecipient> {
-  final controller =
-      Get.put(SelectRecipientController()); // GetX Controller 인스턴스 생성
+  final controller = Get.put(SelectRecipientController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      appBar: _appBar(),
+      body: Column(
+        children: [
+          _topTabs(),
+          _searchBar(),
+          Expanded(child: _content()),
+        ],
+      ),
+    );
+  }
+
+  // MARK: - AppBar
+  AppBar _appBar() => AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
-          // 상단 확인 버튼.
           TextButton(
             onPressed: () {
               final selectedIdx = controller.selectedIdx.value;
-              if (selectedIdx != null) {
+              final selectedTab = controller.selectedTabIdx.value;
+
+              // MARK: 링크 탭에서 선택 시
+              if (selectedTab == 1) {
+                // 링크 모드일 경우, 빈 데이터 반환 + isLinkMode true 전달
+                final linkResult = {
+                  'id': null,
+                  'name': '링크로 보내기',
+                  'number': null,
+                  'isLinkMode': true,
+                };
+                print('링크 모드 선택됨: $linkResult');
+                Get.back(result: linkResult);
+                return;
+              }
+
+              // MARK: 사서함 번호 탭에서 선택 시
+              if (selectedIdx != null &&
+                  selectedIdx >= 0 &&
+                  selectedIdx < controller.filteredFriends.length) {
                 final friend = controller.filteredFriends[selectedIdx];
-                final name = friend['name'] ?? '';
-                Get.back(result: name);
+
+                final selectedFriend = {
+                  'id': friend['id'],
+                  'name': friend['name'] ?? '이름 없음',
+                  'number': friend['number'] ?? '-',
+                  'isLinkMode': false,
+                };
+
+                print('선택된 친구 반환: $selectedFriend');
+                Get.back(result: selectedFriend);
               } else {
-                Get.back();
+                Get.snackbar('알림', '받는 사람을 선택해주세요.');
               }
             },
             child: Text(
@@ -43,44 +80,31 @@ class _SelectRecipientState extends State<SelectRecipient> {
             ),
           ),
         ],
-      ),
-      body: Column(
-        children: [
-          _topTabs(), // 카카오 친구, 사서함 번호, 미가입자 탭.
-          _searchBar(), // 검색창.
-          _Label(), // 친구 목록 라벨과 검색 기능을 사용할 때는 검색 결과 라벨.
-          Expanded(child: _friendList()), // 친구 목록.
-        ],
-      ),
-    );
-  }
+      );
 
-  // MARK: - 탭 UI 카카오 친구, 사서함 번호, 미가입자들을 확인할 수 있는 탭.
-  /// 상단에 선택된 탭에 따라 내용을 필터링하기 위해 각각 번호를 지정하였습니다.
-  /// 카카오 친구 : 0, 사서함 번호 : 1, 미가입자 : 2
+  // MARK: - 상단 탭
   Widget _topTabs() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 45, right: 16, bottom: 8),
-      child: Obx(() => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 8),
+      child: Obx(() => Column(
             children: [
-              _tabItem('카카오 친구', 0),
-              _tabItem('사서함 번호', 1),
-              _tabItem('미가입자', 2),
-              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _tabItem('사서함 번호', 0),
+                  const SizedBox(width: 16),
+                  _tabItem('링크로 보내기', 1),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Divider(color: AppColors.G_01, thickness: 1),
             ],
           )),
     );
   }
 
-  //MARK: - 탭 아이템
-  /// 탭 아이템을 클릭하면 해당 탭의 인덱스가 controller.selectedTabIdx에 저장됩니다.
-  /// 탭 아이템의 텍스트 색상은 선택된 탭은 검정색, 선택되지 않은 탭은 회색으로 구분하였습니다.
-  /// 선택된 탭은 아래에 검은색 디바이더로 표시됩니다.
-
   Widget _tabItem(String title, int index) {
     final isSelected = controller.selectedTabIdx.value == index;
-
     return GestureDetector(
       onTap: () => controller.selectedTabIdx.value = index,
       child: Padding(
@@ -106,63 +130,39 @@ class _SelectRecipientState extends State<SelectRecipient> {
     );
   }
 
-  //MARK: - 목록 라벨
-  /// 친구 목록을 표시할 때는 친구 라벨을 보이고, 검색 결과를 표시할 때는 검색 결과 라벨을 보여 줍니다.
-  /// 미가입자 탭일 경우에는 라벨을 숨김 처리합니다.
-  Widget _Label() {
-    return Obx(() {
-      final isSearching = controller.searchQuery.value.isNotEmpty;
-      final tabIndex = controller.selectedTabIdx.value;
-
-      if (tabIndex == 2) return const SizedBox.shrink();
-
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 30, top: 16, bottom: 16),
-          child: Text(
-            isSearching ? '검색 결과' : '친구',
-            style: FontStyles.B4_bold_14,
-          ),
-        ),
-      );
-    });
-  }
-
-  //MARK: - 검색창
-  /// 검색창은 친구 목록을 필터링하기 위해 사용됩니다.
-  /// 검색어가 입력되면 controller.searchQuery에 저장되고, 친구 목록이 필터링됩니다.
-  /// 미가입자 탭일 경우에는 검색창을 숨김 처리합니다.
+  // MARK: - 검색 바
   Widget _searchBar() {
     return Obx(() {
       final tabIndex = controller.selectedTabIdx.value;
-
-      if (tabIndex == 2) return const SizedBox.shrink();
+      if (tabIndex == 1) return const SizedBox.shrink();
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Container(
           height: 44.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFF2F2F2),
+            color: Colors.white,
+            border: Border.all(color: AppColors.G_02),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Icon(Icons.search, color: Colors.grey),
               ),
               Expanded(
                 child: TextField(
                   onChanged: (value) {
                     controller.searchQuery.value = value;
+                    controller.searchUserByZipCode(value);
                   },
                   decoration: const InputDecoration(
-                    hintText: '친구 이름 검색',
+                    hintText: '사서함 번호 입력',
                     border: InputBorder.none,
                     isDense: true,
                   ),
+                  keyboardType: TextInputType.number,
                 ),
               ),
             ],
@@ -172,90 +172,65 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
-  //MARK: - 친구 목록
-  /// 친구 목록은 ListView로 구현되어 있으며, 각 친구는 ListTile로 표시됩니다.
-  /// 친구를 선택하면 Radio 버튼이 활성화되고, 선택된 친구는 controller.selectedIdx에 저장됩니다.
-  /// 친구 목록이 비어있을 경우에는 검색 결과가 없다는 메시지를 표시합니다.
-  /// 미가입자 탭일 경우에는 친구 목록이 비워지도록 처리하였습니다.
-  Widget _friendList() {
+  // MARK: - 친구 목록
+  Widget _content() {
     return Obx(() {
-      final selected = controller.selectedIdx.value;
       final tabIndex = controller.selectedTabIdx.value;
+
+      if (tabIndex == 1) return _link();
+      if (controller.searchQuery.value.isEmpty) {
+        return _message("사서함 번호를 입력해 보세요!");
+      }
+
       final friendsList = controller.filteredFriends;
 
-      if (tabIndex == 2) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 30),
-              child: _notice(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(
-                "내용을 모두 확인하신 후, \n우측 상단의 확인을 눌러 주세요!",
-                style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06),
-              ),
-            )
-          ],
-        );
-      }
-
       if (friendsList.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('검색 결과가 없어요!',
-                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06)),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: _notice(),
-              ),
-            ],
-          ),
-        );
+        return _message("앗, 해당 사서함 번호를 가진 사용자가 없네요.\n다시 확인해 주세요!");
       }
 
-      /// 친구 목록이 비어있지 않을 경우 ListView로 친구 목록을 표시합니다.
-      return ListView.separated(
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: friendsList.length,
-        separatorBuilder: (_, __) =>
-            const Divider(height: 1, color: Color(0xFFF2F2F2)),
-        itemBuilder: (context, idx) {
-          final friend = friendsList[idx];
-          final isSelected = selected == idx;
+        itemBuilder: (context, index) {
+          final friend = friendsList[index];
+          final isSelected = controller.selectedIdx.value == index;
 
-          return ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Color(0xFFE0E0E0),
-              radius: 24,
-              child: Icon(Icons.person, color: Colors.white, size: 32),
-            ),
-            title: Text(friend['name'] ?? '', style: FontStyles.B4_bold_14),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('사서함 번호 : ${friend['number']}',
-                    style: FontStyles.S1_reg_10),
-                Text('사용자 닉네임 : ${friend['nickname']}',
-                    style: FontStyles.S1_reg_10),
-              ],
-            ),
-            trailing: Radio<int>(
-              value: idx,
-              groupValue: selected,
-              activeColor: Colors.red,
-              onChanged: (int? value) {
-                if (isSelected) {
-                  controller.selectFriend(null); // 선택 해제
-                } else {
-                  controller.selectFriend(value);
-                }
-              },
+          return GestureDetector(
+            onTap: () => controller.selectFriend(index),
+            child: Card(
+              color: isSelected
+                  ? AppColors.mainRed.withOpacity(0.1)
+                  : Colors.white,
+              margin: const EdgeInsets.only(bottom: 8),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: isSelected ? AppColors.mainRed : AppColors.G_02,
+                  width: 1,
+                ),
+              ),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Color(0xFFE0E0E0),
+                  child: Icon(Icons.person, color: Colors.white, size: 32),
+                ),
+                title: Text(
+                  friend['name'] ?? '',
+                  style: FontStyles.B4_bold_14,
+                ),
+                subtitle: Text(
+                  '사서함번호 : ${friend['number'] ?? '-'}',
+                  style: FontStyles.S2_reg_12,
+                ),
+                trailing: Radio<int>(
+                  value: index,
+                  groupValue: controller.selectedIdx.value,
+                  activeColor: AppColors.mainRed,
+                  onChanged: (_) => controller.selectFriend(index),
+                ),
+              ),
             ),
           );
         },
@@ -263,39 +238,60 @@ class _SelectRecipientState extends State<SelectRecipient> {
     });
   }
 
-  //MARK: - 미가입자 안내 메시지
-  /// 미가입자 탭과 검색 결과가 없을 때, 보여지는 안내 메세지입니다.
-  Widget _notice() => Container(
-        width: 300.w,
-        height: 120.h,
-        decoration: BoxDecoration(
-          color: AppColors.G_01,
-          borderRadius: BorderRadius.circular(8),
+  // MARK: - 안내 문구
+  Widget _message(String text) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text('검색 결과',
+                  style: FontStyles.B4_bold_14.copyWith(color: Colors.black)),
+              const SizedBox(height: 30),
+              Text(text,
+                  style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_06)),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 8, left: 14),
-              child: Text("아직 디어 디어에 가입하지 않은 친구는",
-                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+      );
+
+  // MARK: - 링크 안내 탭
+  Widget _link() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 300.w,
+            decoration: BoxDecoration(
+              color: AppColors.G_01,
+              borderRadius: BorderRadius.circular(8),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 14),
-              child: Text("1. 미가입자를 선택 후",
-                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("수신 정보가 없는 친구에게 보내고 싶을 경우",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  const SizedBox(height: 6),
+                  Text("1. 링크로 보내기를 선택 후",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  Text("2. 편지 작성하고",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                  Text("3. 직접 링크를 전달해 주세요~!",
+                      style:
+                          FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 14),
-              child: Text("2. 편지 작성하고",
-                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 14),
-              child: Text("3. 직접 링크를 전달해 주세요~!",
-                  style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          Text("내용을 모두 확인하신 후,\n우측 상단의 확인을 눌러 주세요!",
+              style: FontStyles.B4_reg_14.copyWith(color: AppColors.G_06)),
+        ],
       );
 }

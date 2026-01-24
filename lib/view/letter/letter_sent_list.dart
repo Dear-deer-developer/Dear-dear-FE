@@ -1,0 +1,223 @@
+import 'package:dear_deer_demo/controller/post/letter_sent_controller.dart';
+import 'package:dear_deer_demo/view/letter/letter_sent.dart';
+import 'package:flutter/material.dart';
+import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/data/app_color.dart';
+import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
+
+class LetterSentList extends StatelessWidget {
+  const LetterSentList({super.key});
+  String _formatSentAt(dynamic sentAt) {
+    if (sentAt == null) return '';
+    try {
+      // 서버가 String으로 주는 경우를 우선 처리
+      final dt =
+          sentAt is DateTime ? sentAt : DateTime.parse(sentAt.toString());
+      // 기기 로컬(KST라면 KST)로 변환 후 보기 좋게 포맷
+      return DateFormat('yyyy-MM-dd').format(dt.toLocal());
+    } catch (_) {
+      // 혹시 이상한 값이 와도 화면이 안 죽게 원본을 문자열로 표시
+      return sentAt.toString();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _appbar(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [_warningMessage(), _letterList(), _errorMessage()],
+        ),
+      ),
+    );
+  }
+
+  AppBar _appbar() => AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          "보낸 편지함",
+          style: FontStyles.H2_bold_17,
+        ),
+      );
+
+  Widget _warningMessage() => Align(
+        alignment: const Alignment(0, -0.9),
+        child: Padding(
+          padding: EdgeInsets.only(top: 12.h),
+          child: Container(
+            width: 300.w,
+            height: 56.h,
+            decoration: BoxDecoration(
+              color: AppColors.mainRed.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(7.r),
+            ),
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 7.w),
+                  child: Image.asset(
+                    ImagePath.letterImage,
+                    width: 34.w,
+                    height: 34.h,
+                  ),
+                ),
+                Text(
+                  "보낸 편지는 수정할 수 없어요.",
+                  style: FontStyles.B4_reg_14.copyWith(
+                    color: AppColors.Black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+// MARK: - 편지 리스트
+  /// 보낸 편지들을 이미지 위에 'Dear. 이름' 텍스트와 함께 표시하고,
+  /// 편지를 누르면 LetterSent() 페이지로 이동합니다.
+  Widget _letterList() {
+    final controller = Get.put(LetterSentController());
+    controller.loadSentLetters();
+
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Padding(
+          padding: EdgeInsets.only(top: 50),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      if (controller.letters.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Center(child: Text('보낸 편지가 없습니다')),
+        );
+      }
+
+      return Padding(
+        padding: EdgeInsets.only(top: 30.h),
+        child: Center(
+          child: Column(
+            children: List.generate(controller.letters.length, (index) {
+              final letter = controller.letters[index];
+              final recipientId = letter.receiverId;
+              final content = letter.content;
+
+              // paperId가 서버에서 내려오면 letter.paperId로 받기
+              // 없다면 임시로 1 지정
+              final paperId = letter.paperId ?? 1;
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 32.h),
+                child: GestureDetector(
+                  onTap: () async {
+                    final detail = await controller.loadLetterDetail(letter.id);
+
+                    if (detail != null) {
+                      Get.to(() => const LetterSent(), arguments: detail);
+                    } else {
+                      Get.snackbar(
+                        '편지 조회 실패',
+                        '편지 내용을 불러올 수 없습니다.',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  },
+                  child: Stack(
+                    children: [
+                      // 편지 배경 이미지
+                      Container(
+                        width: 312.w,
+                        height: 184.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        clipBehavior: Clip.hardEdge,
+                        child: Image.asset(
+                          ImagePath.imageLetterEnvelope,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+
+                      // Dear. 수신자 닉네임 표시
+                      Positioned(
+                        left: 20.w,
+                        bottom: 16.h,
+                        child: Text(
+                          "Dear. ${letter.receiverNickname ?? '??'}",
+                          style: FontStyles.L3_reg_16.merge(
+                            const TextStyle(fontFamily: 'LeeSeoyun'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      );
+    });
+  }
+
+  // MARK: - 오류 메시지
+  /// 편지 전송 실패 또는 미전달 안내 문구
+  Widget _errorMessage() => Padding(
+        padding: EdgeInsets.only(bottom: 20.h, left: 32.w, right: 24.w),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // 왼쪽: 아이콘 + 텍스트 묶음
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 18,
+                  ),
+                  SizedBox(width: 6.w),
+                  Expanded(
+                    child: Text(
+                      "받는 분이 편지를 접속 받지 못했습니다.\n링크 공유로 편지를 다시 전달해주세요.",
+                      style:
+                          FontStyles.S2_reg_12.copyWith(color: AppColors.Black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // 오른쪽: 공유 버튼
+            IconButton(
+              icon: const Icon(Icons.share_outlined, size: 20),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                // TODO: 링크 공유 기능 연결
+              },
+            ),
+          ],
+        ),
+      );
+}

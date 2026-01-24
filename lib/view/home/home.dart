@@ -3,9 +3,9 @@ import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/view/home/alarm_onboarding.dart';
 import 'package:dear_deer_demo/view/home/bg_music.dart';
 import 'package:dear_deer_demo/view/home/gift_main.dart';
+import 'package:dear_deer_demo/view/home/not_yet.dart';
 import 'package:dear_deer_demo/view/profile/profile_main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -84,11 +84,13 @@ class Home extends GetView<HomeController> {
 
   // MARK: - 프로필 (임시)
   Widget _profileIcon() {
-    return Container(
-      width: 44.w,
-      height: 44.h,
-      decoration:
-          const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+    return ClipOval(
+      child: Image.asset(
+        ImagePath.sampleImage, // 샘플 이미지
+        width: 36.w,
+        height: 36.h,
+        fit: BoxFit.cover,
+      ),
     );
   }
 
@@ -124,7 +126,7 @@ class Home extends GetView<HomeController> {
             ),
           ),
         ),
-        // 선물함
+        // MARK: - 선물함 - 임시 처리
         Positioned(
           bottom: 136.h,
           left: 292.w,
@@ -132,6 +134,7 @@ class Home extends GetView<HomeController> {
           child: GestureDetector(
             onTap: () {
               Get.to(() => const GiftMain());
+              // Get.to(() => NotYet());
             },
             child: Image.asset(
               ImagePath.giftBoxIcon,

@@ -2,6 +2,8 @@ import 'package:dear_deer_demo/controller/home/gift_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/widget/tree_slot_debug_overlay.dart';
+import 'package:dear_deer_demo/widget/tree_slot_hit_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -11,149 +13,216 @@ class GiftMain extends GetView<GiftController> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Figma Rectangle 971: 상단(Y) = 108px
+    // 회색 배경 시작선을 디자인 값 그대로 고정
+    final double grayStartY = 108.h;
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      body: SafeArea(child: _body()),
-    );
-  }
 
-  Widget _body() {
-    return Column(
-      children: [
-        _head(),
-        SizedBox(
-          height: 19.h,
-        ),
-        _tree(),
-        Expanded(child: _ornament()),
-      ],
-    );
-  }
-
-  Widget _head() {
-    return Padding(
-      padding: EdgeInsets.only(top: 12.h, left: 4.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
+      // ✅ body 전체는 SafeArea로 감싸지 않음 (트리 top=42가 "화면 맨 위 기준"이어야 함)
+      body: Stack(
+        clipBehavior: Clip.none,
         children: [
-          GestureDetector(
-            onTap: Get.back,
-            child: Image.asset(
-              ImagePath.backIcon,
-              width: 48.w,
-              height: 48.h,
+          // ===============================
+          // 1) BACKGROUND (Method 1)
+          //    - 0 ~ 108 : 흰색
+          //    - 108 ~ 끝 : 회색
+          // ===============================
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: grayStartY,
+            child: Container(color: Colors.white),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: grayStartY,
+            bottom: 0,
+            child: Container(color: const Color(0xFFD9D9D9)),
+          ),
+
+          // ===============================
+          // 2) HEADER
+          // ✅ 헤더 콘텐츠만 SafeArea로 상태바 피함
+          // ===============================
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: SafeArea(
+              bottom: false,
+              child: _head(),
             ),
           ),
-          SizedBox(width: 103.w),
-          Text(
-            '선물함',
-            textAlign: TextAlign.center,
-            style: FontStyles.H2_bold_17, // H2로 변경해야함.
+
+          // ===============================
+          // 3) TREE
+          // ✅ Figma 기준: 화면 맨 위(상태바 포함)에서 42
+          // ===============================
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 42.h,
+            child: _tree(),
+          ),
+
+          // ===============================
+          // 4) BOTTOM SHEET (고정 / Obx 없음)
+          // ===============================
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _giftBottomSheet(),
           ),
         ],
       ),
     );
   }
 
-  Widget _tree() {
-    return Container(
-      width: 360.w,
-      height: 306.h,
-      decoration: const BoxDecoration(
-        color: Color(0xffD9D9D9),
+  // MARK: HEADER
+  // ✅ 헤더 높이 고정(48) + 좌우 패딩만
+  Widget _head() {
+    return SizedBox(
+      height: 48.h,
+      child: Padding(
+        padding: EdgeInsets.only(left: 4.w, right: 16.w),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: Get.back,
+              child: Image.asset(
+                ImagePath.backIcon,
+                width: 48.w,
+                height: 48.h,
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  '선물함',
+                  style: FontStyles.H2_bold_17,
+                ),
+              ),
+            ),
+            SizedBox(width: 48.w),
+          ],
+        ),
       ),
     );
   }
 
-// MARK: - 오너먼트
-  Widget _ornament() {
-    return Obx(() {
-      return Column(
-        children: [
-          // 카테고리 탭
-          SizedBox(
-            height: 59.h,
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.categories.length,
-              separatorBuilder: (_, __) => SizedBox(width: 8.w),
-              itemBuilder: (context, i) {
-                final isSelected = i == controller.selectedCategoryIndex.value;
-                return GestureDetector(
-                  onTap: () => controller.selectCategory(i),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.white : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color:
-                            isSelected ? AppColors.mainGreen : AppColors.G_02,
-                        width: 1.w,
+  // MARK: TREE
+  // - 프레임: 360
+  // - 이미지: 370.w x 550.h (좌우 5씩 overflow)
+  Widget _tree() {
+    final double frameW = 1.sw; // 360
+    final double imageW = 370.w;
+    final double imageH = 550.h;
+
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        width: frameW,
+        height: imageH,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Tree Image (overflow)
+            Positioned(
+              left: -5.w,
+              top: 0,
+              child: SizedBox(
+                width: imageW,
+                height: imageH,
+                child: Image.asset(
+                  ImagePath.normalTree,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
+
+            // Slots (임시)
+            Positioned.fill(
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final w = c.maxWidth; // 360
+                  final h = c.maxHeight; // 550
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: TreeSlotHitLayer(
+                          width: w,
+                          height: h,
+                          hitSize: 44,
+                          onTapSlot: (slotId) => debugPrint('탭된 슬롯: $slotId'),
+                        ),
                       ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      controller.categories[i].name.toUpperCase(),
-                      style: isSelected
-                          ? FontStyles.B3_bold_15
-                          : FontStyles.B3_reg_15,
-                    ),
-                  ),
-                );
-              },
+                      Positioned.fill(
+                        child: TreeSlotDebugOverlay(
+                          width: w,
+                          height: h,
+                          selectedSlotId: null,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // MARK: BOTTOM SHEET
+  Widget _giftBottomSheet() {
+    return Container(
+      width: 1.sw,
+      height: 230.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            offset: const Offset(0, -4),
+            blurRadius: 12.r,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8.h),
+          Center(
+            child: Container(
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: AppColors.G_03,
+                borderRadius: BorderRadius.circular(999.r),
+              ),
             ),
           ),
           SizedBox(height: 12.h),
-
-          // 아이템 그리드
           Expanded(
-            child: controller.isLoading.value
-                ? const Center(child: CircularProgressIndicator())
-                : (controller.error.value != null)
-                    ? Center(child: Text(controller.error.value!))
-                    : (controller.items.isEmpty)
-                        ? const Center(child: Text('아이템 없음'))
-                        : GridView.builder(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16.w, vertical: 8.h),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 12.h,
-                              crossAxisSpacing: 12.w,
-                              childAspectRatio: 148.w / 120.h,
-                            ),
-                            itemCount: controller.items.length,
-                            itemBuilder: (context, i) {
-                              final g = controller.items[i];
-                              return _giftCard(
-                                  name: g.name, imageUrl: g.imageUrl);
-                            },
-                          ),
+            child: Center(
+              child: Text(
+                '임시 바텀시트 (움직임/데이터 연동은 나중에)',
+                style: FontStyles.B3_reg_15.copyWith(color: AppColors.G_05),
+              ),
+            ),
           ),
-        ],
-      );
-    });
-  }
-
-  Widget _giftCard({required String name, required String imageUrl}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.G_02, width: 1.w),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.network(imageUrl,
-              width: 56.w, height: 56.w, fit: BoxFit.contain),
-          SizedBox(height: 8.h),
-          Text(name,
-              style: FontStyles.B3_reg_15, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

@@ -1,12 +1,3 @@
-// import 'package:flutter/widgets.dart';
-// import 'package:get/get.dart';
-
-// class HomeController extends GetxController {
-//   final ScrollController scrollController = ScrollController();
-
-//   // 초기 데이터 로딩
-// }
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,9 +20,9 @@ class HomeController extends GetxController {
   }
 
   void _recompute() {
-    final now = DateTime.now(); // 로컬시간 (한국이면 KST)
+    final now = DateTime.now().toUtc().add(const Duration(hours: 9)); // 한국시간 설정
     final hour = now.hour; // 0~23
-    isNight.value = !(hour >= 6 && hour < 18);
+    isNight.value = (hour < 7 || hour >= 18);
   }
 
   void _scheduleNextTick() {
@@ -39,16 +30,16 @@ class HomeController extends GetxController {
     final now = DateTime.now();
     final hour = now.hour;
 
-    // 다음 경계시각(06:00 또는 18:00)
+    // 다음 경계시각(07:00 ~ 18:00)
     DateTime nextBoundary;
-    if (hour < 6) {
-      nextBoundary = DateTime(now.year, now.month, now.day, 6);
+    if (hour < 7) {
+      nextBoundary = DateTime(now.year, now.month, now.day, 7);
     } else if (hour < 18) {
       nextBoundary = DateTime(now.year, now.month, now.day, 18);
     } else {
-      // 내일 06:00
+      // 내일 07:00
       final tomorrow = now.add(const Duration(days: 1));
-      nextBoundary = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 6);
+      nextBoundary = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 7);
     }
 
     final diff = nextBoundary.difference(now);

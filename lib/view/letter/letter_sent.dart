@@ -1,24 +1,60 @@
 import 'package:dear_deer_demo/controller/post/letter_preview_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/data/image_data.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class LetterSent extends StatelessWidget {
   const LetterSent({super.key});
 
+  // MARK: 날짜 포맷 변환 함수
+  String formatDate(String? isoString) {
+    if (isoString == null || isoString.isEmpty) return '';
+    try {
+      final utcTime = DateTime.parse(isoString).toUtc();
+      final kstTime = utcTime.add(const Duration(hours: 9));
+      return DateFormat('yyyy년 MM월 dd일').format(kstTime);
+    } catch (_) {
+      return isoString;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(LetterPreviewController());
+    final authService = Get.find<AuthService>();
+    final nickname = authService.user.value?.nickname ?? '나';
+
+    final arguments = Get.arguments ?? {};
+    final content = arguments['content'] ?? '';
+    final sentAt = arguments['sentAt'] ?? '';
+    final receiver = arguments['receiver'] ?? {};
+    final recipientName = receiver['nickname'] ?? '받는 사람 없음';
+    final paperId = arguments['paperId'] ?? 1;
+    final presignedUrl = arguments['presignedUrl'];
+
+    final paperAsset = _getPaperAsset(paperId);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.setLetterContent(content);
+    });
+
+    final formattedDate = formatDate(sentAt);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _AppBar(),
-      body: _Body(controller),
+      body: _Body(controller, recipientName, formattedDate, paperAsset,
+          nickname, presignedUrl),
     );
   }
 
+  // MARK: AppBar
   AppBar _AppBar() => AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -32,111 +68,195 @@ class LetterSent extends StatelessWidget {
         ),
       );
 
-  Widget _Body(LetterPreviewController controller) => Stack(
-        children: [
-          // 배경 이미지는 Stack의 맨 아래에 위치
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Opacity(
-              opacity: 0.2,
-              child: Image.asset(
-                'assets/images/letter_black.png',
-                width: double.infinity,
-                height: 400.h,
-                fit: BoxFit.contain,
-              ),
+  // MARK: Body
+  Widget _Body(LetterPreviewController controller, String recipientName,
+      String sentAt, String paperAsset, String nickname, String? presignedUrl) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Image.asset(
+            ImagePath.imageOpenLetter,
+            width: double.infinity,
+            height: 300.h,
+            fit: BoxFit.contain,
+          ),
+        ),
+        Positioned(
+          bottom: 140.h,
+          left: 0,
+          right: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LetterView(controller, recipientName, sentAt, paperAsset,
+                  nickname, presignedUrl),
+              const SizedBox(height: 30),
+              _PageIndicator(controller),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // MARK: Letter View
+  Widget _LetterView(LetterPreviewController controller, String recipientName,
+      String sentAt, String paperAsset, String nickname, String? presignedUrl) {
+    return SizedBox(
+      height: 460.h,
+      child: Obx(() => PageView.builder(
+            controller: controller.pageController,
+            itemCount: controller.pagedTexts.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 30.w),
+                child: _LetterCard(index, controller, recipientName, sentAt,
+                    paperAsset, nickname, presignedUrl),
+              );
+            },
+          )),
+    );
+  }
+
+  // MARK: Letter Card
+  Widget _LetterCard(
+    int index,
+    LetterPreviewController controller,
+    String recipientName,
+    String sentAt,
+    String paperAsset,
+    String nickname,
+    String? presignedUrl,
+  ) {
+    return AspectRatio(
+      aspectRatio: 3 / 4.4,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              paperAsset,
+              fit: BoxFit.cover,
             ),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(child: _LetterView(controller)),
-                _PageIndicator(controller),
-              ],
-            ),
-          ),
-        ],
-      );
-
-  Widget _LetterView(LetterPreviewController controller) => Expanded(
-        child: Obx(() => PageView.builder(
-              controller: controller.pageController,
-              itemCount: controller.pagedTexts.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 27, horizontal: 30),
-                  child: _LetterCard(index, controller),
-                );
-              },
-            )),
-      );
-
-  Widget _LetterCard(int index, LetterPreviewController controller) {
-    return Container(
-      width: 300.w,
-      decoration: BoxDecoration(
-        color: AppColors.G_01,
-        borderRadius: BorderRadius.circular(8.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          if (index == 0)
             Padding(
-              padding: const EdgeInsets.only(top: 99, bottom: 15),
-              child: Text("Dear. 닉네임 이용", style: FontStyles.L1_reg_20),
-            )
-          else
-            SizedBox(height: 80.h),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Text(
-                  controller.pagedTexts[index],
-                  style: FontStyles.L3_reg_16,
-                ),
+              padding: EdgeInsets.fromLTRB(20.w, 30.h, 20.w, 20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 10.h),
+                      child: Text(
+                        "Dear. $recipientName",
+                        style: FontStyles.L1_reg_20,
+                      ),
+                    ),
+                  ),
+
+                  // 이미지 표시 (첫 페이지에만)
+                  if (index == 0 &&
+                      presignedUrl != null &&
+                      presignedUrl.isNotEmpty) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: Image.network(
+                        presignedUrl,
+                        fit: BoxFit.cover,
+                        width: 280.w,
+                        height: 180.h,
+                      ),
+                    ),
+                    SizedBox(height: 14.h),
+                  ],
+
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Text(
+                        controller.pagedTexts.isNotEmpty
+                            ? controller.pagedTexts[index]
+                            : '',
+                        style: FontStyles.L3_reg_16.merge(
+                          const TextStyle(
+                            fontFamily: 'LeeSeoyun',
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 20.h),
+                      child: Text(
+                        "$sentAt\nFrom. $nickname",
+                        textAlign: TextAlign.right,
+                        style: FontStyles.L3_reg_16.merge(
+                          const TextStyle(fontFamily: 'LeeSeoyun'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 15, top: 15, bottom: 15),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: index == controller.pagedTexts.length - 1
-                  ? Text(
-                      "2025년 12월 20일 \nFrom. OOO",
-                      style: FontStyles.L3_reg_16,
-                      textAlign: TextAlign.right,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  // MARK: Page Indicator
   Widget _PageIndicator(LetterPreviewController controller) => Padding(
         padding: const EdgeInsets.only(bottom: 16),
-        child: SmoothPageIndicator(
-          controller: controller.pageController,
-          count: controller.pagedTexts.length,
-          effect: const SlideEffect(
-            dotWidth: 6,
-            dotHeight: 6,
-            activeDotColor: AppColors.mainRed,
-            dotColor: AppColors.G_03,
-          ),
-        ),
+        child: Obx(() {
+          final pageCount = controller.pagedTexts.length;
+          if (pageCount == 0) return const SizedBox();
+          return SmoothPageIndicator(
+            controller: controller.pageController,
+            count: pageCount,
+            effect: const SlideEffect(
+              dotWidth: 6,
+              dotHeight: 6,
+              activeDotColor: AppColors.mainRed,
+              dotColor: AppColors.G_03,
+            ),
+          );
+        }),
       );
+
+  // MARK: 편지지 이미지 매핑
+  String _getPaperAsset(int paperId) {
+    switch (paperId) {
+      case 1:
+        return ImagePath.imageLetter1;
+      case 2:
+        return ImagePath.imageLetter2;
+      case 3:
+        return ImagePath.imageLetter3;
+      case 4:
+        return ImagePath.imageLetter4;
+      case 5:
+        return ImagePath.imageLetter5;
+      case 6:
+        return ImagePath.imageLetter6;
+      case 7:
+        return ImagePath.imageLetter7;
+      case 8:
+        return ImagePath.imageLetter8;
+      case 9:
+        return ImagePath.imageLetter9;
+      case 10:
+        return ImagePath.imageLetter10;
+      case 11:
+        return ImagePath.imageLetter11;
+      default:
+        return ImagePath.imageLetter1;
+    }
+  }
 }
