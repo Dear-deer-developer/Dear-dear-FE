@@ -1,6 +1,7 @@
 import 'package:dear_deer_demo/controller/contents/contents_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
+import 'package:dear_deer_demo/data/image_data.dart';
 import 'package:dear_deer_demo/widget/content_card.dart';
 import 'package:dear_deer_demo/widget/filter_chip_list.dart';
 import 'package:dear_deer_demo/widget/main_category_tab.dart';
@@ -26,7 +27,33 @@ class ContentsMain extends GetView<ContentsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 8.h),
-              Center(child: Text('콘텐츠', style: FontStyles.B1_bold_20)),
+              Center(
+                child: Obx(() => Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '콘텐츠',
+                          style: FontStyles.B1_bold_20,
+                        ),
+
+                        SizedBox(width: 8.w),
+
+                        // ✅ 관리자만 노출
+                        if (controller.isAdmin.value)
+                          GestureDetector(
+                            onTap: () {
+                              // TODO: 관리자 관리 페이지로 이동
+                            },
+                            child: Image.asset(
+                              ImagePath.adminIcon,
+                              width: 24.w,
+                              height: 24.w,
+                            ),
+                          ),
+                      ],
+                    )),
+              ),
               SizedBox(height: 12.h),
 
               // 상단 3분류 탭: Obx 내부에서 Rx 직접 참조

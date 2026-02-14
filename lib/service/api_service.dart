@@ -44,14 +44,21 @@ class ApiService extends CustomGetConnect implements GetxService {
       }
 
       // 4) JSON 기본 헤더
-      request.headers['Content-Type'] = 'application/json';
+      // request.headers['Content-Type'] = 'application/json';
+      // logger.t('➡️ ${request.method} ${request.url}');
+
+      request.headers.putIfAbsent('Accept', () => 'application/json');
+
       logger.t('➡️ ${request.method} ${request.url}');
       return request;
     });
 
     // 응답 로깅
     httpClient.addResponseModifier<dynamic>((request, response) {
-      logger.t('⬅️ [${response.statusCode}] ${request.method} ${request.url}');
+      // logger.t('⬅️ [${response.statusCode}] ${request.method} ${request.url}');
+      logger.t('⬅️ [${response.statusCode}] ${request.method} ${request.url} '
+          'hasError=${response.hasError} statusText=${response.statusText} '
+          'body=${response.bodyString}');
       return response;
     });
   }

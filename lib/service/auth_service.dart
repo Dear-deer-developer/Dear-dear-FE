@@ -51,7 +51,14 @@ class AuthService extends GetxService {
       );
       final bodyStr = res.bodyString;
       if (res.statusCode != 200 || bodyStr == null || bodyStr.isEmpty) {
-        logger.e('loginWithEmail 실패: ${res.statusCode} ${res.bodyString}');
+        // logger.e('loginWithEmail 실패: ${res.statusCode} ${res.bodyString}');
+        logger.e(
+          '⛔ loginWithEmail 실패: '
+          'code=${res.statusCode} '
+          'hasError=${res.hasError} '
+          'statusText=${res.statusText} '
+          'body=${res.bodyString}',
+        );
         return const LoginResult(isSuccess: false, message: '로그인 실패');
       }
 
@@ -82,6 +89,27 @@ class AuthService extends GetxService {
       try {
         // final me = await api.get('/users/me');
         final me = await _getWithRefresh('/users/me');
+
+        // ✅ 1. 서버에서 내려온 원본 JSON 확인
+        logger.i('🧾 /users/me raw body: ${me.bodyString}');
+
+        if (me.statusCode == 200 && me.bodyString?.isNotEmpty == true) {
+          final map = jsonDecode(me.bodyString!) as Map<String, dynamic>;
+
+          // ✅ 2. map 자체도 한 번 더 확인
+          logger.i('🗺️ /users/me decoded map: $map');
+
+          u = DeardeerUser.fromJson(map);
+
+          // ✅ 3. 파싱된 유저 객체 확인
+          logger.i('👤 parsed user: ${u.toJson()}');
+
+          await _persistUser(u);
+          user.value = u;
+        } else {
+          logger.w('get /users/me 실패: ${me.statusCode} ${me.bodyString}');
+        }
+
         if (me.statusCode == 200 && me.bodyString?.isNotEmpty == true) {
           final map = jsonDecode(me.bodyString!) as Map<String, dynamic>;
           u = DeardeerUser.fromJson(map);

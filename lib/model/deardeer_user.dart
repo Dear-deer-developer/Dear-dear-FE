@@ -4,6 +4,7 @@ class DeardeerUser {
   final String providerId;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isAdmin;
 
   // 선택값 (로그/표시용)
   final int? zipCode;
@@ -15,6 +16,7 @@ class DeardeerUser {
     required this.providerId,
     required this.createdAt,
     required this.updatedAt,
+    required this.isAdmin,
     this.zipCode,
     this.email,
   });
@@ -32,6 +34,7 @@ class DeardeerUser {
           DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt: DateTime.tryParse(j['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0),
+      isAdmin: (j['isAdmin'] ?? false) as bool,
     );
   }
 
@@ -41,6 +44,7 @@ class DeardeerUser {
         'providerId': providerId,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
+        'isAdmin': isAdmin,
         'zipCode': zipCode,
         'email': email,
       };

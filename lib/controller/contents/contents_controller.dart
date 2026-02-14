@@ -1,18 +1,20 @@
-// 1) 맨 위의 enum 삭제 또는 주석 처리
-// enum MainCategory { recommend, event, bookmark }
-
 import 'package:dear_deer_demo/model/content_item.dart';
+import 'package:dear_deer_demo/service/auth_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 // 2) model 쪽 MainTab, Subtype 사용
 class ContentsController extends GetxController {
+  final AuthService _auth = Get.find<AuthService>();
   // ===== 스크롤 제어 =====
   final ScrollController scrollController = ScrollController();
   void scrollUp() {
     scrollController.animateTo(0,
         duration: const Duration(milliseconds: 700), curve: Curves.easeIn);
   }
+
+  // ✅ 관리자 여부 (UI에서 사용)
+  final RxBool isAdmin = false.obs;
 
   // ===== 탭/필터 상태 =====
   // MainTab으로 통일
@@ -60,6 +62,14 @@ class ContentsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // 초기값
+    isAdmin.value = _auth.user.value?.isAdmin ?? false;
+
+    // 이후 유저 갱신되면 자동 반영
+    ever(_auth.user, (u) {
+      isAdmin.value = u?.isAdmin ?? false;
+    });
+
     fetch(reset: true);
     scrollController.addListener(() {
       if (!hasMore || isLoadingMore.value) return;

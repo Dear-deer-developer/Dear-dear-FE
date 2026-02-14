@@ -6,7 +6,7 @@ import 'package:dear_deer_demo/util/logger.dart';
 import 'package:get/get.dart';
 
 // Page 구분 enum
-enum Page { home, post, calendar }
+enum Page { home, post, calendar, contents }
 
 class BottomNavController extends GetxController {
   // 초기 index 값 0 -> home
@@ -46,9 +46,9 @@ class BottomNavController extends GetxController {
           case Page.calendar:
             Get.find<CalendarController>().scrollUp();
             break;
-          // case Page.contents:
-          //   Get.find<ContentsController>().scrollUp();
-          //   break;
+          case Page.contents:
+            Get.find<ContentsController>().scrollUp();
+            break;
         }
       }
     } catch (e) {

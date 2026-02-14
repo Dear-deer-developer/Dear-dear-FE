@@ -128,6 +128,6 @@ class ImagePath {
   static String get nightBackground => 'assets/images/night.png';
 
   // MARK: Admin
-  static String get adminIcon => 'assets/images/_people_G_04_48px.png';
+  static String get adminIcon => 'assets/images/contents_admin_icon.png';
   static String get vector => 'assets/images/Vector.png';
 }
