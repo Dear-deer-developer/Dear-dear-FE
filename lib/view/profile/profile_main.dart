@@ -248,7 +248,9 @@ class ProfileMain extends GetView<ProfileController> {
   // MARK: 공유 버튼
   Widget _shareButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.shareZipCode(context),
+      // onTap: () => controller.shareZipCode(context),
+      onTap: () => controller.shareZipCodeToKakao(),
+
       child: Container(
         width: 38.w,
         height: 22.h,

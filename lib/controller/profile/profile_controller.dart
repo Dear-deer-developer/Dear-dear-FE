@@ -9,8 +9,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:dear_deer_demo/service/kakao_share_service.dart';
+
+enum ShareType { kakao, system }
+
 class ProfileController extends GetxController {
   final Rxn<DeardeerUser> me = Rxn<DeardeerUser>();
+  final KakaoShareService _kakaoShareService = KakaoShareService();
 
   @override
   void onInit() {
@@ -74,6 +79,23 @@ class ProfileController extends GetxController {
   String getZipCodeShareText() {
     final code = getZipCodeText(); // '--' 포함 가능
     return '내 사서함 번호: $code';
+  }
+
+  // Kakao 공유 문구 - 사서함
+  Future<void> shareZipCodeToKakao() async {
+    final code = getZipCodeText();
+
+    if (code == '--') {
+      Get.snackbar(
+        '공유 불가',
+        '사서함 번호가 설정되지 않았어요.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    await _kakaoShareService.shareMailbox(code, getUserName());
   }
 
   /// 시스템 공유 시트 열기 (iOS/Android 공통)
