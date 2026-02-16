@@ -16,6 +16,7 @@ import 'package:dear_deer_demo/service/calendar/calendar_rewards_service.dart';
 import 'package:dear_deer_demo/service/api_service.dart';
 import 'package:dear_deer_demo/view/calendar/reward_arrived_dialog.dart';
 import 'package:dear_deer_demo/data/calendar/reward_assets.dart';
+import 'package:dear_deer_demo/data/calendar/calendar_season_config.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
