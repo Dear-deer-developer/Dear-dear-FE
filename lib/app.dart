@@ -2,7 +2,7 @@ import 'package:dear_deer_demo/controller/bottom_nav_controller.dart';
 import 'package:dear_deer_demo/data/app_color.dart';
 import 'package:dear_deer_demo/data/font_styles.dart';
 import 'package:dear_deer_demo/data/image_data.dart';
-import 'package:dear_deer_demo/view/calendar.dart';
+import 'package:dear_deer_demo/view/calendar/calendar_main.dart';
 import 'package:dear_deer_demo/view/contents/contents_main.dart';
 import 'package:dear_deer_demo/view/home/home.dart';
 import 'package:dear_deer_demo/view/letter/letter_recived.dart';

@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
-import 'calendar/calendar_screen.dart';
+import 'calendar_screen.dart';
 
 class CalendarMain extends StatelessWidget {
   CalendarMain({super.key});
 
-  final CalendarController controller = Get.put(CalendarController());
+  final CalendarController controller = Get.find<CalendarController>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class CalendarMain extends StatelessWidget {
       ),
       child: Scaffold(
         body: Obx(() {
-          final bgPath = controller.isNight.value
+          final bgPath = controller.dayNight.isNight.value
               ? ImagePath.homeBgImagePm
               : ImagePath.homeBgImageAm;
 
@@ -54,7 +53,7 @@ class CalendarMain extends StatelessWidget {
                     ),
 
                     // 캘린더 화면
-                    const Positioned.fill(
+                    Positioned.fill(
                       child: CalendarScreen(),
                     ),
                   ],

@@ -25,7 +25,7 @@ class Home extends GetView<HomeController> {
         // === 배경 ===
         Positioned.fill(
           child: Obx(() {
-            final bgPath = controller.isNight.value
+            final bgPath = controller.dayNight.isNight.value
                 ? ImagePath.homeBgImagePm
                 : ImagePath.homeBgImageAm;
             return AnimatedSwitcher(

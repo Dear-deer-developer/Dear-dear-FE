@@ -1,6 +1,7 @@
 // lib/binding/main_bindings.dart
 import 'package:dear_deer_demo/controller/login/agreement_controller.dart';
 import 'package:dear_deer_demo/controller/login/sign_up_email_controller.dart';
+import 'package:dear_deer_demo/service/day_night_service.dart';
 import 'package:get/get.dart';
 
 // 기존
@@ -33,6 +34,8 @@ class MainBindings extends Bindings {
     // ── 공용 서비스
     Get.put<ApiService>(ApiService(), permanent: true);
     Get.put<AuthService>(AuthService(), permanent: true);
+    Get.put(DayNightService(), permanent: true);
+
     Get.put<BgMusicController>(BgMusicController(), permanent: true);
     Get.put<AppStartController>(AppStartController(), permanent: true);
     Get.put(AgreementController(), permanent: false);
@@ -65,7 +68,6 @@ class MainBindings extends Bindings {
     Get.lazyPut(() => CalendarController());
     Get.lazyPut(() => ContentsController());
     Get.put(GiftController(), permanent: true);
-    Get.lazyPut(() => ContentsController());
     Get.lazyPut<AlarmController>(() => AlarmController(), fenix: true);
   }
 }
